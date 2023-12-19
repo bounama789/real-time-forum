@@ -1,0 +1,10 @@
+{{range .}}
+<div
+  hx-get="/post?postid={{.PostId}}"
+  hx-trigger="click"
+  hx-target=".container__center"
+  class="post__sugg__div"
+>
+  {{.Title}}
+</div>
+{{end}}

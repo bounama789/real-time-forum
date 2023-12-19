@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/styles/body.css" />
+  </head>
+
+  <body>
+    {{ if not .Posts}}
+    <div class="comment__empty">No post found</div>
+    {{else}} {{$like := "LIKE"}} {{ $dislike := "DISLIKE"}} {{ range
+    $index,$elem := .Posts}}
+    <div>
+      <div class="post__container affected">
+        <div class="post__group">
+          <div class="post__header">
+            <div class="post__image">
+              <img
+                class="u-avatar"
+                src="https://api.dicebear.com/7.x/initials/svg?seed={{.Username}}"
+                alt="avatar"
+                style="border-radius: 50%"
+              />
+              <div class="post__name">
+                <div class="post__username">{{$elem.Username}}</div>
+                <div class="post__duration">{{.Age}} ago</div>
+              </div>
+            </div>
+            {{if eq $elem.Username $.Username}}
+            <div class="post__editdelete">
+              <button class="post__edit"><i class="fas fa-trash"></i></button>
+            </div>
+            {{end}}
+          </div>
+          <div class="post__content">
+            <div class="post__title">{{$elem.Title}}</div>
+            <pre class="post__text">{{$elem.Body}}</pre>
+            <div class="post__categories">
+              <ul class="post__categories__list">
+                {{range .Categories}}
+                <li class="post__category">
+                  <a
+                    title="{{.Name}}"
+                    hx-target=".container__center"
+                    hx-get="/posts/get?category={{.CategoryId}}"
+                    style="background-color:  {{.Color}};"
+                  >
+                    #{{.Name}}</a
+                  >
+                </li>
+                {{end}}
+              </ul>
+            </div>
+          </div>
+          <div class="post__reactions">
+            <div class="reaction__group">
+              <button
+                value="postliked"
+                {{if
+                eq
+                .UserReact
+                $dislike}}
+                style="border-right: none"
+                {{end}}
+                {{if
+                eq
+                .UserReact
+                $like}}
+                class="post__likes green affected"
+                {{else}}
+                class="post__likes affected"
+                {{end}}
+                hx-get="/post/react?postid={{$elem.PostId}}&react=LIKE"
+                hx-trigger="click"
+                hx-target="#a{{$index}}"
+              >
+                <svg
+                  class="affected"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 4 3 15h6v5h6v-5h6z"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+                <span class="like__text">Positives Votes</span>
+
+                <span class="votes" id="a{{$index}}">{{.Votes}}</span>
+              </button>
+              <button
+                value="postdisliked"
+                {{if
+                eq
+                .UserReact
+                $dislike}}
+                class="post__dislikes red affected"
+                {{else}}
+                class="post__dislikes affected"
+                {{end}}
+                hx-get="/post/react?postid={{$elem.PostId}}&react=DISLIKE"
+                hx-trigger="click"
+                hx-target="#a{{$index}}"
+              >
+                <svg
+                  class="affected"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 20 9-11h-6V4H9v5H3z"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="post__comshare">
+              <button
+                id="post__click"
+                class="post__nbrcomment"
+                hx-get="/post/comments?postid={{.PostId}}"
+                hx-target="#post__comment_{{$index}}"
+              >
+                <i class="far fa-comment"></i
+                ><span class="commentnbr__text"> Comments </span
+                ><span class="comments__count">{{.CommentsCount}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="post__comment hidden" id="post__comment">
+          <div class="divider-line"></div>
+          {{if $.IsAuthenticated}}
+          <section class="comment__created">
+            <form
+              method="post"
+              class="comment__created__content"
+              id="comment__created__content"
+              hx-post="/post/comment/create?postid={{.PostId}}"
+              hx-ext="json-enc"
+              hx-target="#post__comment_{{$index}}"
+              hx-swap="innerHTML"
+            >
+              <textarea
+                wrap="hard"
+                tabindex="1"
+                cols="150"
+                rows="4"
+                name="body"
+                class="comment__created__text"
+                placeholder="Write a comment"
+                maxlength="1300"
+                required
+              ></textarea>
+              <div class="comment__created__toolbar affected">
+                <button
+                  id="reset-button"
+                  class="comment__created__button__secondary affected"
+                  tabindex="3"
+                  type="button"
+                >
+                  Reset
+                </button>
+                <button
+                  id="confirm-button"
+                  type="submit"
+                  tabindex="2"
+                  class="comment__created__button__primary"
+                >
+                  Comment
+                </button>
+              </div>
+            </form>
+          </section>
+          <div class="divider-line"></div>
+          {{end}}
+          <div id="post__comment_{{$index}}" class="comments__div"></div>
+        </div>
+      </div>
+    </div>
+    {{end}}
+    <script>
+      ccs =
+        localStorage.getItem("preferredColorScheme") == null
+          ? window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"
+          : localStorage.getItem("preferredColorScheme");
+
+      setPreferredColorScheme(ccs);
+      toggleColorScheme(ccs == "light" ? "dark" : "light");
+
+      // COMMENT
+      var commentButtons = document.querySelectorAll(".post__nbrcomment");
+
+      commentButtons.forEach(function (button) {
+        button.addEventListener("click", (e) => {
+          let postContainer = button.closest(".post__container");
+          let commentDiv = postContainer.querySelector(".post__comment");
+
+          // Check the initial state and toggle accordingly
+          if (
+            commentDiv.style.display === "" ||
+            commentDiv.style.display === "none"
+          ) {
+            commentDiv.style.display = "block";
+          } else {
+            commentDiv.style.display = "none";
+          }
+        });
+      });
+      // RESET BUTTON
+      var newCommentForm = document.getElementById("comment__created__content");
+      if (newCommentForm) {
+        document
+          .getElementById("reset-button")
+          .addEventListener("click", () => {
+            newCommentForm.reset();
+          });
+      }
+
+      // LIKES AND DISLIKES
+      var like1 = document.querySelectorAll(".post__likes");
+      var like2 = document.querySelectorAll(".post__dislikes");
+
+      like1.forEach((button) => {
+        button.addEventListener("click", function () {
+          if (button.nextElementSibling.classList.contains("red")) {
+            button.nextElementSibling.classList.remove("red");
+          }
+          button.style.borderRight = "1px solid green";
+          button.nextElementSibling.style.borderLeft = "none";
+          if (this.classList.contains("green")) {
+            this.style.borderRight = "1px solid #00abe4";
+          }
+          this.classList.toggle("green");
+        });
+      });
+      like2.forEach((button) => {
+        button.addEventListener("click", function () {
+          if (button.previousElementSibling.classList.contains("green")) {
+            button.previousElementSibling.classList.remove("green");
+          }
+          button.style.borderLeft = "1px solid red";
+          button.previousElementSibling.style.borderRight = "none";
+          if (this.classList.contains("red")) {
+            this.style.borderLeft = "1px solid #00abe4";
+          }
+          this.classList.toggle("red");
+        });
+      });
+
+      var resetButtons = document.querySelectorAll(
+        ".comment__created__button__secondary"
+      );
+      if (resetButtons) {
+        resetButtons.forEach((b) => {
+          b.addEventListener("click", () => {
+            var textField = b.form.querySelector("textarea");
+            textField.value = "";
+          });
+        });
+      }
+    </script>
+    {{end}}
+  </body>
+</html>

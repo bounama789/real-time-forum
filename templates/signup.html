@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up to PENC MI</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="../static/assets/favicon.svg"
+      sizes="32x32"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../static/styles/loginpage.css" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.5"
+      integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-side">
+        <div class="my-form__wrapper">
+          <div class="login-welcome-row">
+            <div><a href="/" title="Logo">
+              <img class="logo" src="../static/assets/logo.gif" alt="Logo" />
+            </a></div>
+          </div>
+          <div class="socials-row">
+            <a href="#" class="social"></a>
+            <a href="#" class="social"></a>
+            <a href="#" class="social"></a>
+          </div>
+          <div class="divider">
+            <div class="divider-line"></div>
+            Or
+            <div class="divider-line"></div>
+          </div>
+          <form
+            id="form"
+            class="my-form"
+            method="post"
+            action="/auth/signup"
+            hx-trigger="js:checkInputs()"
+            hx-ext="json-enc"
+          >
+            <div class="text-field my-form-span1">
+              <label for="firstname">First Name:</label>
+              <input
+                type="name"
+                name="firstname"
+                id="first"
+                placeholder="Your First Name"
+              />
+            </div>
+            <div class="text-field my-form-span1">
+              <label for="lastname">Last Name:</label>
+              <input
+                type="name"
+                name="lastname"
+                id="last"
+                placeholder="Your Last Name"
+              />
+            </div>
+            <div class="text-field my-form-span2">
+              <label for="username">Username:</label>
+              <div class="input_layout">
+                <input
+                type="name"
+                id="username"
+                name="username"
+                title="must be between 6 and 15 characters, must contains only alphanumeric and _, must start with alpha character"
+                placeholder="Your Username"
+                pattern="^[a-zA-Z][a-zA-Z0-9_]{6,15}$"
+              />
+              <img
+                alt="name Icon"
+                title="name Icon"
+                src="../static/assets/profile.svg"
+              />
+              </div>
+
+            </div>
+            <div class="text-field my-form-span2">
+              <label for="email">Email:</label>
+              <div class="input_layout">
+                <input
+                type="text"
+                id="email"
+                name="email"
+                placeholder="Your Email"
+                required
+              />
+              <img
+                alt="Email Icon"
+                title="Email Icon"
+                src="../static/assets/email.svg"
+              />
+              </div>
+
+            </div>
+            <div class="text-field my-form-span2">
+              <label for="password">Password:</label>
+              <div class="input_layout">
+                              <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Your Password"
+                title="Minimum 8 characters at least 1 Alphabet and 1 Number"
+                class="input__field"
+                required
+              />
+              <img
+                alt="Eye Icon"
+                title="Eye Icon"
+                src="../static/assets/eye.svg"
+                class="input__icon"
+              />
+              </div>
+
+            </div>
+            <div class="text-field my-form-span2">
+              <label for="password">Repeat Password:</label>
+              <div class="input_layout">
+                              <input
+                id="repeatpassword"
+                type="password"
+                name="password_repeat"
+                pattern=".{8,}"
+                placeholder="Repeat your Password"
+                title="Minimum 8 characters at least 1 Alphabet and 1 Number"
+                class="input__field"
+                required
+              />
+              <img
+                alt="Eye Icon"
+                title="Eye Icon"
+                src="../static/assets/eye.svg"
+                class="input__icon"
+              />
+              </div>
+
+            </div>
+            <!-- <small class="Error_Message"></small> -->
+            <button
+              type="submit"
+              class="my-form__button my-form-span2"
+            />
+            Sign Up
+            </button>
+          </form>
+          <div class="divider-line"></div>
+          <div class="my-form__login">
+            <span>Have an account?</span>
+            <a href="/auth/signin" title="Log In"> Log In </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../static/scripts/loginpage.js"></script>
+  </body>
+</html>

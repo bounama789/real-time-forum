@@ -1,0 +1,55 @@
+{{define "right"}}
+
+
+<div class="container__right__layout">
+  {{if not .IsAuthenticated}}
+<div class="join__panel">
+<h1>Haven't signed up yet? </h1>
+<h4>Join our community now and start exploring!</h4>
+<a href="/auth/signup">Join here</a>
+</div>
+{{else}}
+  <div class="container__right__header">
+    <div class="container__right__profile">
+      <div class="container__right__profile__image">
+        <img style="border-radius: 5%;" class="mprofile" title="Profile" src="https://api.dicebear.com/7.x/initials/svg?seed={{.Username}}"
+          alt="User Picture" />
+        <section class="dropdown__group">
+          <div class="user-name">{{.Username}}</div>
+          <div class="email">{{.Email}}</div>
+        </section>
+      </div>
+      <div class="container__right__content">
+        <nav>
+          <hr class="divider" />
+          <ul>
+            <li>
+              <a title="My Posts" hx-get="/posts/get?created=1" hx-target=".container__center">
+                <span class="icon minus"> article </span>
+                My Posts
+              </a>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <a title="Likes" hx-get="/posts/get?liked=1" hx-target=".container__center">
+                <span class="icon minus"> favorite </span>
+                Liked</a>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <a title="Comments"  hx-get="/posts/get?commented=1" hx-target=".container__center">
+                <span class="icon minus"> comment </span>
+                Commented
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{{end}}
+{{end}}

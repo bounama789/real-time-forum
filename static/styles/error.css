@@ -1,0 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=Mulish&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp|Material+Symbols+Outlined");
+
+/* :root {
+    --background: #d6e9ff;
+    --secondary: #00abe4;
+    --primary: #ffffff;
+    --text: black;
+    --text-gray: #2e4452;
+    --textsize: clamp(2rem, 3vw, 4rem);
+    --sucess: #2ecc71;
+  } */
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --background: #d6e9ff;
+      --dark-background: rgb(61, 62, 63);
+      --secondary: #00abe4;
+      --primary: #ffffff;
+      --dark-primary: rgb(53, 52, 52);
+      --text: black;
+      --text-gray: #2e4452;
+      --dark-text-color: aliceblue;
+      --textsize: clamp(1rem, 1.5vw, 2rem);
+    }
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: rgb(61, 62, 63);
+      --secondary: #00abe4;
+      --primary: rgb(53, 52, 52);
+      --text: aliceblue;
+      --text-gray: #2e4452;
+      --textsize: clamp(1rem, 1.5vw, 2rem);
+    }
+  }
+  
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  font-family: Mulish;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 171, 228, 1) 0%,
+        rgba(255, 255, 255, 1) 25%,
+        rgba(214, 233, 255, 1) 51%
+      );
+}
+
+.error1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+gap: 1em;
+}
+
+.error-code {
+    font-size: 4em;
+    color:var(--secondary);
+    font-weight: bold;
+}
+
+.error-string {
+    font-size: 3em;
+    color: var(--text-gray);
+}
+.error{
+  background:var(--primary);
+  border-radius: 8px;
+  display: flex;
+  line-height: 1.5;
+  padding:0 0.4em;
+  font-size: 1em;
+  width: fit-content;
+  flex-direction: row;
+  cursor: pointer;
+  align-items: center;
+}
+.error > a {
+  text-decoration: none;
+  color: var(--text-gray);
+}
+
+.error> a:hover {
+  color: var(--secondary);
+  transition: all ease-in-out 0.25s;
+ 
+}
+
+.icon {
+  display: inline-block;
+  font-family: "Material Icons Outlined";
+  font-size: 24px;
+  color: var(--secondary);
+}

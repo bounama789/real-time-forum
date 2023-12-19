@@ -1,0 +1,164 @@
+{{define "content"}}
+<h1 class="create__label">Create New Post</h1>
+<section class="post__created affected">
+  <div class="post__created__user">
+    <div class="post__created__image">
+      <img
+        class="u-avatar"
+        src="https://api.dicebear.com/7.x/initials/svg?seed={{.Username}}"
+        alt="avatar"
+        style="border-radius: 50%"
+      />
+    </div>
+    <div class="post__created__name">
+      <div class="post__created__username">{{.Username}}</div>
+    </div>
+  </div>
+  <form
+    id="form"
+    method="post"
+    action="/post/create"
+    class="post__created__form"
+  >
+    <div class="post__created__title affected">
+      <label for="titre">Title:</label>
+      <input type="text" name="title" id="titre" required />
+    </div>
+    <div class="post__created__content">
+      <label for="post__created__text">Content</label>
+      <textarea
+        name="body"
+        id="post__created__text"
+        class="post__created__text"
+        placeholder="What's on your mind?"
+        rows="8"
+        cols="60"
+        maxlength="1300"
+        required
+      ></textarea>
+      <p id="counter">0/1300</p>
+    </div>
+
+    <div class="post__created__categories">
+      <div id="selected-tags" class="selected-tags" for="categories">
+        Select Categories
+      </div>
+      <select
+        id="my-select"
+        name="category"
+        class="post__created__select"
+        multiple
+        required
+      >
+        {{range .Categories}}
+        <option value="{{.CategoryId}}" color="{{.Color}}">{{.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+    <button type="submit" class="post__created__button">Post</button>
+  </form>
+</section>
+<script>
+  var select = document.getElementById("my-select");
+  var selectedTags = document.getElementById("selected-tags");
+
+  // Créez un ensemble pour stocker les valeurs sélectionnées
+  var selectedValues = new Set();
+
+  select.addEventListener("change", function (e) {
+    for (let option of select.selectedOptions) {
+      // Vérifiez si l'option est déjà dans l'ensemble des valeurs sélectionnées
+      if (!selectedValues.has(option.value)) {
+        var tag = document.createElement("div");
+        tag.className = "selected-tag";
+
+        tag.textContent = option.textContent;
+        tag.dataset.value = option.value;
+        let color = select
+          .querySelector(`option[value="${tag.dataset.value}"]`)
+          .getAttribute("color");
+        tag.style.backgroundColor = color;
+
+        var closeBtn = document.createElement("span");
+        closeBtn.className = "selected-tag-close";
+        closeBtn.textContent = "x";
+
+        closeBtn.addEventListener("click", function () {
+          select
+            .querySelector(`option[value="${tag.dataset.value}"]`)
+            .removeAttribute("selected");
+          tag.remove();
+          selectedValues.delete(tag.dataset.value);
+        });
+
+        tag.appendChild(closeBtn);
+        selectedTags.appendChild(tag);
+        selectedValues.add(option.value);
+      }
+    }
+  });
+
+  let form = document.getElementById("form");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    let f = e.currentTarget;
+    let url = f.action + "?categories=" + Array.from(selectedValues).join(",");
+
+    let formFields = new FormData(f);
+    idstr = formFields.get("category");
+    var data = new Map();
+    for ([key, value] of formFields) {
+      if (key == "category") {
+        key = "category_id";
+        value = parseInt(value);
+      }
+      data.set(key, value);
+    }
+    let res = await postFormFieldsAsJson({ url, data });
+
+    if (res.status == 200) {
+      window.location.href = res.url;
+    }
+  });
+
+  async function postFormFieldsAsJson({ url, data }) {
+    //Create an object from the form data entries
+    let formDataObject = Object.fromEntries(data.entries());
+    // Format the plain form data as JSON
+    let formDataJsonString = JSON.stringify(formDataObject);
+
+    //Set the fetch options (headers, body)
+    let fetchOptions = {
+      //HTTP method set to POST.
+      method: "POST",
+      //Set the headers that specify you're sending a JSON body request and accepting JSON response
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      // POST request body as JSON string.
+      body: formDataJsonString,
+    };
+    //Get the response body as JSON.
+    //If the response was not OK, throw an error.
+    let res = await fetch(url, fetchOptions);
+    //If the response is not ok throw an error (for debugging)
+    // if (!res.ok) {
+    //     let error = await res.text();
+    //     throw new Error(error);
+    // }
+    //If the response was OK, return the response body.
+    return res;
+  }
+
+  // COUNTER FOR TEXTAREA
+
+  const textArea = document.getElementById("post__created__text");
+  textArea.addEventListener("input", () => {
+    const count = textArea.value.length;
+    const counter = document.getElementById("counter");
+    counter.textContent = `${count}/1300`;
+  });
+</script>
+{{end}}

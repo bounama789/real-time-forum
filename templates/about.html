@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PENC MI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Styles pour le corps de la page */
+      body {
+        font-family: "Open Sans";
+        margin: 0;
+        padding: 0 5%;
+        background-color: #d6e9ff;
+      }
+
+      /* Styles pour l'en-tête */
+
+      .contact_group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #d6e9ff;
+        text-align: center;
+        padding: 20px 0 0 0;
+        margin: 0;
+      }
+
+      .contact_group > a {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        color: var(--secondary);
+        font-size: 1.5em;
+        cursor: pointer;
+      }
+
+      .contact_group:hover {
+        transform: scale(1.1);
+      }
+
+      /* Styles pour les titres de section */
+      h2 {
+        color: #333;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+        margin-top: 20px;
+      }
+
+      /* Styles pour les liens de la table des matières */
+      ul li a {
+        text-decoration: none;
+        color: #3498db;
+      }
+
+      /* Styles pour les listes */
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      /* Styles pour les sections de contenu */
+      p {
+        margin-top: 10px;
+        line-height: 1.6;
+      }
+
+      /* Styles pour les sections avec code */
+      code {
+        background-color: #f9f9f9;
+        padding: 1px 3px;
+        border: 1px solid #00abe4;
+        border-radius: 3px;
+      }
+
+      /* Styles pour les sections de code */
+      pre code {
+        display: block;
+        overflow-x: auto;
+      }
+
+      /* Styles pour les blocs de code */
+      pre {
+        background-color: #d6e9ff;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+
+      /* Styles pour les liens */
+      a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      /* Styles pour la liste des contributeurs */
+      ul li {
+        margin-bottom: 5px;
+      }
+
+      /* Styles pour les auteurs */
+      ul li a.author {
+        font-weight: bold;
+      }
+
+      /* Styles pour les sections de prérequis et d'installation */
+      h3 {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+      }
+
+      /* Styles pour les boutons */
+      button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      /* Styles pour les boutons au survol */
+      button:hover {
+        background-color: #2980b9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="contact_group" href="/">
+      <a href="/">
+        <img
+          src="../static/assets/penc-mi.svg"
+          fill="none"
+          stoke="none"
+          alt="penc-mi logo"
+        />
+        PENC MI
+      </a>
+    </div>
+    <h2>Table des matières</h2>
+    <ul>
+      <li><a href="#aperçu-du-projet">Aperçu du Projet</a></li>
+      <li><a href="#structure-du-projet">Structure du Projet</a></li>
+      <li><a href="#pour-commencer">Pour Commencer</a></li>
+      <li><a href="#Contributors">Contributors</a></li>
+    </ul>
+
+    <h2 id="aperçu-du-projet">Aperçu du Projet</h2>
+    <h3>Aperçu du Projet</h3>
+    <p>
+      L'objectif de ce projet est de créer un forum web en utilisant GoLang avec
+      les fonctionnalités clés suivantes :
+    </p>
+    <ol>
+      <li>
+        <strong>Communication entre les Utilisateurs</strong>: Les utilisateurs
+        peuvent interagir entre eux en créant des publications et des
+        commentaires. Seuls les utilisateurs enregistrés ont le privilège de
+        créer des publications et des commentaires, tandis que les utilisateurs
+        non enregistrés peuvent les consulter.
+      </li>
+      <li>
+        <strong>Association de Catégories</strong>: Les utilisateurs enregistrés
+        peuvent associer une ou plusieurs catégories à leurs publications.
+        L'implémentation et la sélection des catégories sont laissées à la
+        discrétion du développeur.
+      </li>
+      <li>
+        <strong
+          >J'aime et Je n'aime pas les Publications et les Commentaires</strong
+        >: Les utilisateurs enregistrés ont la possibilité d'exprimer leur
+        approbation ou leur désapprobation en aimant ou en n'aimant pas les
+        publications et les commentaires. Le nombre de "j'aime" et de "je n'aime
+        pas" doit être visible pour tous les utilisateurs, quel que soit leur
+        statut d'inscription.
+      </li>
+      <li>
+        <strong>Filtrage des Publications</strong>: Un mécanisme de filtrage est
+        mis en place, permettant aux utilisateurs de filtrer les publications
+        affichées en fonction de trois critères :
+      </li>
+      <ul>
+        <li>
+          Catégories : Les utilisateurs peuvent filtrer les publications par
+          catégories, créant ainsi des sous-forums pour des sujets spécifiques.
+        </li>
+        <li>
+          Publications Créées : Les utilisateurs enregistrés peuvent filtrer les
+          publications qu'ils ont créées.
+        </li>
+        <li>
+          Publications Aimées : Les utilisateurs enregistrés peuvent filtrer les
+          publications qu'ils ont aimées.
+        </li>
+      </ul>
+      <li>
+        <strong>Base de données SQLite</strong>: Le projet utilise la base de
+        données SQLite pour stocker des données telles que les informations
+        d'identification des utilisateurs, les publications, les commentaires,
+        les "j'aime" et les "je n'aime pas". La base de données est gérée à
+        l'aide de requêtes SQL, notamment des opérations SELECT, CREATE et
+        INSERT.
+      </li>
+      <li>
+        <strong>Authentification</strong>: Les utilisateurs peuvent s'inscrire
+        en tant que nouveaux utilisateurs sur le forum en fournissant leur
+        adresse e-mail, leur nom d'utilisateur et leur mot de passe. Le système
+        garantit que chaque adresse e-mail est unique, et les mots de passe
+        peuvent être cryptés pour une sécurité renforcée. De plus, les sessions
+        de connexion sont gérées à l'aide de cookies, et chaque session inclut
+        une date d'expiration.
+      </li>
+    </ol>
+    <p>
+      En résumé, ce projet vise à créer un forum web où les utilisateurs
+      enregistrés peuvent participer aux discussions en créant des publications
+      et des commentaires, en associant des catégories à leurs publications et
+      en exprimant leurs opinions à travers les "j'aime" et les "je n'aime pas".
+      Un système d'authentification assure une inscription et une connexion
+      sécurisées des utilisateurs, tandis qu'un mécanisme de filtrage permet aux
+      utilisateurs de personnaliser leur expérience du forum en fonction des
+      catégories, des publications créées et des publications aimées. L'ensemble
+      du système repose sur une base de données SQLite pour le stockage et la
+      récupération des données.
+    </p>
+
+    <h2 id="structure-du-projet">Structure du Projet</h2>
+    <p>
+      Ce projet suit un modèle d'architecture en couches pour maintenir
+      l'organisation du code et la séparation des préoccupations :
+    </p>
+    <pre>
+        <code>
+.
+├── config
+├── database
+│   ├── query
+│   └── sql
+├── encryption
+├── models
+├── README.md
+├── server
+│   ├── handler
+│   ├── repository
+│   ├── routes
+│   └── service
+├── static
+│   ├── assets
+│   ├── scripts
+│   └── styles
+├── storage
+├── templates
+└── utils
+        </code>
+    </pre>
+    <ol>
+      <li>
+        <strong>config/</strong>: Gère la configuration et lit les fichiers .env
+        personnalisés. voir
+        <a
+          href="http://learn.zone01dakar.sn/git/bcoulibal/forum/config/config.go"
+          >config</a
+        >.
+      </li>
+      <li>
+        <strong>database/</strong>: Gère les opérations de base de données
+        telles que l'insertion, la mise à jour, etc. voir
+        <a href="http://learn.zone01dakar.sn/git/bcoulibal/forum/database/"
+          >database</a
+        >
+      </li>
+      <ul>
+        <li>
+          <strong>database/query</strong>: Génère des requêtes en fonction des
+          données fournies.
+        </li>
+      </ul>
+      <li>
+        <strong>models/</strong> : Contient des modèles de données ou des
+        structures représentant des objets dans l'application. Voir
+        <a href="http://learn.zone01dakar.sn/git/bcoulibal/forum/models/"
+          >models</a
+        >
+      </li>
+      <li>
+        <strong>server/</strong> : Le cœur de l'application web, responsable de
+        la gestion des requêtes HTTP et des réponses. Voir
+        <a href="http://learn.zone01dakar.sn/git/bcoulibal/forum/server/"
+          >server</a
+        >
+      </li>
+      <ul>
+        <li>
+          <strong>server/handler/</strong> : Définit les gestionnaires de
+          requêtes, chacun traitant des routes ou des points d'extrémité
+          spécifiques.
+        </li>
+        <li>
+          <strong>server/repository/</strong> : Interagit avec la base de
+          données, faisant le lien entre le serveur et la base de données.
+        </li>
+        <li>
+          <strong>server/routes/</strong> : Définit la logique de routage,
+          faisant correspondre les points d'extrémité HTTP aux gestionnaires.
+        </li>
+        <li>
+          <strong>server/service/</strong> : Contient la logique métier ou les
+          services utilisés par le serveur et les gestionnaires.
+        </li>
+      </ul>
+    </ol>
+
+    <h2 id="pour-commencer">Pour Commencer</h2>
+    <p>
+      Pour commencer avec le projet web de forum GoLang, suivez ces étapes :
+    </p>
+    <h3>Prérequis</h3>
+    <p>
+      Avant de commencer, assurez-vous d'avoir les prérequis suivants installés
+      sur votre environnement de développement :
+    </p>
+    <ol>
+      <li>
+        GoLang : Installez GoLang sur votre système en suivant les instructions
+        officielles d'installation :
+        <a href="https://golang.org/doc/install"
+          >https://golang.org/doc/install</a
+        >
+      </li>
+      <li>
+        SQLite : Assurez-vous d'avoir SQLite installé ou disponible sur votre
+        système. Vous pouvez télécharger SQLite depuis le site officiel :
+        <a href="https://www.sqlite.org/download.html"
+          >https://www.sqlite.org/download.html</a
+        >
+      </li>
+    </ol>
+    <h3>Installation</h3>
+    <p>
+      Suivez ces étapes pour configurer et exécuter le projet web de forum :
+    </p>
+    <ol>
+      <li>Clonez le Projet :</li>
+    </ol>
+    <pre>
+        <code>
+git clone https://learn.zone01dakar.sn/git/bcoulibal/forum.git
+cd forum/
+        </code>
+    </pre>
+    <ol start="2">
+      <li>Installez les Dépendances :</li>
+    </ol>
+    <pre>
+        <code>
+go mod download
+        </code>
+    </pre>
+    <ol start="3">
+      <li>Configurez les Variables d'Environnement :</li>
+    </ol>
+    <p>
+      Créez un fichier <code>.env</code> dans le répertoire racine du projet et
+      spécifiez les variables d'environnement comme mentionné dans la
+      documentation du projet. voir
+      <a href="./docs/config.md#configuration">config</a>
+    </p>
+    <ol start="4">
+      <li>Chargez les Variables d'Environnement :</li>
+    </ol>
+    <p>
+      Utilisez le package <code>config</code> mentionné précédemment dans votre
+      projet pour charger les variables d'environnement à partir du fichier
+      <code>env</code>.
+    </p>
+    <p>Voici un exemple :</p>
+    <pre>
+        <code>
+import "forum/config"
+
+// Chargez les variables d'environnement
+err := config.LoadEnv()
+if err != nil {
+    // Gérez l'erreur
+    panic("Erreur lors du chargement du fichier .env : " + err.Error())
+}
+        </code>
+    </pre>
+    <ol start="5">
+      <li>Compilez et Exécutez :</li>
+    </ol>
+    <p>
+      Utilisez la commande <code>go run</code> pour compiler et exécuter votre
+      projet :
+    </p>
+    <pre>
+        <code>
+go run main.go
+        </code>
+    </pre>
+    <ol start="6">
+      <li>Accédez au Forum :</li>
+    </ol>
+    <p>
+      Une fois votre projet en cours d'exécution, accédez au forum en ouvrant un
+      navigateur web et en accédant à l'URL appropriée (généralement
+      <code>http://localhost:PORT</code> où <code>PORT</code> est le port sur
+      lequel votre serveur web écoute).
+    </p>
+
+    <h2 id="Contributors">Contributors</h2>
+    <ul>
+      <li>
+        <a href="http://learn.zone01dakar.sn/git/bcoulibal"> -bcoulibal</a>
+        (Bounama Coulibaly)
+      </li>
+      <li>
+        <a href="http://learn.zone01dakar.sn/git/nmbengue"> -nmbengue</a>
+        (Ndieme Mbengue)
+      </li>
+      <li>
+        <a href="http://learn.zone01dakar.sn/git/ssock"> -ssock</a> (Serine
+        Saliou Sock)
+      </li>
+      <li>
+        <a href="http://learn.zone01dakar.sn/git/mamdrame"> -mamdrame</a>
+        (Mamour Ousmane Drame)
+      </li>
+    </ul>
+  </body>
+</html>

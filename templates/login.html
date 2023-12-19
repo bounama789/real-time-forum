@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script
+      src="https://unpkg.com/htmx.org@1.9.5"
+      integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../static/scripts/loginpage.js" defer></script>
+    <meta charset="UTF-8" />
+    <title>Login to PENC MI</title>
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="../static/assets/favicon.svg"
+      sizes="32x32"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Icons Font-awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    />
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/styles/loginpage.css" />
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-side">
+        <div class="my-form__wrapper">
+          <div class="login-welcome-row">
+            <a href="/" title="Logo">
+              <img class="logo" src="/static/assets/logo.gif" alt="Logo" />
+            </a>
+          </div>
+          <!-- Socials Logins -->
+          <div class="socials-row">
+            <a href="#" class="social"></a>
+            <a href="#" class="social"></a>
+            <a href="#" class="social"></a>
+          </div>
+          <div class="divider">
+            <div class="divider-line"></div>
+            Or
+            <div class="divider-line"></div>
+          </div>
+          <!-- Form for Register -->
+          <form class="my-form-login" method="post" id="formlogin">
+            <div class="text-field my-form-span2">
+              <label for="email">Email Or Username:</label>
+              <div class="input__wrapper">
+                <input
+                  type="text"
+                  id="email-login"
+                  name="identifiant"
+                  placeholder="Your Email or your Username"
+                  required
+                />
+                <img
+                  alt="Email Icon"
+                  title="Email Icon"
+                  src="../static/assets/profile.svg"
+                />
+              </div>
+            </div>
+            <div class="text-field my-form-span2">
+              <label for="password">Password:</label>
+              <div class="input__wrapper">
+                <input
+                  id="password-login"
+                  type="password"
+                  name="password"
+                  placeholder="Your Password"
+                  title="Minimum 8 characters"
+                  pattern=".{8,}"
+                  class="input__field"
+                  required
+                />
+                <img
+                  alt="Eye Icon"
+                  title="Eye Icon"
+                  src="../static/assets/eye.svg"
+                  class="input__icon"
+                />
+              </div>
+            </div>
+            <small class="Error_Message"
+              >email or username and password do not match</small
+            >
+            <button
+              type="submit"
+              class="my-form__button my-form-span2"
+              value="Log In"
+            >
+              Log In
+            </button>
+          </form>
+          <div class="my-form__actions">
+            <div class="divider-line"></div>
+            <div class="my-form__signup">
+              <span>Don't have an account?</span>
+              <a href="/auth/signup" title="Create Account"> Create Account </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/styles/error.css" />
+    <title>{{.Code}} | {{ .Msg }}</title>
+  </head>
+  <body>
+    <div class="error1">
+      <div class="error-code">{{.Code}}</div>
+      <div class="error-string">{{ .Msg }}</div>
+      <div class="error">
+        <span class="icon"> home </span> <a href="/">HOME</a>
+      </div>
+    </div>
+  </body>
+</html>

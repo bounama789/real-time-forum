@@ -1,0 +1,12 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:forum}/storage/database.db",
+            "name": "FORUM"
+        },
+    ],
+    "css.validate": false
+}
