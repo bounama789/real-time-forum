@@ -5,6 +5,7 @@ export class Comment {
     this._duration = data.duration;
     this._content = data.content;
     this._likes = data.likes;
+    this._dislikes = data.dislikes;
   }
   get author() {
     return this._author;

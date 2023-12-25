@@ -1,7 +1,0 @@
-export * from "./div.js";
-export * from "./nav.js";
-export * from "./icons.js"
-export * from "./textfield.js"
-export * from "./text.js"
-export * from "./header.js"
-export * from "./img.js"
