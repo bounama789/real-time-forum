@@ -229,13 +229,16 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)
 			data.Posts = posts
-			tml, err := template.ParseFiles("templates/post.html")
-			if err != nil {
-				RenderErrorPage(http.StatusInternalServerError, w)
-				return
-			}
-			tmpl := template.Must(tml, err)
-			err = tmpl.Execute(w, data)
+			// tml, err := template.ParseFiles("templates/post.html")
+			// if err != nil {
+			// 	RenderErrorPage(http.StatusInternalServerError, w)
+			// 	return
+			// }
+			// tmpl := template.Must(tml, err)
+			// err = tmpl.Execute(w, data)
+			w.Header().Add("Content-Type","application/json")
+			w.Header().Set("Access-Control-Allow-Origin","*")
+			json.NewEncoder(w).Encode(posts)
 			if err != nil {
 				fmt.Println(err)
 			}

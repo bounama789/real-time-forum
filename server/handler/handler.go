@@ -31,12 +31,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	data.Categories = categories
 
 	if err != nil {
-		tmpl, err := template.ParseFiles("templates/main.html", "templates/post_layout.html", "templates/profile.html")
+		tmpl, err := template.ParseFiles(("./frontend/index.html"))
 		if err != nil {
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		}
-		err = tmpl.ExecuteTemplate(w, "main", data)
+		err = tmpl.Execute(w, data)
 		fmt.Println(err)
 		return
 	}
@@ -59,7 +59,13 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func StaticHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	println(path)
-	http.ServeFile(w, r, "./"+path)
+	http.ServeFile(w, r, "./frontend/"+path)
+}
+
+func ServeAppHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	println(path)
+	http.ServeFile(w, r, "./frontend/"+path)
 }
 
 func Authorization(next http.HandlerFunc) http.HandlerFunc {
