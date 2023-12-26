@@ -1,4 +1,4 @@
-    const baseUrl = "http://127.0.01:8000";
+    const baseUrl = "http://127.0.0.1:8000";
 
   export async function get(url) {
     return fetch(url, {

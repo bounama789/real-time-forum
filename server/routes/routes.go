@@ -29,7 +29,7 @@ const (
 func Route() *http.ServeMux {
 
 	var mux = http.ServeMux{}
-	mux.Handle(HOME_ENDPOINT,http.FileServer(http.Dir("./frontend/")))
+	mux.Handle(HOME_ENDPOINT, http.FileServer(http.Dir("./frontend/")))
 	// mux.HandleFunc(STATIC_ENDPOINT, handler.StaticHandler)
 	// mux.HandleFunc(HOME_ENDPOINT, handler.IndexHandler)
 	mux.HandleFunc(SIGNUP_ENDPOINT, handler.SignUpHandler)
