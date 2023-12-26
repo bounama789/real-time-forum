@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/dto"
 	"forum/models"
@@ -108,4 +109,14 @@ var ErrorMsgMap = map[int]Error{
 type Error struct {
 	Code int
 	Msg  string
+}
+
+func RespondWithJSON(w http.ResponseWriter, code int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(data)
+}
+
+func RespondWithError(w http.ResponseWriter, code int, msg string) {
+	RespondWithJSON(w, code, map[string]string{"message": msg})
 }

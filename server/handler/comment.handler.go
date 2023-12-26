@@ -20,12 +20,12 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		// Get token data from authentication cookie
 		cookie, err := r.Cookie("auth-cookie")
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -34,11 +34,11 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		content, err := io.ReadAll(body)
 		if err != nil {
 			if err == io.EOF {
-				w.WriteHeader(http.StatusBadRequest)
+				RespondWithError(w, http.StatusBadRequest, "Bad Request")
 				return
 			} else {
 				fmt.Println(err)
-				w.WriteHeader(http.StatusInternalServerError)
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 		}
@@ -48,7 +48,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(content, &comment)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -56,14 +56,14 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		comment.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 		comment.Username = tokenData.Username
 
 		// Validate comment body
 		if strings.TrimSpace(comment.Body) == "" {
-			w.WriteHeader(http.StatusBadRequest)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
 
@@ -71,13 +71,13 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		err = service.ComSrvice.NewComment(comment)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		} else {
-			w.WriteHeader(http.StatusCreated)
+			RespondWithError(w, http.StatusOK, "OK")
 		}
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
@@ -87,19 +87,19 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		// Get comment ID from URL parameter
 		commentID := r.URL.Query().Get("commentid")
 		if commentID == "" {
-			w.WriteHeader(http.StatusBadRequest)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
 
 		// Get token data from authentication cookie
 		cookie, err := r.Cookie("auth-cookie")
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -108,11 +108,11 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		content, err := io.ReadAll(body)
 		if err != nil {
 			if err == io.EOF {
-				w.WriteHeader(http.StatusBadRequest)
+				RespondWithError(w, http.StatusBadRequest, "Bad Request")
 				return
 			} else {
 				fmt.Println(err)
-				w.WriteHeader(http.StatusInternalServerError)
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 		}
@@ -122,7 +122,7 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(content, &updatedComment)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -130,7 +130,7 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		updatedComment.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -138,13 +138,13 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		err = service.ComSrvice.EditComment(updatedComment)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		} else {
-			w.WriteHeader(http.StatusOK)
+			RespondWithError(w, http.StatusOK, "OK")
 		}
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
@@ -153,20 +153,20 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		commentID := r.URL.Query().Get("commentid")
 		if commentID == "" {
-			w.WriteHeader(http.StatusBadRequest)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
 
 		err := service.ComSrvice.DeleteComment(commentID)
 		if err != nil {
 			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		RespondWithError(w, http.StatusOK, "OK")
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
@@ -180,9 +180,7 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 			Username: tokenData.Username,
 			Comments: comments,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(data)
+		RespondWithJSON(w, http.StatusOK, data)
 	}
 }
 
@@ -191,27 +189,27 @@ func CommReactHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		getCommReactHandler(w, r)
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
 func getCommReactHandler(w http.ResponseWriter, r *http.Request) {
 	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	react := r.URL.Query().Get("react")
 	commentId := r.URL.Query().Get("commentid")
 	if react == "" || commentId == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		RespondWithError(w, http.StatusBadRequest, "Bad Request")
 		return
 	}
 
 	comment, err := service.ComSrvice.GetComment(commentId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -231,15 +229,13 @@ func getCommReactHandler(w http.ResponseWriter, r *http.Request) {
 
 		votes, err = service.ComSrvice.GetCommentVotes(commentId)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(votes)
+		RespondWithJSON(w, http.StatusOK, votes)
 	} else {
-		w.WriteHeader(http.StatusBadRequest)
+		RespondWithError(w, http.StatusBadRequest, "Bad Request")
 		return
 	}
 }
