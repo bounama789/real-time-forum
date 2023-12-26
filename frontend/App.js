@@ -14,7 +14,7 @@ customElements.define("left-sidebar-view", leftSidebarView);
 class App {
   constructor() {
     this.mainWrapper = document.querySelector(".main-wrapper");
-    this.postApi = new PostApi("localhost:8000/post");
+    this.postApi = new PostApi("/post");
   }
   async init() {
     const posts = await this.postApi.getPost();
