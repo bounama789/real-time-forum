@@ -26,9 +26,9 @@ export class MainPage extends Page {
       style: {
         display: "flex",
         flexDirection: "column",
-        padding: "20px 15px",
+        paddingTop: "1rem",
         height: "100%",
-        // overflow: "scroll",
+        gap: "1rem",
       },
       children: [
         new Div({

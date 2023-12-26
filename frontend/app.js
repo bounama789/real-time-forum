@@ -32,7 +32,7 @@ export class App {
             height: '100%',
             display: "flex",
             flexDirection: "row",
-            gap:"0.5rem"
+            gap:"1.5rem"
           },
           children: [
             new Div({

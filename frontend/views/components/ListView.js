@@ -38,7 +38,6 @@ export class ListView {
         display: "flex",
         flexDirection: "column",
         alignItems: "start",
-        padding: "1rem",
         borderRadius: "10px",
         gap: "1rem",
         backgroundColor:'transparent',
