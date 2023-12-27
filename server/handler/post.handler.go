@@ -13,7 +13,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
@@ -22,165 +21,146 @@ import (
 func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	tokenData, err := service.AuthSrvice.VerifyToken(r)
 	if err != nil {
-		RenderErrorPage(http.StatusUnauthorized, w)
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+
 	switch r.Method {
-	case http.MethodGet:
-		tml, err := template.ParseFiles("./templates/createpost.html", "./templates/main.html", "./templates/profile.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl := template.Must(tml, err)
-		categories, _ := repositories.CategRepo.GetCategories()
-		data := Data{
-			Categories:      categories,
-			IsAuthenticated: true,
-			Username:        tokenData.Username,
-		}
-		err = tmpl.ExecuteTemplate(w, "main", data)
-		fmt.Println(err)
 	case http.MethodPost:
 		err := r.ParseForm()
 		if err != nil {
 			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
+
 		cats := strings.Split(r.URL.Query().Get("categories"), ",")
 		catsInt, err := utils.ParseArrayInt(cats)
 		if err != nil {
-			RenderErrorPage(http.StatusBadRequest, w)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
-		body := r.Body
-		if err != nil {
-			if err == io.EOF {
-				RenderErrorPage(http.StatusBadRequest, w)
-				return
-			} else {
-				fmt.Println(err)
-				RenderErrorPage(http.StatusInternalServerError, w)
-				return
-			}
-		}
+
 		var post models.Post
 		post.Username = tokenData.Username
 
-		err = json.NewDecoder(body).Decode(&post)
+		err = json.NewDecoder(r.Body).Decode(&post)
+		if err != nil {
+			fmt.Println(err)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+
 		post.Body = strings.ReplaceAll(post.Body, "\"", `&quot;`)
 		post.Title = strings.ReplaceAll(post.Title, "\"", `&quot;`)
 
 		if strings.TrimSpace(post.Body) == "" || strings.TrimSpace(post.Title) == "" {
-			RenderErrorPage(http.StatusBadRequest, w)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
 
-		if err != nil {
-			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
 		post.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
 			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
+
 		err = service.PostSrvice.NewPost(post, catsInt)
 		if err != nil {
 			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		} else {
-			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
+
+		RespondWithJSON(w, http.StatusOK, post)
+
+	default:
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
-
 func EditPostHandler(w http.ResponseWriter, r *http.Request) {
-	tokenData, _ := service.AuthSrvice.VerifyToken(r)
-
 	switch r.Method {
-	case http.MethodGet:
-		tml, err := template.ParseFiles("./templates/edit.post", "./templates/main.html")
+	case http.MethodPut:
+		tokenData, err := authService.VerifyToken(r)
 		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
-		tmpl := template.Must(tml, err)
-		categories, _ := repositories.CategRepo.GetCategories()
-		data := Data{
-			Categories:      categories,
-			IsAuthenticated: true,
-			Username:        tokenData.Username,
-		}
-		err = tmpl.ExecuteTemplate(w, "main", data)
-		fmt.Println(err)
-	case http.MethodPost:
-		cats := strings.Split(r.URL.Query().Get("categories"), ",")
-		catsInt, err := utils.ParseArrayInt(cats)
-		if err != nil {
-			RenderErrorPage(http.StatusBadRequest, w)
+
+		postId := r.URL.Query().Get("postid")
+		if postId == "" {
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
+
 		body := r.Body
 		if _, err := io.ReadAll(body); err != nil {
 			if err == io.EOF {
-				RenderErrorPage(http.StatusBadRequest, w)
+				RespondWithError(w, http.StatusBadRequest, "Bad Request")
 				return
 			} else {
 				fmt.Println(err)
-				RenderErrorPage(http.StatusInternalServerError, w)
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 		}
-		var post models.Post
 
-		err = json.NewDecoder(body).Decode(&post)
+		var updatedPost models.Post
+		err = json.NewDecoder(body).Decode(&updatedPost)
 		if err != nil {
 			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
-		post.UserId, err = uuid.FromString(tokenData.UserId)
+
+		// Check if the user is the owner of the post
+		post, err := service.PostSrvice.GetPost(postId)
+		if err != nil {
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		if post.UserId != uuid.FromStringOrNil(tokenData.UserId) {
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+
+		// Update the post
+		updatedPost.PostId = post.PostId
+		err = service.PostSrvice.UpdatePost(updatedPost)
 		if err != nil {
 			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
-		err = service.PostSrvice.NewPost(post, catsInt)
-		if err != nil {
-			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		http.Redirect(w, r, "/HELLO", http.StatusPermanentRedirect)
-		return
+
+		// Return the updated post as response
+		RespondWithJSON(w, http.StatusOK, updatedPost)
+
+	default:
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
 func PostReactHandler(w http.ResponseWriter, r *http.Request) {
-	tokenData, err := authService.VerifyToken(r)
-	if err != nil {
-		RenderErrorPage(http.StatusUnauthorized, w)
-		return
-	}
-	react := r.URL.Query().Get("react")
-	postId := r.URL.Query().Get("postid")
-	if react == "" || postId == "" {
-		RenderErrorPage(http.StatusBadRequest, w)
-		return
-	}
-	post, err := service.PostSrvice.GetPost(postId)
-	if err != nil {
-		RenderErrorPage(http.StatusNotFound, w)
-		return
-	}
 	switch r.Method {
-	case http.MethodGet:
+	case http.MethodPost:
+		tokenData, err := authService.VerifyToken(r)
+		if err != nil {
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+		react := r.URL.Query().Get("react")
+		postId := r.URL.Query().Get("postid")
+		if react == "" || postId == "" {
+			RenderErrorPage(http.StatusBadRequest, w)
+			return
+		}
+		post, err := service.PostSrvice.GetPost(postId)
+		if err != nil {
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
 		var votes int
 		if react == "LIKE" || react == "DISLIKE" {
 			reaction, err := service.PostSrvice.GetUserPostReact(tokenData.UserId, postId)
@@ -193,17 +173,19 @@ func PostReactHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				reaction.Reactions = react
 				repositories.ReactRepo.UpdateReaction(reaction)
-
 			}
 			votes, err = service.PostSrvice.GetPostVotes(postId)
 			if err != nil {
-				RenderErrorPage(http.StatusInternalServerError, w)
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+				return
 			}
-			json.NewEncoder(w).Encode(votes)
+			RespondWithJSON(w, http.StatusOK, votes)
 		} else {
-			RenderErrorPage(http.StatusBadRequest, w)
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
 			return
 		}
+	default:
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
@@ -223,77 +205,68 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
 			"commented": commented,
 		}
 
-		var data Data
 		tokenData, err := authService.VerifyToken(r)
-		var posts []dto.PostDTO
 		if err != nil {
-			posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)
-			data.Posts = posts
-			// tml, err := template.ParseFiles("templates/post.html")
-			// if err != nil {
-			// 	RenderErrorPage(http.StatusInternalServerError, w)
-			// 	return
-			// }
-			// tmpl := template.Must(tml, err)
-			// err = tmpl.Execute(w, data)
-			w.Header().Add("Content-Type","application/json")
-			w.Header().Set("Access-Control-Allow-Origin","*")
-			json.NewEncoder(w).Encode(posts)
-			if err != nil {
-				fmt.Println(err)
-			}
+			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 
-		posts, err = service.PostSrvice.GetAllPosts(tokenData, options)
+		posts, err := service.PostSrvice.GetAllPosts(tokenData, options)
 		if err != nil {
-			fmt.Println(err)
-		}
-		data.IsAuthenticated = true
-		data.Posts = posts
-		tml, err := template.ParseFiles("templates/post.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
+			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
-		tmpl := template.Must(tml, err)
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			fmt.Println(err)
+
+		response := struct {
+			Posts []dto.PostDTO `json:"posts"`
+		}{
+			Posts: posts,
 		}
+
+		RespondWithJSON(w, http.StatusOK, response)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	default:
+		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
 func GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	var data Data
-	tokenData, _ := authService.VerifyToken(r)
-	postId := r.URL.Query().Get("postid")
-	if id := uuid.FromStringOrNil(postId); id == uuid.Nil {
-		RenderErrorPage(http.StatusBadRequest, w)
-		return
-	}
-	post, err := service.PostSrvice.GetPost(postId)
+	postID := r.URL.Query().Get("postid")
+	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
-		RenderErrorPage(http.StatusNotFound, w)
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
+	if postID == "" {
+		RespondWithError(w, http.StatusBadRequest, "Bad Request")
+		return
+	}
+
+	post, err := service.PostSrvice.GetPost(postID)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
 	creationDate, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), post.CreatedAt)
 	now, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), time.Now().Format(config.Get("TIME_FORMAT").ToString()))
 	age := utils.FormatDuration(now.Sub(creationDate))
-	commCout, _ := service.ComSrvice.CommentRepo.GetCommentsCount(postId)
+	commCount, _ := service.ComSrvice.CommentRepo.GetCommentsCount(postID)
 	react, _ := service.PostSrvice.GetUserPostReact(tokenData.UserId, post.PostId.String())
-	votes, _ := service.PostSrvice.GetPostVotes(postId)
+	votes, _ := service.PostSrvice.GetPostVotes(postID)
 	categories, _ := service.PostSrvice.PostRepo.GetPostCategories(post.PostId.String())
 
-	data.Posts = []dto.PostDTO{{Post: post, CommentsCount: commCout, Age: age, UserReact: react.Reactions, Votes: votes, Categories: categories}}
-	tml, err := template.ParseFiles("templates/post.html")
-	if err != nil {
-		RenderErrorPage(http.StatusInternalServerError, w)
-		return
+	postDTO := dto.PostDTO{
+		Post:          post,
+		CommentsCount: commCount,
+		Age:           age,
+		UserReact:     react.Reactions,
+		Votes:         votes,
+		Categories:    categories,
 	}
-	tmpl := template.Must(tml, err)
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		fmt.Println(err)
-	}
+
+	RespondWithJSON(w, http.StatusOK, postDTO)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 }
