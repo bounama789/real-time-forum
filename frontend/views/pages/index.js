@@ -1,1 +1,1 @@
-export * from "./main-page/main-page.js";  
+export * from "./main-page.js";  

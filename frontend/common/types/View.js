@@ -20,6 +20,7 @@ export class View {
     this.name = options.name;
     this.id = options.id;
     this.placeholder = options.placeholder;
+    this.listeners = options.listeners
     this.onScroll = options.onScroll;
     this.constraints = options.constraints
 
@@ -37,10 +38,13 @@ export class View {
   }
 
   _setEventListeners() {
-    if (this.onScroll) {
-      this.element.addEventListener("scroll", (event) => {
-        this.onScroll(event, this.element);
-      });
+    for (const eventName in this.listeners) {
+      if (Object.hasOwnProperty.call(this.listeners, eventName)) {
+        const func = this.listeners[eventName];
+        if (func) {
+          this.element.addEventListener(eventName,func);
+        }
+      }
     }
   }
 
