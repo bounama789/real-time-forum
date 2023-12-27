@@ -1,11 +1,16 @@
 import { Page } from "../../common/types/index.js"
+import { getView } from "../../lib/lib.js";
 import { Divider } from "../components/divider.js";
-import { Button, Div, Text, TextField } from "../elements/index.js";
+import { LoginPanel,SignupPanel } from "../components/index.js";
+import { Div, Text } from "../elements/index.js";
 
-export class SignInPage extends Page {
+export class AuthPage extends Page {
     constructor() {
         super()
         this.title = "Authentication"
+        this.loginPanel = new LoginPanel()
+        this.signupPanel = new SignupPanel()
+        this.currentPanel = this.loginPanel
 
         return new Div({
             className: "auth-page",
@@ -33,6 +38,7 @@ export class SignInPage extends Page {
                     },
                     children: [
                         new Div({
+                            id:"form-wrapper",
                             style: {
                                 display: "flex",
                                 flexDirection: "row",
@@ -42,81 +48,55 @@ export class SignInPage extends Page {
                             },
                             children: [
                                 new Div({
+                                    id:"login-label",
                                     className: "auth-label",
                                     style: {
                                         flex: 2,
                                         textAlign: "center",
                                         padding: "1rem"
-                                    }, children: [new Text({ text: "Login" })]
+                                    }, children: [new Text({ text: "Login" })],
+                                    listeners:{
+                                        onclick: ()=> this.switchPanel("loginPanel")
+                                    }
                                 }),
                                 new Divider({
                                     width: "1px",
                                     height: "100%",
                                 }),
                                 new Div({
+                                    id:"register-label",
                                     className: "auth-label",
                                     style: {
                                         flex: 2,
                                         textAlign: "center",
                                         padding: "1rem"
-                                    }, children: [new Text({ text: "Register" })]
+                                    }, children: [new Text({ text: "Register" })],
+                                    listeners:{
+                                        onclick: ()=> this.switchPanel("signupPanel")
+                                    }
                                 })
                             ]
                         }),
                         new Divider({
                             width: "100%",
                         }),
-                        new Div({
-                            style:{
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            },
-                            children: [
-
-                                new Div({
-                                    style: {
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        gap: "2rem",
-                                        padding: "2rem",
-                                    },
-                                    children: [
-                                        new TextField({
-                                            id: "login",
-                                            className: "auth-field",
-                                            placeholder: "username/email",
-                                            type: "text",
-                                        }),
-                                        new TextField({
-                                            id: "login",
-                                            className: "auth-field",
-                                            placeholder: "password",
-                                            type: "text",
-                                        })
-
-                                    ]
-                                }),
-                                new Button({
-                                    id: "login",
-                                    className: "auth-button",
-                                    children: [
-                                        new Text({ text: "Login" })
-                                    ]
-                                })
-                            ]
-                        }),
-
+                        this.loginPanel,
+                        this.signupPanel
                     ]
                 })
             ]
-
         });
+
+
     }
 
-    toggleAuthForm() {
+    switchPanel(panelId) {
+        if(panelId !== this.currentPanel.id){
+            const view = getView(panelId)
+            this.currentPanel.element.style.display = "none";
+            view.element.style.display = "flex";
 
+            this.currentPanel = view
+        }
     }
 }

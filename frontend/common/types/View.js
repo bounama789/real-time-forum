@@ -38,35 +38,39 @@ export class View {
   }
 
   _setEventListeners() {
-    for (const eventName in this.listeners) {
-      if (Object.hasOwnProperty.call(this.listeners, eventName)) {
-        const func = this.listeners[eventName];
-        if (func) {
-          this.element.addEventListener(eventName,func);
+    if (this.listeners) {
+      document.addEventListener("DOMContentLoaded", () => {
+        for (const eventName in this.listeners) {
+          if (Object.hasOwnProperty.call(this.listeners, eventName)) {
+            const func = this.listeners[eventName];
+            if (func) {
+              this.element[eventName] = func
+            }
+          }
         }
-      }
+      })
     }
   }
 
   _setConstraints() {
     if (this.constraints) {
-    document.addEventListener("DOMContentLoaded", () => {
-        
-      if (this.constraints.top) {
-        const top =this.constraints.top();
-        this.element.style.top = top
-      }
-      if (this.constraints.bottom) {
-        this.element.style.bottom = this.constraints.bottom();
-      }
-      if (this.constraints.left) {
-        this.element.style.left = this.constraints.left();
-      }
-      if (this.constraints.right) {
-        this.element.style.right = this.constraints.right();
-      }
-    });
-  }
+      document.addEventListener("DOMContentLoaded", () => {
+
+        if (this.constraints.top) {
+          const top = this.constraints.top();
+          this.element.style.top = top
+        }
+        if (this.constraints.bottom) {
+          this.element.style.bottom = this.constraints.bottom();
+        }
+        if (this.constraints.left) {
+          this.element.style.left = this.constraints.left();
+        }
+        if (this.constraints.right) {
+          this.element.style.right = this.constraints.right();
+        }
+      });
+    }
   }
 
   /**
@@ -102,5 +106,13 @@ export class View {
   prependChild(child) {
     this.children.unshift(child);
     this.element.insertBefore(child.element, this.element.firstChild);
+  }
+
+  hide() {
+    this.element.style.display = "none";
+  }
+
+  show() {
+    this.element.style.display = "block";
   }
 }

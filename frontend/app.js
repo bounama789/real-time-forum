@@ -3,7 +3,7 @@
 // import { Div, Header } from "./views/elements/index.js";
 // import { MainPage } from "./views/pages/index.js";
 import { AuthLayout } from "./views/layout/auth-layout.js";
-import { SignInPage } from "./views/pages/signin-page.js";
+import { AuthPage } from "./views/pages/index.js";
 
 export class App {
   constructor() {
@@ -84,7 +84,7 @@ export class App {
         height: '100vh',
       },
       children: [
-        new SignInPage()
+        new AuthPage()
       ]
     })
   }
