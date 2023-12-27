@@ -14,6 +14,8 @@ var (
 	ReactRepo ReactionRepository
 	CommRepo  CommentRepository
 	CategRepo CatRepo
+	ChatRepo  ChatRepository
+	MessRepo  MessageRepository
 )
 
 func init() {
@@ -23,4 +25,6 @@ func init() {
 	ReactRepo.init()
 	CommRepo.init()
 	CategRepo.init()
+	ChatRepo.init()
+	MessRepo.init()
 }

@@ -7,4 +7,5 @@ type Message struct {
 	ChatId   uuid.UUID `json:"chat_id"`
 	SenderId uuid.UUID `json:"sender_id"`
 	Body     string    `json:"body"`
+	CreatedAt string    `json:"created_at"`
 }
