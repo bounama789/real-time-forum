@@ -1,7 +1,11 @@
+import { post } from "../../api/api.js";
+import { getView } from "../../lib/lib.js";
+import { goTo } from "../../lib/pager/navigation.js";
 import { Div, TextField, Button, Text } from "../elements/index.js"
 
 export class SignupPanel {
     constructor() {
+
         return new Div({
             id: "signupPanel",
             className: "panel-transition",
@@ -25,6 +29,7 @@ export class SignupPanel {
                         new Div({
                             style: {
                                 display: "flex",
+                                width: "100%",
                                 flexDirection: "row",
                                 justifyContent: "space-between",
                                 alignItems: "center",
@@ -43,7 +48,6 @@ export class SignupPanel {
                                     placeholder: "lastname",
                                     type: "text",
                                 }),
-
                             ]
                         }),
                         new TextField({
@@ -78,9 +82,26 @@ export class SignupPanel {
                     className: "auth-button",
                     children: [
                         new Text({ text: "Login" })
-                    ]
+                    ],
+                    listeners:{
+                        onclick:()=>{
+                            console.log(this.formData);
+                            return post("/auth/signup",this.formData).then((data)=> goTo("contentPage"))
+                            }
+                    }
                 })
             ]
         })
     }
+
+    get formData(){
+        return {
+            firstname: getView('fname').element.value,
+            lastname: getView('lname').element.value,
+            username: getView('uname').element.value,
+            email: getView('email').element.value,
+            password: getView('password').element.value,
+        };
+    }
 }
+

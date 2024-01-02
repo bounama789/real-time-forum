@@ -1,6 +1,6 @@
 import { setView } from "../../lib/lib.js";
 
-/**
+  /**
  * Creates a new View element.
  * @param {{
  *   id?: string,
@@ -97,6 +97,12 @@ export class View {
   addChild(child) {
     this.children.push(child);
     this.element.appendChild(child.element);
+  }
+
+  replaceContent(view){
+    this.children = []
+    this.element.innerHTML = ''
+    this.addChild(view)
   }
 
   /**

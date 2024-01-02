@@ -1,25 +1,27 @@
 import { getPosts } from "../../api/api.js";
-import { Page } from "../../common/types/index.js";
 import { ListView, PostCard } from "../components/index.js";
 import { Div, Image, Text, TextField } from "../elements/index.js";
 
-export class MainPage extends Page {
-  constructor() {
-    super();
-    this.title = "Main Page";
+export class MainPage {
+  constructor(options) {
+    this.id = "mainPage"
+    this.pagerId = options.pagerId
+    this.title = "Main Page"
+
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        postList.fetchMoreItems();
+      }
+    });
+
+  }
+  get element() {
 
     const postList = new ListView({
-      id:"postList",
+      id: "postList",
       itemView: PostCard,
       provider: getPosts,
     });
-
-    window.addEventListener('scroll', ()=>{
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-            postList.fetchMoreItems();
-        }
-    });
-
 
     return new Div({
       className: "main-page",
@@ -84,6 +86,6 @@ export class MainPage extends Page {
         }),
         postList.listContainer
       ],
-    });
+    }).element
   }
 }

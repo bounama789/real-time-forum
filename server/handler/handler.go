@@ -20,6 +20,8 @@ type Data struct {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin","http://127.0.0.1:8000")
+
 	if r.URL.Path != "/" {
 		RenderErrorPage(http.StatusNotFound, w)
 		return

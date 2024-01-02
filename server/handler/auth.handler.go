@@ -17,17 +17,9 @@ import (
 var authService = service.AuthSrvice
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin","*")
 	switch r.Method {
-	case http.MethodGet:
-		tmpl, err := template.ParseFiles("./templates/signup.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		err = tmpl.Execute(w, nil)
-		if err != nil {
-			fmt.Println(err)
-		}
+
 	case http.MethodPost:
 		body := r.Body
 		content, err := io.ReadAll(body)
@@ -48,19 +40,19 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			if err := utils.VerifyUsername(user.Username); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				json.NewEncoder(w).Encode(map[string]string{"msg": user.Username})
 				return
 			} else if err := utils.IsValidEmail(user.Email); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				json.NewEncoder(w).Encode(map[string]string{"msg": user.Email})
 				return
 			} else if err := utils.VerifyName(user.Firstname); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				json.NewEncoder(w).Encode(map[string]string{"msg": user.Firstname})
 				return
 			} else if err := utils.VerifyName(user.Lastname); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				json.NewEncoder(w).Encode(map[string]string{"msg": user.Lastname})
 				return
 			}
 		}
@@ -80,7 +72,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 				return
 			}
-			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+			json.NewEncoder(w).Encode(map[string]string{"msg":"succes"})
 
 		}
 	}
