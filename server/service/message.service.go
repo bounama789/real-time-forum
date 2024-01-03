@@ -1,8 +1,12 @@
 package service
 
 import (
+	"forum/config"
 	"forum/models"
 	r "forum/server/repositories"
+	"time"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 type MessageService struct {
@@ -14,7 +18,13 @@ func (messageService *MessageService) init() {
 }
 
 func (messageService *MessageService) NewMessage(message models.Message) error {
-	err := messageService.MessageRepo.SaveMessage(message)
+	messageId, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	message.MessId = messageId
+	message.CreatedAt = time.Now().Format(string(config.Get("TIME_FORMAT").ToString()))
+	err = messageService.MessageRepo.SaveMessage(message)
 	if err != nil {
 		return err
 	}
@@ -52,4 +62,3 @@ func (messageService *MessageService) GetChatMessages(ChatId string) ([]models.M
 	}
 	return messages, nil
 }
-

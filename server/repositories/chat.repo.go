@@ -1,11 +1,11 @@
 package repositories
 
 import (
-	"forum/config"
 	db "forum/database"
 	q "forum/database/query"
 	"forum/models"
-	"time"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 type ChatRepository struct {
@@ -18,7 +18,7 @@ func (r *ChatRepository) init() {
 }
 
 func (r *ChatRepository) SaveChat(chat models.Chat) error {
-	chat.CreatedAt = time.Now().Format(string(config.Get("TIME_FORMAT").ToString()))
+
 	err := r.DB.Insert(r.TableName, chat)
 	if err != nil {
 		return err
@@ -34,6 +34,8 @@ func (r *ChatRepository) DeleteChat(chatId string) error {
 	return nil
 }
 
+// The `GetChat` function in the `ChatRepository` struct is used to retrieve a specific chat from the
+// database based on the provided `chatId`.
 func (r *ChatRepository) GetChat(chatId string) (chat models.Chat, err error) {
 	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"cht_id": chatId})
 	if err != nil {
@@ -46,8 +48,8 @@ func (r *ChatRepository) GetChat(chatId string) (chat models.Chat, err error) {
 	return chat, nil
 }
 
-func (r *ChatRepository) GetAllChats() (chats []models.Chat, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"1": 1}, "created_at DESC")
+func (r *ChatRepository) GetAllChats(t models.TokenData) (chats []models.Chat, err error) {
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": t.UserId}, "created_at DESC")
 	if err != nil {
 		return chats, err
 	}
@@ -60,4 +62,28 @@ func (r *ChatRepository) GetAllChats() (chats []models.Chat, err error) {
 		chats = append(chats, chat)
 	}
 	return chats, nil
+}
+
+func (r *ChatRepository) GetChatMessages(chatId string) (messages []models.Message, err error) {
+	rows, err := r.DB.GetAllFrom(db.MESSAGES_TABLE, q.WhereOption{"cht_id": chatId}, "created_at DESC")
+	if err != nil {
+		return messages, err
+	}
+	for rows.Next() {
+		var message models.Message
+		err := rows.Scan(&message.MessId, &message.ChatId, &message.SenderId, &message.Body, &message.CreatedAt)
+		if err != nil {
+			return messages, err
+		}
+		messages = append(messages, message)
+	}
+	return messages, nil
+}
+
+func (r *ChatRepository) AddUserToChat(chatId uuid.UUID, userId uuid.UUID) error {
+	err := r.DB.Insert(db.USERCHATS_TABLE, models.UsersChats{ChatId: chatId, UserId: userId})
+	if err != nil {
+		return err
+	}
+	return nil
 }

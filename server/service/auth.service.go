@@ -46,7 +46,7 @@ func (authService AuthService) CreateNewUser(user *models.User) error {
 
 func (authService *AuthService) CheckCredentials(cred map[string]string) (models.User, error) {
 	identifiant := cred["identifiant"]
-	pass :=  cred["password"]
+	pass := cred["password"]
 	var user models.User
 	var err error
 	if user, err = authService.UserRepo.GetUserByUsername(identifiant); err != nil {
@@ -87,11 +87,10 @@ func (authService *AuthService) GetTokenData(str string) (models.TokenData, erro
 }
 
 func (authService *AuthService) VerifyToken(r *http.Request) (models.TokenData, error) {
-	cookie,err := r.Cookie(string(config.Get("COOKIE_NAME").ToString()))
+	cookie, err := r.Cookie(string(config.Get("COOKIE_NAME").ToString()))
 	if err != nil {
 		return models.TokenData{}, err
 	}
-	
 
 	token := cookie.Value
 
@@ -122,7 +121,7 @@ func (authService *AuthService) GenCookieSession(w http.ResponseWriter, user mod
 	if err != nil {
 		w.WriteHeader(500)
 		fmt.Fprint(w, err)
-		return models.Session{},http.Cookie{}
+		return models.Session{}, http.Cookie{}
 	}
 	var toKenData = models.TokenData{
 		SessId:     newSessId.String(),
@@ -136,7 +135,7 @@ func (authService *AuthService) GenCookieSession(w http.ResponseWriter, user mod
 	if err != nil {
 		w.WriteHeader(500)
 		fmt.Fprint(w, err)
-		return models.Session{},http.Cookie{}
+		return models.Session{}, http.Cookie{}
 	}
 	var newSess = models.Session{
 		SessId:     newSessId,
@@ -158,7 +157,7 @@ func (authService *AuthService) GenCookieSession(w http.ResponseWriter, user mod
 }
 
 func (authService *AuthService) RemExistingUsrSession(userId string) {
-	existingSess,_ := authService.SessRepo.GetSessionsByUserId(userId)
+	existingSess, _ := authService.SessRepo.GetSessionsByUserId(userId)
 	for _, sess := range existingSess[1:] {
 		authService.SessRepo.DeleteSession(sess.SessId.String())
 	}

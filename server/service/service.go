@@ -12,5 +12,5 @@ func init() {
 	AuthSrvice.init()
 	PostSrvice.init()
 	ComSrvice.init()
-
+	ChatSrvice.init()
 }

@@ -23,6 +23,8 @@ const (
 	SEARCH_SUGG_HANDLER      = "/search/sugg"
 	SEARCH_ENDPOINT          = "/search"
 	GET_POST_ENDPOINT        = "/post"
+	GET_CHATS_ENDPOINT       = "/chats"
+	GET_CHAT_ENDPOINT        = "/chat"
 	ABOUT_ENDPOINT           = "/about"
 )
 

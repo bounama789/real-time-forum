@@ -1,11 +1,9 @@
 package repositories
 
 import (
-	"forum/config"
 	db "forum/database"
 	q "forum/database/query"
 	"forum/models"
-	"time"
 )
 
 type MessageRepository struct {
@@ -18,7 +16,6 @@ func (r *MessageRepository) init() {
 }
 
 func (r *MessageRepository) SaveMessage(message models.Message) error {
-	message.CreatedAt = time.Now().Format(string(config.Get("TIME_FORMAT").ToString()))
 	err := r.DB.Insert(r.TableName, message)
 	if err != nil {
 		return err

@@ -1,232 +1,74 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
 	"forum/models"
 	"forum/server/service"
-	"io"
 	"net/http"
-	"strings"
 
 	"github.com/gofrs/uuid/v5"
+	"github.com/gorilla/websocket"
 )
 
-func CreateMessageHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		// Get token data from authentication cookie
-		cookie, err := r.Cookie("auth-cookie")
-		if err != nil {
-			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
-			return
-		}
-		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
-		// Read request body
-		body := r.Body
-		content, err := io.ReadAll(body)
-		if err != nil {
-			if err == io.EOF {
-				RespondWithError(w, http.StatusBadRequest, "Bad Request")
-				return
-			} else {
-				fmt.Println(err)
-				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-				return
+var clients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan models.Message)
+
+func HandleMessages() {
+	for {
+		msg := <-broadcast
+		for client := range clients {
+			if client.ChatId == msg.ChatId {
+				err := client.WriteJSON(msg)
+				if err != nil {
+					client.Close()
+					delete(clients, client)
+				}
 			}
 		}
-
-		// Unmarshal request body into comment struct
-		var message models.Message
-		err = json.Unmarshal(content, &message)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-		// Set SenderId from token data
-		message.SenderId, err = uuid.FromString(tokenData.UserId)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-
-		// Validate message body
-		if strings.TrimSpace(message.Body) == "" {
-			RespondWithError(w, http.StatusBadRequest, "Bad Request")
-			return
-		}
-
-		// create message in database
-		err = service.MessService.NewMessage(message)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		} else {
-			RespondWithJSON(w, http.StatusOK, message)
-		}
-	default:
-		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 	}
 }
 
-func EditMessageHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPut:
-		// Get token data from authentication cookie
-		cookie, err := r.Cookie("auth-cookie")
-		if err != nil {
-			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
-			return
-		}
-		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-
-		// Read request body
-		body := r.Body
-		content, err := io.ReadAll(body)
-		if err != nil {
-			if err == io.EOF {
-				RespondWithError(w, http.StatusBadRequest, "Bad Request")
-				return
-			} else {
-				fmt.Println(err)
-				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-				return
-			}
-		}
-
-		// Unmarshal request body into comment struct
-		var message models.Message
-		err = json.Unmarshal(content, &message)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-		// Set SenderId from token data
-		message.SenderId, err = uuid.FromString(tokenData.UserId)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-
-		// Validate message body
-		if strings.TrimSpace(message.Body) == "" {
-			RespondWithError(w, http.StatusBadRequest, "Bad Request")
-			return
-		}
-
-		// create message in database
-		err = service.MessService.EditMessage(message)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		} else {
-			RespondWithJSON(w, http.StatusOK, message)
-		}
-	default:
-		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+func HandleConnections(w http.ResponseWriter, r *http.Request) {
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
 	}
-}
+	defer ws.Close()
 
-func DeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodDelete:
-		// Get token data from authentication cookie
-		cookie, err := r.Cookie("auth-cookie")
-		if err != nil {
-			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
-			return
-		}
-		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-		messageId := r.URL.Query().Get("messageId")
-		if messageId == "" {
-			RespondWithError(w, http.StatusBadRequest, "Bad Request")
-			return
-		}
+	// Obtenez le ChatId associé à cette connexion (par exemple, à partir des paramètres de l'URL)
+	chatId := r.URL.Query().Get("chatId")
 
-		// Read request body
-		body := r.Body
-		content, err := io.ReadAll(body)
-		if err != nil {
-			if err == io.EOF {
-				RespondWithError(w, http.StatusBadRequest, "Bad Request")
-				return
-			} else {
-				fmt.Println(err)
-				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-				return
-			}
-		}
-
-		// Unmarshal request body into comment struct
-		var message models.Message
-		err = json.Unmarshal(content, &message)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-		// Set SenderId from token data
-		message.SenderId, err = uuid.FromString(tokenData.UserId)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-
-		// Validate message body
-		if strings.TrimSpace(message.Body) == "" {
-			RespondWithError(w, http.StatusBadRequest, "Bad Request")
-			return
-		}
-
-		// create message in database
-		err = service.MessService.DeleteMessage(messageId)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		} else {
-			RespondWithJSON(w, http.StatusOK, message)
-		}
-	default:
-		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+	// Assurez-vous de récupérer également l'ID de l'utilisateur (par exemple, à partir du token)
+	tokenData, err := service.AuthSrvice.VerifyToken(r)
+	if err != nil {
+		RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		return
 	}
-}
 
-func GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		// Get token data from authentication cookie
-		cookie, err := r.Cookie("auth-cookie")
-		if err != nil {
-			RespondWithError(w, http.StatusUnauthorized, "Unauthorized")
-			return
-		}
-		tokenData, err := service.AuthSrvice.GetTokenData(cookie.Value)
-		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
+	client := models.UsersChats{
+		Conn:   ws,
+		UserId: tokenData.UserId,
+		ChatId: uuid.FromStringOrNil(chatId),
+	}
 
-		// Get messages from database
-		messages, err := service.MessService.GetMessage(tokenData.UserId)
+	err = service.ChatSrvice.AddUserToChat(client)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	for {
+		var msg models.Message
+		err := ws.ReadJSON(&msg)
 		if err != nil {
-			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-			return
-		} else {
-			RespondWithJSON(w, http.StatusOK, messages)
+			delete(clients, ws)
+			break
 		}
-	default:
-		RespondWithError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
+		broadcast <- msg
 	}
 }
