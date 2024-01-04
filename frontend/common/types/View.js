@@ -16,7 +16,7 @@ export class View {
     this.element;
     this.children = options.children || [];
     this.style = options.style || {};
-    this.classList = options.className && options.className.split(" ");
+    this.classList = options.className && options.className.split(" ") || []
     this.name = options.name;
     this.id = options.id;
     this.placeholder = options.placeholder;
@@ -31,7 +31,7 @@ export class View {
    * Sets the attributes of the view element.
    */
   _setAttributes() {
-    this.element.classList.add(this.classList);
+    this.element.classList.add(...this.classList);
     this.element.id = this.id && this.id;
     this.element.name = this.name && this.name;
     this.element.placeholder = this.placeholder && this.placeholder;

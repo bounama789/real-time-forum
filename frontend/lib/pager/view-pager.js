@@ -12,6 +12,7 @@ export class ViewPager {
             if (this.id == data.pagerId) {
                 this.container.replaceContent(data.page)
                 window.history.pushState(data.pagerId, data.page.title, data.page.path);
+                document.title = data.page.title
             }
         })
 
@@ -21,7 +22,6 @@ export class ViewPager {
         setViewPager(this)
     }
 
-
     setCurrentPage(page) {
         this.currentPage = page
         const pageChangedEvnt = new CustomEvent("pageChanged", { detail: { pagerId: this.id, page } })
@@ -29,4 +29,3 @@ export class ViewPager {
     }
 
 }
-

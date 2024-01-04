@@ -2,5 +2,29 @@
 @import "header.css";
 @import "pagecontent.css";
 @import "root.css";
-@import "sign-in-up.css"
+@import "sign-in-up.css";
 
+.snackbar {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary);
+    color: var(--text-gray);
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.error-code {
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.error-message {
+    flex-grow: 1;
+}

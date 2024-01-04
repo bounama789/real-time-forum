@@ -45,7 +45,7 @@ func (authService AuthService) CreateNewUser(user *models.User) error {
 }
 
 func (authService *AuthService) CheckCredentials(cred map[string]string) (models.User, error) {
-	identifiant := cred["identifiant"]
+	identifiant := cred["identifier"]
 	pass :=  cred["password"]
 	var user models.User
 	var err error

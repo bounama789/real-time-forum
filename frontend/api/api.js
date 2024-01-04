@@ -10,7 +10,7 @@
       },
     })
     .then(response => response.json())
-    .then(data => data)
+    .then(data => data).catch(error=>error)
   }
 
   export async function post(path,data) {
@@ -22,11 +22,11 @@
     .then(response =>{
       console.log(response.headers.getSetCookie());
        response.json()})
-    .then(data => data)
+    .then(data => data).catch(error=>error)
   }
 
   export async function getPosts(){
     const path = "/posts/get"
-    return await get(path)
+    return await get(path).catch(error=>error)
   }
 

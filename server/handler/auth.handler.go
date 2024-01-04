@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"forum/config"
 	"forum/models"
 	"forum/server/service"
@@ -10,14 +9,13 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"text/template"
 	"time"
 )
 
 var authService = service.AuthSrvice
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin","*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	switch r.Method {
 
 	case http.MethodPost:
@@ -72,21 +70,24 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 				return
 			}
-			json.NewEncoder(w).Encode(map[string]string{"msg":"succes"})
+			json.NewEncoder(w).Encode(map[string]string{"msg": "succes"})
 
 		}
 	}
 }
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	switch r.Method {
-	case http.MethodGet:
-		tmpl,err := template.ParseFiles("./templates/login.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl.Execute(w, nil)
+	// case http.MethodGet:
+	// 	tmpl,err := template.ParseFiles("./templates/login.html")
+	// 	if err != nil {
+	// 		RenderErrorPage(http.StatusInternalServerError, w)
+	// 		return
+	// 	}
+	// 	tmpl.Execute(w, nil)
 	case http.MethodPost:
 		var credentials = make(map[string]string, 2)
 		if content, err := io.ReadAll(r.Body); err != nil {
@@ -100,8 +101,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 				return
 			}
-			identifiant := strings.TrimSpace(credentials["identifiant"])
-			credentials["identifiant"]=identifiant
+			identifiant := strings.TrimSpace(credentials["identifier"])
+			credentials["identifier"] = identifiant
 			if err := utils.VerifyUsername(identifiant); err != nil && !strings.Contains(identifiant, "@") {
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
@@ -116,7 +117,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		user, err := authService.CheckCredentials(credentials)
 		if err != nil {
 			w.WriteHeader(401)
-			fmt.Fprintln(w, err)
+			json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+			// fmt.Fprintln(w, err)
 			return
 		}
 		newSess, cookie := authService.GenCookieSession(w, user, r)
@@ -124,8 +126,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		authService.SessRepo.SaveSession(newSess)
 
 		authService.RemExistingUsrSession(user.UserId.String())
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
-
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(map[string]any{"msg": "success"})
 	default:
 		RenderErrorPage(http.StatusMethodNotAllowed, w)
 		return
@@ -135,7 +137,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 func SignOutHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodDelete:
-
 		cookie := &http.Cookie{
 			Name:     config.Get("COOKIE_NAME").ToString(),
 			Value:    "",

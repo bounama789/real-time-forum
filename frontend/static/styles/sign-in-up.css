@@ -25,19 +25,21 @@
     background: linear-gradient(198deg, rgba(255, 255, 255, 1) 0%, rgba(198, 229, 241, 1) 27%, rgba(178, 224, 241, 1) 55%, rgba(157, 218, 237, 1) 80%, rgba(88, 216, 246, 0.9766106271610207) 92%, rgba(0, 212, 255, 1) 100%);
 }
 
-.auth-label {
+.auth-label:not(.active) {
     cursor: pointer;
 }
 
-.auth-label:hover{
+.auth-label:hover:not(.active){
     background-color: rgb(164, 209, 233);
 }
 
-.current{
-    background-color: var(--bs-blue);
-}
 
 .panel-transition {
     transition: opacity 0.1s ease-in-out;
     /* You can customize the transition property based on your requirements */
+}
+.active{
+    background-color: var(--bs-blue);
+    color: var(--bs-white);
+    cursor:default;
 }

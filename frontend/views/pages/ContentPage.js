@@ -9,6 +9,7 @@ export class ContentPage {
     this.id = "contentPage"
     this.pagerId = options.pagerId
     this.title = "Home"
+    this.path = "/"
     setPage(this)
 
   }

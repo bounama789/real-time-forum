@@ -78,23 +78,22 @@ export class SignupPanel {
                     ]
                 }),
                 new Button({
-                    id: "login",
+                    id: "submitButton",
                     className: "auth-button",
                     children: [
-                        new Text({ text: "Login" })
+                        new Text({ text: "Register" })
                     ],
-                    listeners:{
-                        onclick:()=>{
-                            console.log(this.formData);
-                            return post("/auth/signup",this.formData).then((data)=> goTo("contentPage"))
-                            }
+                    listeners: {
+                        onclick: () => {
+                            post("/auth/signup", this.formData).then((data) => goTo("contentPage")).catch((error) => console.log(error))
+                        }
                     }
                 })
             ]
         })
     }
 
-    get formData(){
+    get formData() {
         return {
             firstname: getView('fname').element.value,
             lastname: getView('lname').element.value,

@@ -7,12 +7,8 @@ export class MainPage {
     this.id = "mainPage"
     this.pagerId = options.pagerId
     this.title = "Main Page"
+    this.path = "/"
 
-    window.addEventListener('scroll', () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        postList.fetchMoreItems();
-      }
-    });
 
   }
   get element() {
@@ -21,6 +17,13 @@ export class MainPage {
       id: "postList",
       itemView: PostCard,
       provider: getPosts,
+    });
+
+
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        postList.fetchMoreItems();
+      }
     });
 
     return new Div({

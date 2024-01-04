@@ -1,3 +1,6 @@
+import { post } from "../../api/api.js";
+import { goTo } from "../../lib/pager/navigation.js";
+import { getView } from "../../lib/lib.js";
 import { Div,TextField,Button,Text } from "../elements/index.js"
 
 export class LoginPanel {
@@ -8,7 +11,7 @@ export class LoginPanel {
             style: {
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "center",   
             },
             children: [
                 new Div({
@@ -28,21 +31,36 @@ export class LoginPanel {
                             type: "text",
                         }),
                         new TextField({
-                            id: "login",
+                            id: "loginPassword",
                             className: "auth-field",
                             placeholder: "password",
-                            type: "text",
+                            type: "password",
                         })
                     ]
                 }),
                 new Button({
-                    id: "login",
+                    id: "loginButton",
                     className: "auth-button",
                     children: [
                         new Text({ text: "Login" })
-                    ]
+                    ],
+                    listeners:{
+                        onclick:()=>{
+                            post("/auth/signin",this.formData).then((response)=>{
+                                console.log(response);
+                                goTo("contentPage")
+                            }).catch((error)=> console.log(error))
+                        }
+                    }
                 })
             ]
         })
+    }
+
+    get formData(){
+        return {
+            identifier: getView('login').element.value,
+            password: getView('loginPassword').element.value,
+        };
     }
 }

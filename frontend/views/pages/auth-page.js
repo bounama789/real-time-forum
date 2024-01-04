@@ -15,9 +15,7 @@ export class AuthPage {
         this.loginPanel = new LoginPanel()
         this.signupPanel = new SignupPanel()
         this.currentPanel = this.loginPanel
-
         setPage(this)
-
 
     }
     get element() {
@@ -64,14 +62,18 @@ export class AuthPage {
                                     children: [
                                         new Div({
                                             id: "login-label",
-                                            className: "auth-label",
+                                            className: "auth-label active",
                                             style: {
                                                 flex: 2,
                                                 textAlign: "center",
                                                 padding: "1rem"
                                             }, children: [new Text({ text: "Login" })],
                                             listeners: {
-                                                onclick: () => this.switchPanel("loginPanel")
+                                                onclick: () => {
+                                                    getView("register-label").element.classList.remove("active")
+                                                    getView("login-label").element.classList.add("active")
+                                                    this.switchPanel("loginPanel")
+                                                }
                                             }
                                         }),
                                         new Divider({
@@ -87,7 +89,11 @@ export class AuthPage {
                                                 padding: "1rem"
                                             }, children: [new Text({ text: "Register" })],
                                             listeners: {
-                                                onclick: () => this.switchPanel("signupPanel")
+                                                onclick: () => {
+                                                    getView("register-label").element.classList.add("active")
+                                                    getView("login-label").element.classList.remove("active")
+                                                    this.switchPanel("signupPanel")
+                                                }
                                             }
                                         })
                                     ]
@@ -104,6 +110,10 @@ export class AuthPage {
             ]
         }).element
 
+    }
+
+    get path(){
+        return  this.currentPanel === this.loginPanel ? "/auth/signin":"/auth/signup"
 
     }
 
@@ -112,8 +122,8 @@ export class AuthPage {
             const view = getView(panelId)
             this.currentPanel.element.style.display = "none";
             view.element.style.display = "flex";
-
             this.currentPanel = view
+            window.history.replaceState("", this.title, this.path);
         }
     }
 }
