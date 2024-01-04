@@ -82,27 +82,27 @@ func (commentService *CommentService) GetUserCommReact(userId, commentId string)
 	return react, nil
 }
 
-func (commentService *CommentService) GetCommentVotes(commentId string) (int,error) {
-	c,err := commentService.ReactRepo.GetVotes("COMMENT", commentId)
+func (commentService *CommentService) GetCommentVotes(commentId string) (int, error) {
+	c, err := commentService.ReactRepo.GetVotes("COMMENT", commentId)
 	if err != nil {
 		return c, err
 	}
-	return c,nil
+	return c, nil
 }
 
-func (commentService *CommentService) GetCommentsByPostId(postId string,t models.TokenData) (comments []dto.CommentDTO,err error){
-	comms,err := commentService.CommentRepo.GetPostComments(postId)
+func (commentService *CommentService) GetCommentsByPostId(postId string, t models.TokenData) (comments []dto.CommentDTO, err error) {
+	comms, err := commentService.CommentRepo.GetPostComments(postId)
 	if err != nil {
 		return []dto.CommentDTO{}, err
 	}
 
 	for _, v := range comms {
-		creationDate, _ := time.Parse(config.Get("TIME_FORMAT").ToString(),v.CreatedAt)
-		react,_:= commentService.GetUserCommReact(t.UserId,v.CommentId.String())
-		now,_ := time.Parse(config.Get("TIME_FORMAT").ToString(),time.Now().Format(config.Get("TIME_FORMAT").ToString()))
-		age := now.Sub(creationDate)	
-		votes,_ := commentService.GetCommentVotes(v.CommentId.String())
-		comments = append(comments, dto.CommentDTO{Comment: v,Votes: votes,Age: age.String(),UserReact: react.Reactions})
+		creationDate, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), v.CreatedAt)
+		react, _ := commentService.GetUserCommReact(t.UserId, v.CommentId.String())
+		now, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), time.Now().Format(config.Get("TIME_FORMAT").ToString()))
+		age := now.Sub(creationDate)
+		votes, _ := commentService.GetCommentVotes(v.CommentId.String())
+		comments = append(comments, dto.CommentDTO{Comment: v, Votes: votes, Age: age.String(), UserReact: react.Reactions})
 	}
-	return comments,nil
+	return comments, nil
 }

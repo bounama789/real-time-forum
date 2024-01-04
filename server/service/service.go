@@ -13,4 +13,5 @@ func init() {
 	PostSrvice.init()
 	ComSrvice.init()
 	ChatSrvice.init()
+	MessService.init()
 }
