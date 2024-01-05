@@ -5,7 +5,6 @@ import { Div, TextField, Button, Text } from "../elements/index.js"
 
 export class SignupPanel {
     constructor() {
-
         return new Div({
             id: "signupPanel",
             className: "panel-transition",

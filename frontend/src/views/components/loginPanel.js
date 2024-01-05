@@ -9,7 +9,7 @@ export class LoginPanel {
             id: "loginPanel",
             className: "panel-transition",
             style: {
-                display: "flex",
+                display: "none",
                 flexDirection: "column",
                 justifyContent: "center",   
             },

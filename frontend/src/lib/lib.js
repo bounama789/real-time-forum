@@ -1,3 +1,4 @@
+
 const ViewElement = {
     views: new Map(),
     pages: new Map(),
@@ -20,6 +21,11 @@ export function setPage(page){
 
 export function getPage(pagesId){
     return ViewElement.pages.get(pagesId)
+}
+
+export function getPageByPath(path){
+    const entry =Array.from(ViewElement.pages.entries()).find(([,page])=>page.path === path)
+    return entry && entry[1]
 }
 
 export function setViewPager(pager){

@@ -32,9 +32,12 @@ export class View {
    */
   _setAttributes() {
     this.element.classList.add(...this.classList);
-    this.element.id = this.id && this.id;
-    this.element.name = this.name && this.name;
-    this.element.placeholder = this.placeholder && this.placeholder;
+    if (this.id)
+      this.element.id = this.id;
+    if (this.name)
+      this.element.name =  this.name;
+    if (this.name)
+      this.element.placeholder = this.placeholder;
   }
 
   _setEventListeners() {

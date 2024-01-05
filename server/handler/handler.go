@@ -6,6 +6,7 @@ import (
 	"forum/models"
 	"forum/server/repositories"
 	"net/http"
+	"os"
 	"text/template"
 )
 
@@ -20,7 +21,7 @@ type Data struct {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin","http://127.0.0.1:8000")
+	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8000")
 
 	if r.URL.Path != "/" {
 		RenderErrorPage(http.StatusNotFound, w)
@@ -64,11 +65,11 @@ func StaticHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./frontend/"+path)
 }
 
-func ServeAppHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	println(path)
-	http.ServeFile(w, r, "./frontend/"+path)
-}
+// func ServeAppHandler(w http.ResponseWriter, r *http.Request) {
+// 	path := r.URL.Path
+// 	println(path)
+// 	http.ServeFile(w, r, "./frontend/"+path)
+// }
 
 func Authorization(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -110,4 +111,17 @@ var ErrorMsgMap = map[int]Error{
 type Error struct {
 	Code int
 	Msg  string
+}
+
+func ServeApp(w http.ResponseWriter, r *http.Request) {
+	// return func(w http.ResponseWriter, r *http.Request) {
+	infos, err := os.Stat("./frontend/")
+	if err != nil {
+		fmt.Println(err)
+	}else{
+		fmt.Println(infos)
+	}
+	http.ServeFile(w, r, "./frontend/")
+
+	// }
 }

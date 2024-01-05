@@ -17,6 +17,9 @@ var authService = service.AuthSrvice
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	switch r.Method {
+	case http.MethodGet:
+		http.ServeFile(w,r,"./frontend/index.html")
+		return
 
 	case http.MethodPost:
 		body := r.Body
@@ -81,13 +84,10 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	switch r.Method {
-	// case http.MethodGet:
-	// 	tmpl,err := template.ParseFiles("./templates/login.html")
-	// 	if err != nil {
-	// 		RenderErrorPage(http.StatusInternalServerError, w)
-	// 		return
-	// 	}
-	// 	tmpl.Execute(w, nil)
+	case http.MethodGet:
+		http.ServeFile(w,r,"./frontend/index.html")
+		return
+		// http.Redirect(w,r,"/",http.StatusPermanentRedirect)
 	case http.MethodPost:
 		var credentials = make(map[string]string, 2)
 		if content, err := io.ReadAll(r.Body); err != nil {

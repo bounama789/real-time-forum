@@ -14,9 +14,12 @@ export class AuthPage {
         this.title = "Authentication"
         this.loginPanel = new LoginPanel()
         this.signupPanel = new SignupPanel()
-        this.currentPanel = this.loginPanel
+        this.currentPanel = location.pathname === "/auth/signin" ? this.loginPanel : this.signupPanel
+        // this.path = "/auth"
         setPage(this)
 
+        if(/\/auth\/\w+/.test(location.pathname))
+            this.setDefaultPanel()
     }
     get element() {
         return new AuthLayout({
@@ -62,7 +65,7 @@ export class AuthPage {
                                     children: [
                                         new Div({
                                             id: "login-label",
-                                            className: "auth-label active",
+                                            className: "auth-label",
                                             style: {
                                                 flex: 2,
                                                 textAlign: "center",
@@ -125,5 +128,20 @@ export class AuthPage {
             this.currentPanel = view
             window.history.replaceState("", this.title, this.path);
         }
+    }
+
+    setDefaultPanel(){
+        addEventListener("DOMContentLoaded",()=>{
+            this.currentPanel.element.style.display = "flex"
+        if (this.currentPanel === this.loginPanel) {
+            const label = getView("login-label").element
+            label.classList.add("active")
+
+        } else {
+            const label = getView("register-label").element
+            label.classList.add("active")
+        }
+        })
+        
     }
 }
