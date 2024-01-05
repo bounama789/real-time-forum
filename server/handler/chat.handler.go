@@ -78,6 +78,10 @@ func GetChatHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		chatId := r.URL.Query().Get("chatId")
+		if chatId == "" {
+			RespondWithError(w, http.StatusBadRequest, "Bad Request")
+			return
+		}
 		chat, err := service.ChatSrvice.GetChat(chatId)
 		if err != nil {
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
