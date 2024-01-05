@@ -4,6 +4,7 @@ import (
 	"forum/models"
 	"forum/server/service"
 	"net/http"
+	"sync"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/gorilla/websocket"
@@ -18,7 +19,7 @@ var upgrader = websocket.Upgrader{
 var broadcast = make(chan models.Message)
 
 // Map clients pour stocker tous les clients connectés
-var clients = make(map[*Client]bool)
+var clients sync.Map
 
 // Structure Client pour représenter un client connecté
 type Client struct {
@@ -68,24 +69,22 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ajoutez le client à la carte clients
-	clients[client] = true
+	clients.Store(client, true)
 
 	for {
 		var msg models.Message
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			// Find the client associated with the websocket connection
-			var client *Client
-			for c := range clients {
-				if c.Conn == ws {
-					client = c
-					break
-				}
+		clientsSlice := make([]*Client, 0)
+		clients.Range(func(key, value interface{}) bool {
+			client := key.(*Client)
+			clientsSlice = append(clientsSlice, client)
+			return true
+		})
+
+		for _, client := range clientsSlice {
+			if client.Conn == ws {
+				clients.Delete(client)
+				break
 			}
-			if client != nil {
-				delete(clients, client)
-			}
-			break
 		}
 		broadcast <- msg
 	}
@@ -97,13 +96,19 @@ func HandleMessages() {
 		msg := <-broadcast
 		// Enregistrez le message dans votre service approprié
 		SaveMessage(msg)
-		for client := range clients {
+		clientsSlice := make([]*Client, 0)
+		clients.Range(func(key, value interface{}) bool {
+			client := key.(*Client)
+			clientsSlice = append(clientsSlice, client)
+			return true
+		})
+		for _, client := range clientsSlice {
 			// Vérifiez si le client est dans le même chat que le message
-			if uuid.FromStringOrNil(client.ChatId) == msg.ChatId {
+			if client.ChatId == msg.ChatId.String() {
 				err := client.Conn.WriteJSON(msg)
 				if err != nil {
 					client.Conn.Close()
-					delete(clients, client)
+					clients.Delete(client)
 				}
 			}
 		}
