@@ -3,6 +3,8 @@ package webs
 import (
 	"bytes"
 	"encoding/json"
+	"forum/models"
+	"forum/server/service"
 	"log"
 	"time"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// These constants are used to configure the WebSocket connection.
 const (
 	writeWait      = 10 * time.Second
 	pongWait       = 60 * time.Second
@@ -17,11 +20,13 @@ const (
 	maxMessageSize = 512
 )
 
+// The function unregisters a client from a hub and closes its WebSocket connection.
 func unRegisterAndCloseConnection(c *Client) {
 	c.hub.unregister <- c
 	c.webSocketConnection.Close()
 }
 
+// The function sets the read limit, read deadline, and pong handler for a WebSocket connection.
 func setSocketPayloadReadConfig(c *Client) {
 	c.webSocketConnection.SetReadLimit(maxMessageSize)
 	c.webSocketConnection.SetReadDeadline(time.Now().Add(pongWait))
@@ -29,6 +34,9 @@ func setSocketPayloadReadConfig(c *Client) {
 }
 
 func handleSocketPayloadEvents(client *Client, socketEventPayload SocketEventStruct) {
+	// `var socketEventResponse SocketEventStruct` is declaring a variable named `socketEventResponse` of
+	// type `SocketEventStruct`. This variable will be used to store the response payload for a specific
+	// socket event.
 	var socketEventResponse SocketEventStruct
 	switch socketEventPayload.EventName {
 	case "join":
@@ -59,6 +67,14 @@ func handleSocketPayloadEvents(client *Client, socketEventPayload SocketEventStr
 			"username": getUsernameByUserID(client.hub, selectedUserID),
 			"message":  socketEventPayload.EventPayload.(map[string]interface{})["message"],
 			"userID":   selectedUserID,
+		}
+		chatMessage := models.Message{
+			ChatId:   uuid.FromStringOrNil(socketEventPayload.EventPayload.(map[string]interface{})["chat_id"].(string)),
+			SenderId: uuid.FromStringOrNil(socketEventPayload.EventPayload.(map[string]interface{})["sender_id"].(string)),
+			Body:     socketEventPayload.EventPayload.(map[string]interface{})["message"].(string),
+		}
+		if err := service.MessService.NewMessage(chatMessage); err != nil {
+			log.Println(err)
 		}
 		EmitToSpecificClient(client.hub, socketEventResponse, selectedUserID)
 	}
@@ -95,6 +111,8 @@ func (c *Client) readPump() {
 	for {
 		_, payload, err := c.webSocketConnection.ReadMessage()
 
+		// The code `decoder := json.NewDecoder(bytes.NewReader(payload))` creates a new JSON decoder that
+		// reads from a `bytes.Reader` containing the `payload` data.
 		decoder := json.NewDecoder(bytes.NewReader(payload))
 		decoderErr := decoder.Decode(&socketEventPayload)
 
@@ -123,6 +141,8 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case payload, ok := <-c.send:
+			// The code `reqBodyBytes := new(bytes.Buffer)` creates a new buffer to store the encoded JSON
+			// payload.
 			reqBodyBytes := new(bytes.Buffer)
 			json.NewEncoder(reqBodyBytes).Encode(payload)
 			finalPayload := reqBodyBytes.Bytes()

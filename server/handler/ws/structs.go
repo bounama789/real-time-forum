@@ -1,6 +1,6 @@
 package webs
 
-import "github.com/gorilla/websocket"
+import ("github.com/gorilla/websocket")
 
 // UserStruct is used for sending users with socket id
 type UserStruct struct {
