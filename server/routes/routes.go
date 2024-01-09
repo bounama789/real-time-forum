@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"forum/server/handler/ws"
 	"forum/server/handler"
 	"net/http"
 )
@@ -49,6 +50,8 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(SEARCH_SUGG_HANDLER, handler.SearchSuggestionHandler)
 	mux.HandleFunc(GET_POST_ENDPOINT, handler.GetPostHandler)
 	mux.HandleFunc(SEARCH_ENDPOINT, handler.SearchHandler)
+	mux.HandleFunc(GET_CHATS_ENDPOINT, handler.Authorization(webs.GetAllChatsHandler))
+	mux.HandleFunc(GET_CHAT_ENDPOINT, handler.Authorization(webs.WebsocketHandler))
 	mux.HandleFunc(ABOUT_ENDPOINT, handler.AboutHandler)
 	// mux.Handle("app.js",http.FileServer(http.Serve("./frontend/app.js")))
 	return &mux

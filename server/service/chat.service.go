@@ -63,7 +63,7 @@ func (chatService *ChatService) GetChatMessages(chatId string) ([]models.Message
 	return messages, nil
 }
 
-func (chatService *ChatService) AddUserToChat(userChat models.UsersChats) error {
+func (chatService *ChatService) AddUserToChat(userChat models.UserChat) error {
 	err := chatService.ChatRepo.AddUserToChat(userChat.ChatId, userChat.UserId)
 	if err != nil {
 		return err

@@ -81,7 +81,7 @@ func (r *ChatRepository) GetChatMessages(chatId string) (messages []models.Messa
 }
 
 func (r *ChatRepository) AddUserToChat(chatId uuid.UUID, userId uuid.UUID) error {
-	err := r.DB.Insert(db.USERCHATS_TABLE, models.UsersChats{ChatId: chatId, UserId: userId})
+	err := r.DB.Insert(db.USERCHATS_TABLE, models.UserChat{ChatId: chatId, UserId: userId})
 	if err != nil {
 		return err
 	}
