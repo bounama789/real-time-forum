@@ -1,4 +1,4 @@
-import { Div } from "../../elements/index.js";
+import { Div } from "../../../static/scripts/elements/index.js";
 import { MenuItem } from "./menu-item.js";
 import { getView } from "../../../lib/lib.js";
 

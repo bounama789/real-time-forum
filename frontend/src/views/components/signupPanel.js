@@ -1,7 +1,7 @@
 import { post } from "../../api/api.js";
 import { getView } from "../../lib/lib.js";
 import { goTo } from "../../lib/pager/navigation.js";
-import { Div, TextField, Button, Text } from "../elements/index.js"
+import { Div, TextField, Button, Text } from "../../static/scripts/elements/index.js"
 
 export class SignupPanel {
     constructor() {
@@ -84,7 +84,12 @@ export class SignupPanel {
                     ],
                     listeners: {
                         onclick: () => {
-                            post("/auth/signup", this.formData).then((data) => goTo("contentPage")).catch((error) => console.log(error))
+                            post("/auth/signup", this.formData).then((response) => {
+                                if (response.msg === "success") {
+                                    localStorage.setItem("auth-token", response.authToken)
+                                    goTo("contentPage")
+                                }
+                            }).catch((error) => console.log(error))
                         }
                     }
                 })

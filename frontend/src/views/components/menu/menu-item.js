@@ -1,4 +1,4 @@
-import { Div, MaterialIcon, Text } from "../../elements/index.js";
+import { Div, MaterialIcon, Text } from "../../../static/scripts/elements/index.js";
 
 export class MenuItem {
     constructor({ title, iconName }) {

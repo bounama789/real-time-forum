@@ -1,4 +1,4 @@
-import { Div, Text } from "../elements/index.js";
+import { Div, Text } from "../../static/scripts/elements/index.js";
 
 export class Logo {
     constructor() {

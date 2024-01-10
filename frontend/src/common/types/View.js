@@ -1,16 +1,16 @@
 import { setView } from "../../lib/lib.js";
 
-  /**
- * Creates a new View element.
- * @param {{
- *   id?: string,
- *   className?: string,
- *   name?: string,
- *   children?: View[],
- *   style?: object,
- *   placeholder?: string
- * }} options - The options for creating the view.
- */
+/**
+* Creates a new View element.
+* @param {{
+*   id?: string,
+*   className?: string,
+*   name?: string,
+*   children?: View[],
+*   style?: object,
+*   placeholder?: string
+* }} options - The options for creating the view.
+*/
 export class View {
   constructor(options = {}) {
     this.element;
@@ -31,18 +31,19 @@ export class View {
    * Sets the attributes of the view element.
    */
   _setAttributes() {
-    this.element.classList.add(...this.classList);
+    if (this.classList.length > 0)
+      this.element.classList.add(...this.classList);
     if (this.id)
       this.element.id = this.id;
     if (this.name)
-      this.element.name =  this.name;
-    if (this.name)
+      this.element.name = this.name;
+    if (this.placeholder)
       this.element.placeholder = this.placeholder;
   }
 
   _setEventListeners() {
     if (this.listeners) {
-      document.addEventListener("DOMContentLoaded", () => {
+      // document.addEventListener("DOMContentLoaded", () => {
         for (const eventName in this.listeners) {
           if (Object.hasOwnProperty.call(this.listeners, eventName)) {
             const func = this.listeners[eventName];
@@ -51,7 +52,7 @@ export class View {
             }
           }
         }
-      })
+      // })
     }
   }
 
@@ -102,7 +103,7 @@ export class View {
     this.element.appendChild(child.element);
   }
 
-  replaceContent(view){
+  replaceContent(view) {
     this.children = []
     this.element.innerHTML = ''
     this.addChild(view)

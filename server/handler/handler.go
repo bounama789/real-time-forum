@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"forum/dto"
 	"forum/models"
-	"forum/server/repositories"
+	"forum/server/cors"
 	"net/http"
 	"os"
+	"path"
+	"regexp"
+	"strings"
 	"text/template"
 )
 
@@ -21,42 +24,20 @@ type Data struct {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8000")
+	cors.SetCors(&w)
 
-	if r.URL.Path != "/" {
-		RenderErrorPage(http.StatusNotFound, w)
-		return
-	}
-	categories, _ := repositories.CategRepo.GetCategories()
+	re := regexp.MustCompile(`.*\.(js|css|ico)$`)
+	p := r.URL.Path
 
-	var data Data
-	tokenData, err := authService.VerifyToken(r)
-	data.Categories = categories
-
-	if err != nil {
-		tmpl, err := template.ParseFiles(("./frontend/index.html"))
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		err = tmpl.Execute(w, data)
-		fmt.Println(err)
+	if re.MatchString(p) {
+		p2,_ := strings.CutPrefix(p,"/src")
+		http.ServeFile(w, r, path.Join("./frontend/src", p2))
 		return
 	}
 
-	user, _ := repositories.UserRepo.GetUserById(tokenData.UserId)
-	data.Email = user.Email
-	data.Username = user.Username
-	data.ProfilePicture = user.AvatarUrl
-	data.IsAuthenticated = true
-	tml, err := template.ParseFiles("templates/main.html", "templates/post_layout.html", "templates/profile.html")
-	if err != nil {
-		RenderErrorPage(http.StatusInternalServerError, w)
-		return
-	}
-	tmpl := template.Must(tml, err)
-	err = tmpl.ExecuteTemplate(w, "main", data)
-	fmt.Println(err)
+	// w.WriteHeader(200)
+	http.ServeFile(w, r, "./frontend/index.html")
+
 }
 
 func StaticHandler(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +99,7 @@ func ServeApp(w http.ResponseWriter, r *http.Request) {
 	infos, err := os.Stat("./frontend/")
 	if err != nil {
 		fmt.Println(err)
-	}else{
+	} else {
 		fmt.Println(infos)
 	}
 	http.ServeFile(w, r, "./frontend/")

@@ -7,6 +7,7 @@ import (
 	"forum/config"
 	"forum/dto"
 	"forum/models"
+	"forum/server/cors"
 	"forum/server/repositories"
 	"forum/server/service"
 	"forum/utils"
@@ -208,6 +209,11 @@ func PostReactHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
 		liked := r.URL.Query().Get("liked")
@@ -222,45 +228,18 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
 			"created":   created,
 			"commented": commented,
 		}
-
-		var data Data
-		tokenData, err := authService.VerifyToken(r)
+		
 		var posts []dto.PostDTO
+		tokenData, err := authService.VerifyToken(r)
 		if err != nil {
-			posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)
-			data.Posts = posts
-			// tml, err := template.ParseFiles("templates/post.html")
-			// if err != nil {
-			// 	RenderErrorPage(http.StatusInternalServerError, w)
-			// 	return
-			// }
-			// tmpl := template.Must(tml, err)
-			// err = tmpl.Execute(w, data)
-			w.Header().Add("Content-Type","application/json")
-			w.Header().Set("Access-Control-Allow-Origin","*")
-			json.NewEncoder(w).Encode(posts)
-			if err != nil {
-				fmt.Println(err)
-			}
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"msg":"unauthorized"})
 			return
 		}
+		posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(posts)
 
-		posts, err = service.PostSrvice.GetAllPosts(tokenData, options)
-		if err != nil {
-			fmt.Println(err)
-		}
-		data.IsAuthenticated = true
-		data.Posts = posts
-		tml, err := template.ParseFiles("templates/post.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl := template.Must(tml, err)
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			fmt.Println(err)
-		}
 	}
 }
 

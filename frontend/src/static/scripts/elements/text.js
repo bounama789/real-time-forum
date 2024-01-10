@@ -1,4 +1,4 @@
-import { View } from "../../common/types/index.js";
+import { View } from "../../../common/types/index.js";
 
 export class Text extends View{
     constructor(props){

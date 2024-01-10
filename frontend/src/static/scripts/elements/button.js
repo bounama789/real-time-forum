@@ -1,9 +1,9 @@
-import { View } from "../../common/types/index.js";
+import { View } from "../../../common/types/index.js";
 
-export class Div extends View{
+export class Button extends View {
     constructor(properties) {
         super(properties);
-        this.element = document.createElement('div');
+        this.element = document.createElement('button');
         this._setAttributes()
         this._appendChildren()
         this._applyStyles()

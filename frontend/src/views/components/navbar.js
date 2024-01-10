@@ -1,4 +1,4 @@
-import { Div, Nav, MaterialIcon, TextField } from "../elements/index.js";
+import { Div, Nav, MaterialIcon, TextField } from "../../static/scripts/elements/index.js";
 import { Logo } from "./logo.js";
 export class Navbar {
   constructor() {

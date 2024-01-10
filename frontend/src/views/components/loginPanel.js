@@ -1,7 +1,7 @@
 import { post } from "../../api/api.js";
 import { goTo } from "../../lib/pager/navigation.js";
 import { getView } from "../../lib/lib.js";
-import { Div,TextField,Button,Text } from "../elements/index.js"
+import { Div,TextField,Button,Text } from "../../static/scripts/elements/index.js"
 
 export class LoginPanel {
     constructor() {
@@ -47,8 +47,10 @@ export class LoginPanel {
                     listeners:{
                         onclick:()=>{
                             post("/auth/signin",this.formData).then((response)=>{
-                                console.log(response);
-                                goTo("contentPage")
+                                if (response.msg === "success") {
+                                    localStorage.setItem("auth-token",response.authToken)
+                                    goTo("contentPage")
+                                }
                             }).catch((error)=> console.log(error))
                         }
                     }

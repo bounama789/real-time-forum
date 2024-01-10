@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"forum/config"
 	"forum/models"
+	"forum/server/cors"
 	"forum/server/service"
 	"forum/utils"
 	"io"
@@ -15,10 +16,16 @@ import (
 var authService = service.AuthSrvice
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	cors.SetCors(&w)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
-		http.ServeFile(w,r,"./frontend/index.html")
+		http.ServeFile(w, r, "./frontend/index.html")
 		return
 
 	case http.MethodPost:
@@ -65,27 +72,31 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 		} else {
-			newSess, cookie := authService.GenCookieSession(w, user, r)
+			newSess := authService.GenCookieSession(w, user, r)
 			newSess.UserId = user.UserId
-			http.SetCookie(w, &cookie)
 			err := authService.SessRepo.SaveSession(newSess)
 			if err != nil {
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 				return
 			}
-			json.NewEncoder(w).Encode(map[string]string{"msg": "succes"})
+			json.NewEncoder(w).Encode(map[string]string{"authToken": newSess.Token,"msg":"success"})
 
 		}
 	}
 }
 
-func SignInHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func SignInHandler(w http.ResponseWriter,r *http.Request) {
+	cors.SetCors(&w)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
 	// w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	switch r.Method {
 	case http.MethodGet:
-		http.ServeFile(w,r,"./frontend/index.html")
+		http.ServeFile(w, r, "./frontend/index.html")
 		return
 		// http.Redirect(w,r,"/",http.StatusPermanentRedirect)
 	case http.MethodPost:
@@ -121,13 +132,12 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 			// fmt.Fprintln(w, err)
 			return
 		}
-		newSess, cookie := authService.GenCookieSession(w, user, r)
-		http.SetCookie(w, &cookie)
+		newSess:= authService.GenCookieSession(w, user, r)
 		authService.SessRepo.SaveSession(newSess)
 
 		authService.RemExistingUsrSession(user.UserId.String())
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]any{"msg": "success"})
+		json.NewEncoder(w).Encode(map[string]string{"authToken": newSess.Token,"msg":"success"})
 	default:
 		RenderErrorPage(http.StatusMethodNotAllowed, w)
 		return
@@ -135,6 +145,12 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SignOutHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
 	switch r.Method {
 	case http.MethodDelete:
 		cookie := &http.Cookie{
@@ -161,6 +177,13 @@ func SignOutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
 	email := r.URL.Query().Get("email")
 	_, err := authService.UserRepo.GetUserByEmail(email)
 	if err == nil {
@@ -174,6 +197,13 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifyUsernameHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
 	username := r.URL.Query().Get("username")
 	_, err := authService.UserRepo.GetUserByUsername(username)
 	if err == nil {
@@ -183,5 +213,22 @@ func VerifyUsernameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"msg": "valid"})
+}
 
+func VerifySessionHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+
+	_, err := authService.VerifyToken(r)
+	if err != nil {
+		w.WriteHeader(401)
+		json.NewEncoder(w).Encode(map[string]any{"msg": "unauthorized"})
+		return
+	}
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(map[string]any{"msg": "success"})
 }

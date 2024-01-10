@@ -1,8 +1,8 @@
 import { Page } from "../../common/types/index.js"
-import { getView, setPage } from "../../lib/lib.js";
+import { getPageByPath, getView, setPage } from "../../lib/lib.js";
 import { Divider } from "../components/divider.js";
 import { LoginPanel, SignupPanel } from "../components/index.js";
-import { Div, Text } from "../elements/index.js";
+import { Div, Text } from "../../static/scripts/elements/index.js";
 import { AuthLayout } from "../layout/auth-layout.js";
 
 
@@ -10,18 +10,25 @@ export class AuthPage {
     constructor(options) {
         // super(options)
         this.id = "auth"
-        this.pagerId = options.pagerId
+        this.pagerId = options.id
         this.title = "Authentication"
-        this.loginPanel = new LoginPanel()
-        this.signupPanel = new SignupPanel()
+        this.loginPanel = getView("loginPanel") || new LoginPanel()
+        this.signupPanel = getView("signupPanel") || new SignupPanel()
         this.currentPanel = location.pathname === "/auth/signin" ? this.loginPanel : this.signupPanel
         // this.path = "/auth"
-        setPage(this)
-
-        if(/\/auth\/\w+/.test(location.pathname))
+        if (/\/auth\/\w+/.test(location.pathname)) {
+            this.currentPanel.element.style.display = "flex"
+        }
+        addEventListener("load", () => {
             this.setDefaultPanel()
+        })
+
+        setPage(this)
+        // const panelId = location.pathname == "/auth/signin" ? "loginPanel" : "signupPanel"
+        // this.switchPanel(panelId)
     }
     get element() {
+
         return new AuthLayout({
             style: {
                 width: '100M',
@@ -65,8 +72,9 @@ export class AuthPage {
                                     children: [
                                         new Div({
                                             id: "login-label",
-                                            className: "auth-label",
+                                            className: `auth-label ${this.currentPanel=== this.loginPanel && "active"}`,
                                             style: {
+                                                backgroundColor:this.currentPanel === this.loginPanel && "var(--bs-blue)",
                                                 flex: 2,
                                                 textAlign: "center",
                                                 padding: "1rem"
@@ -85,7 +93,7 @@ export class AuthPage {
                                         }),
                                         new Div({
                                             id: "register-label",
-                                            className: "auth-label",
+                                            className: `auth-label ${this.currentPanel=== this.signupPanel && "active"}`,
                                             style: {
                                                 flex: 2,
                                                 textAlign: "center",
@@ -115,8 +123,8 @@ export class AuthPage {
 
     }
 
-    get path(){
-        return  this.currentPanel === this.loginPanel ? "/auth/signin":"/auth/signup"
+    get path() {
+        return this.currentPanel === this.loginPanel ? "/auth/signin" : "/auth/signup"
 
     }
 
@@ -130,9 +138,7 @@ export class AuthPage {
         }
     }
 
-    setDefaultPanel(){
-        addEventListener("DOMContentLoaded",()=>{
-            this.currentPanel.element.style.display = "flex"
+    setDefaultPanel() {
         if (this.currentPanel === this.loginPanel) {
             const label = getView("login-label").element
             label.classList.add("active")
@@ -141,7 +147,5 @@ export class AuthPage {
             const label = getView("register-label").element
             label.classList.add("active")
         }
-        })
-        
     }
 }

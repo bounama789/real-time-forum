@@ -9,10 +9,25 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <script type="module">
-    import { App } from "/app.js"
+    import { App } from "/src/app.js"
+    import { checkSession } from "/src/api/api.js"
+
     const container = document.querySelector('.wrapper')
-    const app = new App({container})
-    app.run()
+
+    addEventListener("DOMContentLoaded", async () => {
+      console.log(document.cookie);
+     await checkSession().then(response => {
+        let path = "/"
+        console.log(response);
+        if (response.msg === "success") {
+          path = /\/auth\/\w+/.test(location.pathname) ? "/" : location.pathname
+        } else {
+          path = "/auth/signin" 
+        }
+        const app = new App({ container, currentPath: path })
+        app.run()
+      })
+    })
 
   </script>
   <title>REAL-TIME-FORUM</title>

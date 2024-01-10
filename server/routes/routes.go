@@ -24,14 +24,15 @@ const (
 	SEARCH_ENDPOINT          = "/search"
 	GET_POST_ENDPOINT        = "/post"
 	ABOUT_ENDPOINT           = "/about"
+	VERIF_SESS_ENDPOINT = "/verifsess"
 )
 
 func Route() *http.ServeMux {
 
 	var mux = http.ServeMux{}
-	mux.Handle(HOME_ENDPOINT,http.FileServer(http.Dir("./frontend/")))
+	// mux.Handle(HOME_ENDPOINT,http.FileServer(http.Dir("./frontend/")))
 	// mux.HandleFunc(STATIC_ENDPOINT, handler.StaticHandler)
-	// mux.HandleFunc(HOME_ENDPOINT, handler.IndexHandler)
+	mux.HandleFunc(HOME_ENDPOINT, handler.IndexHandler)
 	mux.HandleFunc(SIGNUP_ENDPOINT, handler.SignUpHandler)
 	mux.HandleFunc(SIGNIN_ENDPOINT, handler.SignInHandler)
 	mux.HandleFunc(GET_COMMENT_ENDPOINT, handler.GetCommentsHandler)
@@ -48,6 +49,8 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(GET_POST_ENDPOINT, handler.GetPostHandler)
 	mux.HandleFunc(SEARCH_ENDPOINT, handler.SearchHandler)
 	mux.HandleFunc(ABOUT_ENDPOINT, handler.AboutHandler)
+	mux.HandleFunc(VERIF_SESS_ENDPOINT, handler.VerifySessionHandler)
+
 	// mux.Handle("app.js",http.FileServer(http.Serve("./frontend/app.js")))
 	return &mux
 
