@@ -1,4 +1,4 @@
-import { View } from "../../../common/types/index.js"
+import { View } from "../../common/types/index.js"
 
 export class TextField extends View {
     constructor(props) {
@@ -8,6 +8,5 @@ export class TextField extends View {
         this._setAttributes()
         this._applyStyles()
         this._setConstraints()
-
     }
 }

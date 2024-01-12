@@ -1,6 +1,6 @@
 import { Page } from "../../common/types/index.js";
 import { DefaultLayout } from "../layout/default_layout.js";
-import { Header, Div } from "../../static/scripts/elements/index.js";
+import { Header, Div } from "../elements/index.js";
 import { Navbar, Menu } from "../components/index.js";
 import { MainPage } from "./main-page.js";
 import { setPage } from "../../lib/lib.js";
@@ -46,7 +46,6 @@ export class ContentPage {
             new Div({
               className: "leftPanel",
               style: {
-                position: "sticky",
                 flex: 1.5,
                 display: "flex",
                 flexDirection: "column",

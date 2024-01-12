@@ -1,4 +1,4 @@
-import { View } from "../../../common/types/index.js"
+import { View } from "../../common/types/index.js"
 
 export class MaterialIcon extends View{
     constructor(props){
@@ -9,6 +9,5 @@ export class MaterialIcon extends View{
         this._setAttributes()
         this._applyStyles()
         this._setConstraints()
-
     }
 }

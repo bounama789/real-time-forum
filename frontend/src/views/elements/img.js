@@ -1,4 +1,4 @@
-import { View } from "../../../common/types/index.js";
+import { View } from "../../common/types/index.js";
 
 export class Image extends View{
     constructor(props){
@@ -11,6 +11,5 @@ export class Image extends View{
         this._applyStyles()
         this._setAttributes()
         this._setConstraints()
-
     }
 }

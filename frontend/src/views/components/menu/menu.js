@@ -1,4 +1,4 @@
-import { Div } from "../../../static/scripts/elements/index.js";
+import { Div } from "../../elements/index.js";
 import { MenuItem } from "./menu-item.js";
 import { getView } from "../../../lib/lib.js";
 
@@ -18,9 +18,11 @@ export class Menu {
         alignItems: "baseline",
         justifyContent: "space-between",
         gap: "1.5rem",
-        width: "100%",
+        width: "fit-content",
         padding: "20px 0",
-        position: "sticky",
+        position: "fixed",
+        alignSelf: "flex-start",
+
       },
       children: [
         new MenuItem({

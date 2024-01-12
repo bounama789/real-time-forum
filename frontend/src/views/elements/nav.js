@@ -1,4 +1,4 @@
-import { View } from "../../../common/types/index.js"
+import { View } from "../../common/types/index.js"
 
 export class Nav extends View {
     constructor(props){
@@ -8,6 +8,5 @@ export class Nav extends View {
         this._appendChildren()
         this._applyStyles()
         this._setConstraints()
-
     }
 }

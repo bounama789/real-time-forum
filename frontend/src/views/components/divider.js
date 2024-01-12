@@ -1,4 +1,4 @@
-import { Div } from "../../static/scripts/elements/index.js";
+import { Div } from "../elements/index.js";
 
 export class Divider{
     constructor({id,width="1px", height="1px"}){

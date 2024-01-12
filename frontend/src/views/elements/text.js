@@ -1,4 +1,4 @@
-import { View } from "../../../common/types/index.js";
+import { View } from "../../common/types/index.js";
 
 export class Text extends View{
     constructor(props){
@@ -6,6 +6,5 @@ export class Text extends View{
         this.element = document.createTextNode(props.text)
         this._applyStyles()
         this._setConstraints()
-
     }
 }

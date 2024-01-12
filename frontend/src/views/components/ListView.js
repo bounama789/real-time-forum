@@ -1,5 +1,5 @@
 import { View } from "../../common/types/View.js";
-import { Div } from "../../static/scripts/elements/index.js";
+import { Div } from "../elements/index.js";
 
 /**
  * Creates a new ListView with the given options.

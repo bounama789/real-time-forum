@@ -1,6 +1,6 @@
 import { getPosts } from "../../api/api.js";
 import { ListView, PostCard } from "../components/index.js";
-import { Div, Image, Text, TextField } from "../../static/scripts/elements/index.js";
+import { Div, Image, Text, TextField } from "../elements/index.js";
 
 export class MainPage {
   constructor(options) {

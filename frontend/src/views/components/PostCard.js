@@ -1,4 +1,4 @@
-import { Div, Image, Text } from "../../static/scripts/elements/index.js";
+import { Div, Image, Text } from "../elements/index.js";
 
 export class PostCard {
   constructor(postObject) {

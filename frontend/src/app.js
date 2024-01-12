@@ -1,6 +1,6 @@
 // import { Menu, Navbar } from "./views/components/index.js";
 // import { DefaultLayout } from "./views/layout/default_layout.js";
-import { Div } from "./static/scripts/elements/index.js";
+import { Div } from "./views/elements/index.js";
 // import { MainPage } from "./views/pages/index.js";
 import { ViewPager } from "./lib/pager/view-pager.js";
 import { ContentPage } from "./views/pages/ContentPage.js";

@@ -1,7 +1,7 @@
 import { post } from "../../api/api.js";
 import { getView } from "../../lib/lib.js";
 import { goTo } from "../../lib/pager/navigation.js";
-import { Div, TextField, Button, Text } from "../../static/scripts/elements/index.js"
+import { Div, TextField, Button, Text } from "../elements/index.js"
 
 export class SignupPanel {
     constructor() {

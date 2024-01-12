@@ -2,7 +2,7 @@ import { Page } from "../../common/types/index.js"
 import { getPageByPath, getView, setPage } from "../../lib/lib.js";
 import { Divider } from "../components/divider.js";
 import { LoginPanel, SignupPanel } from "../components/index.js";
-import { Div, Text } from "../../static/scripts/elements/index.js";
+import { Div, Text } from "../elements/index.js";
 import { AuthLayout } from "../layout/auth-layout.js";
 
 
