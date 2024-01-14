@@ -128,7 +128,6 @@ func SelectWithJoinQuery(primaryTable string, joinConditions []JoinCondition, wh
 
 	query := fmt.Sprintf("SELECT %v.* FROM %s %s WHERE %s %s;", primaryTable, primaryTable, joinClausesString, whToString, order)
 
-	fmt.Println(query)
 	return query
 }
 
@@ -214,6 +213,5 @@ func SearchPostSuggestionQuery(keywords []string) string {
 	relevance_score DESC;
 	`,cases,wh)
 
-	fmt.Println(query)
 	return query
 }

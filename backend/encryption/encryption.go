@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"forum/backend/config"
 )
 
@@ -32,7 +33,7 @@ func Encrypt(text string) (string, error) {
 }
 
 func Decrypt(encrtedText string) (string, error) {
-	text,err := base64.StdEncoding.DecodeString(encrtedText)
+	text, err := base64.StdEncoding.DecodeString(encrtedText)
 	if err != nil {
 		return "", err
 	}
@@ -48,6 +49,9 @@ func Decrypt(encrtedText string) (string, error) {
 	}
 
 	nonceSize := gcm.NonceSize()
+	if len(encrtedText) <= nonceSize {
+		return "", fmt.Errorf("not a valid token")
+	}
 	nonce, cipherText := text[:nonceSize], text[nonceSize:]
 	decryptedText, err := gcm.Open(nil, []byte(nonce), []byte(cipherText), nil)
 	if err != nil {

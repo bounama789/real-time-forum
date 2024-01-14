@@ -25,6 +25,7 @@ const (
 	GET_POST_ENDPOINT        = "/post"
 	ABOUT_ENDPOINT           = "/about"
 	VERIF_SESS_ENDPOINT = "/verifsess"
+	WS_ENDPOINT = "/ws"
 )
 
 func Route() *http.ServeMux {
@@ -50,6 +51,7 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(SEARCH_ENDPOINT, handler.SearchHandler)
 	mux.HandleFunc(ABOUT_ENDPOINT, handler.AboutHandler)
 	mux.HandleFunc(VERIF_SESS_ENDPOINT, handler.VerifySessionHandler)
+	mux.HandleFunc(WS_ENDPOINT, handler.WSHandler)
 
 	// mux.Handle("app.js",http.FileServer(http.Serve("./frontend/app.js")))
 	return &mux

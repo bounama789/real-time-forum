@@ -14,6 +14,7 @@ import (
 type Database struct {
 	*sql.DB
 	mu sync.Mutex
+	Test string
 }
 
 const (
@@ -69,7 +70,6 @@ func (d *Database) Insert(table string, data any) error {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println(query)
 	prep, err := d.Prepare(query)
 	if err != nil {
 		fmt.Println(err)
@@ -99,7 +99,6 @@ func (d *Database) Update(table string, object any, where q.WhereOption) error {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println(query)
 	stmt, err := d.Prepare(query)
 
 	if err != nil {
@@ -112,7 +111,6 @@ func (d *Database) Update(table string, object any, where q.WhereOption) error {
 func (d *Database) GetOneFrom(table string, where q.WhereOption,) (*sql.Row, error) {
 
 	query := q.SelectOneFrom(table, where)
-	fmt.Println(query)
 	stmt, err := d.Prepare(query)
 	if err != nil {
 		fmt.Println(err)

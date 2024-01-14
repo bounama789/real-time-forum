@@ -7,6 +7,7 @@ import (
 	"forum/backend/models"
 	r "forum/backend/server/repositories"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -87,7 +88,13 @@ func (authService *AuthService) GetTokenData(str string) (models.TokenData, erro
 }
 
 func (authService *AuthService) VerifyToken(r *http.Request) (models.TokenData, error) {
-	var reader = strings.NewReader(r.Header.Get("auth-token"))
+	tk := r.Header.Get("auth-token")
+
+	if tk == "" {
+		tk,_ = url.QueryUnescape(r.URL.Query().Get("token")) 
+		tk = strings.ReplaceAll(tk," ","+")
+	}
+var reader = strings.NewReader(tk)
 
 	data := make(map[string]string)
 	err := json.NewDecoder(reader).Decode(&data)
@@ -95,10 +102,13 @@ func (authService *AuthService) VerifyToken(r *http.Request) (models.TokenData, 
 		return models.TokenData{}, err
 	}
 
-	token := data["token"]
+	token := data["token"] 
+	if token == "" {
+		return models.TokenData{}, fmt.Errorf("missing token")
+	}
 
 	tokenData, err := authService.GetTokenData(token)
-	if err != nil || token == "" {
+	if err != nil{
 		return models.TokenData{}, err
 	}
 

@@ -10,7 +10,6 @@ export async function get(path) {
       // 'Accept': 'application/json',
       'auth-token': JSON.stringify({token})
     },
-    credentials:"include",
   })
     .then(response => {
       console.log(response);
@@ -28,7 +27,6 @@ export async function post(path, data) {
   return fetch(url, {
     method: 'POST',
     body: JSON.stringify(data),
-    credentials: 'include',
     headers:{
       'auth-token': JSON.stringify({token})
     }
@@ -48,5 +46,14 @@ export async function getPosts() {
 export async function checkSession() {
   const token = localStorage.getItem("auth-token")
   return await post("/verifsess",{token}).catch(error => error)
+}
+
+export function setWSConnection(){
+  const token = localStorage.getItem("auth-token")
+  if (window.WebSocket) {
+    const socket = new WebSocket(`ws://localhost:8000/ws?token=${JSON.stringify({token})}}`)
+    window.app.wsConnection = socket
+  }
+  
 }
 

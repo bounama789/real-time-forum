@@ -10,22 +10,30 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <script type="module">
     import { App } from "/src/app.js"
-    import { checkSession } from "/src/api/api.js"
+    import { checkSession, setWSConnection } from "/src/api/api.js"
 
     const container = document.querySelector('.wrapper')
 
     addEventListener("DOMContentLoaded", async () => {
-      console.log(document.cookie);
-     await checkSession().then(response => {
+      await checkSession().then(response => {
+        let valid = false
         let path = "/"
         console.log(response);
         if (response.msg === "success") {
+          valid = true
           path = /\/auth\/\w+/.test(location.pathname) ? "/" : location.pathname
         } else {
-          path = "/auth/signin" 
+          path = "/auth/signin"
         }
+
         const app = new App({ container, currentPath: path })
+        window.app = app
         app.run()
+
+        if (valid) {
+          const event = new CustomEvent("logged")
+          dispatchEvent(event)
+        }
       })
     })
 

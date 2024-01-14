@@ -1,4 +1,4 @@
-import { post } from "../../api/api.js";
+import { post, setWSConnection } from "../../api/api.js";
 import { getView } from "../../lib/lib.js";
 import { goTo } from "../../lib/pager/navigation.js";
 import { Div, TextField, Button, Text } from "../elements/index.js"
@@ -87,9 +87,13 @@ export class SignupPanel {
                             post("/auth/signup", this.formData).then((response) => {
                                 if (response.msg === "success") {
                                     localStorage.setItem("auth-token", response.authToken)
+
+                                    const event = new CustomEvent("logged")
+                                    dispatchEvent(event)
                                     goTo("contentPage")
                                 }
                             }).catch((error) => console.log(error))
+                           
                         }
                     }
                 })
