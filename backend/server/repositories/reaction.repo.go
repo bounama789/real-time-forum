@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"database/sql"
 	"fmt"
 	db "forum/backend/database"
 	q "forum/backend/database/query"
@@ -37,7 +38,7 @@ func (r *ReactionRepository) GetReactByUser(userId, id, reactType string) (react
 			return reaction, err
 		}
 		err = row.Scan(&reaction.ReactId, &reaction.PostId, &reaction.CommentId, &reaction.UserId, &reaction.Reactions, &reaction.ReacType, &reaction.CreatedAt, &reaction.UpdatedAt)
-		if err != nil {
+		if err != nil && err != sql.ErrNoRows {
 			fmt.Println(err)
 			return reaction, err
 		}
@@ -48,7 +49,7 @@ func (r *ReactionRepository) GetReactByUser(userId, id, reactType string) (react
 			return reaction, err
 		}
 		err = row.Scan(&reaction.ReactId, &reaction.PostId, &reaction.CommentId, &reaction.UserId, &reaction.Reactions, &reaction.ReacType, &reaction.CreatedAt, &reaction.UpdatedAt)
-		if err != nil {
+		if err != nil && err != sql.ErrNoRows {
 			fmt.Println(err)
 
 			return reaction, err
@@ -109,5 +110,3 @@ func (r *ReactionRepository) GetVotes(reactType, id string) (int, error) {
 	}
 	return posCount, nil
 }
-
-

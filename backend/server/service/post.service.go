@@ -121,9 +121,8 @@ func (postService *PostService) GetUserPostReact(userId, postId string) (models.
 func (postService *PostService) GetAllPosts(t models.TokenData, options map[string]string) (res []dto.PostDTO, err error) {
 	posts, _ := postService.PostRepo.GetPosts(t, options)
 	for _, post := range posts {
-		creationDate, err := time.Parse(config.Get("TIME_FORMAT").ToString(), post.CreatedAt)
-		fmt.Println(err)
-		categories, err := postService.PostRepo.GetPostCategories(post.PostId.String())
+		creationDate, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), post.CreatedAt)
+		categories, _ := postService.PostRepo.GetPostCategories(post.PostId.String())
 		react, _ := postService.GetUserPostReact(t.UserId, post.PostId.String())
 		now, _ := time.Parse(config.Get("TIME_FORMAT").ToString(), time.Now().Format(config.Get("TIME_FORMAT").ToString()))
 		age := utils.FormatDuration(now.Sub(creationDate))

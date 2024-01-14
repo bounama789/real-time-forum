@@ -113,7 +113,6 @@ func (d *Database) GetOneFrom(table string, where q.WhereOption,) (*sql.Row, err
 	query := q.SelectOneFrom(table, where)
 	stmt, err := d.Prepare(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	row := stmt.QueryRow()
@@ -136,7 +135,6 @@ func (d *Database) GetAllFrom(table string, where q.WhereOption,orderby string) 
 	rows, err := stmt.Query()
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return rows, nil
@@ -147,13 +145,11 @@ func (d *Database) GetAllAndJoin(table string, j []q.JoinCondition, where q.Wher
 
 	stmt, err := d.Prepare(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	rows, err := stmt.Query()
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return rows, nil
@@ -164,13 +160,11 @@ func (d *Database) GetCount(table string, where q.WhereOption) (*sql.Row, error)
 
 	stmt, err := d.Prepare(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	row := stmt.QueryRow()
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return row, nil

@@ -69,7 +69,6 @@ func (r *PostRepository) GetPost(postId string) (post models.Post, err error) {
 	}
 	err = row.Scan(&post.PostId, &post.Title, &post.Body, &post.Username, &post.UserId, &post.Status, &post.CreatedAt, &post.UpdatedAt)
 	if err != nil {
-		fmt.Println(err)
 		return post, fmt.Errorf("no value found")
 	}
 	return post, nil
@@ -193,7 +192,8 @@ func (r *PostRepository) GetPosts(t models.TokenData, options map[string]string)
 
 	for rows.Next() {
 		err := rows.Scan(&post.PostId, &post.Title, &post.Body, &post.Username, &post.UserId, &post.Status, &post.CreatedAt, &post.UpdatedAt)
-		if err != nil {
+		if err != nil && err != sql.ErrNoRows {
+
 			fmt.Println(err)
 		}
 		posts = append(posts, post)
@@ -218,7 +218,7 @@ func (r *PostRepository) GetPostCategories(postId string) (cats []models.Categor
 		"pst_id": postId,
 	}
 	rows, err := r.DB.GetAllAndJoin(db.CATEGORIES_TABLE, joinCond, wh, "name ASC")
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows  {
 		fmt.Println(err)
 		return nil, err
 	}
@@ -238,7 +238,7 @@ func (r *PostRepository) SearchSuggestions(keywords []string) (rows *sql.Rows) {
 		return
 	}
 	rows, err = stmt.Query()
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows  {
 		fmt.Println(err)
 		return
 	}

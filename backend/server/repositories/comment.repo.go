@@ -66,9 +66,8 @@ func (r *CommentRepository) GetPostComments(postId string) (comments []models.Co
 	}
 	var comment models.Comment
 	for rows.Next() {
-		err := rows.Scan(&comment.CommentId, &comment.UserId, &comment.PostId, &comment.Body,&comment.Username,&comment.CreatedAt)
+		rows.Scan(&comment.CommentId, &comment.UserId, &comment.PostId, &comment.Body,&comment.Username,&comment.CreatedAt)
 		comments = append(comments, comment)
-		fmt.Println(err)
 	}
 
 	return comments, nil
