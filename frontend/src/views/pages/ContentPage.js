@@ -1,7 +1,7 @@
 import { Page } from "../../common/types/index.js";
 import { DefaultLayout } from "../layout/default_layout.js";
 import { Header, Div } from "../elements/index.js";
-import { Navbar, Menu } from "../components/index.js";
+import { Navbar, Menu, StatusPanel, SuggestionPanel } from "../components/index.js";
 import { MainPage } from "./main-page.js";
 import { setPage } from "../../lib/lib.js";
 export class ContentPage {
@@ -73,12 +73,19 @@ export class ContentPage {
             new Div({
               className: "rightPanel",
               style: {
-                position: "sticky",
+                position: "relative",
                 flex: 4,
-                backgroundColor: "var(--bs-white)",
-                boxShadow: "-20px 0 15px -23px rgba(0,0,0,0.1)"
+                display: "flex",
+                flexDirection: "row",
+                boxShadow: "-20px 0 15px -23px rgba(0,0,0,0.1)",
+                boxShadow: "-20px 0 15px -23px rgba(0,0,0,0.1)",
+                gap:"1rem",
+              },
+              children: [
+                new SuggestionPanel(),
+                new StatusPanel(),
 
-              }
+              ]
             })
           ],
         })

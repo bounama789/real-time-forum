@@ -4,7 +4,7 @@ export class PostCard {
   constructor(postObject) {
     return new Div({
       id: postObject.post_id,
-      className: "post-card",
+      className: "post-card", 
       style: {
         backgroundColor: "var(--bs-white)",
         width: "100%",

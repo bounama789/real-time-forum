@@ -44,14 +44,14 @@ export class View {
   _setEventListeners() {
     if (this.listeners) {
       // document.addEventListener("DOMContentLoaded", () => {
-        for (const eventName in this.listeners) {
-          if (Object.hasOwnProperty.call(this.listeners, eventName)) {
-            const func = this.listeners[eventName];
-            if (func) {
-              this.element[eventName] = func
-            }
+      for (const eventName in this.listeners) {
+        if (Object.hasOwnProperty.call(this.listeners, eventName)) {
+          const func = this.listeners[eventName];
+          if (func) {
+            this.element[eventName] = func
           }
         }
+      }
       // })
     }
   }
@@ -81,7 +81,14 @@ export class View {
    * Appends the child elements to the view element.
    */
   _appendChildren() {
-    this.children.forEach((child) => this.element.appendChild(child.element));
+    this.children.forEach((child) => {
+      console.log(typeof child);
+      if (child instanceof Node) {
+        this.element.appendChild(child)
+      } else {
+        this.element.appendChild(child.element)
+      }
+    });
   }
 
   /**
