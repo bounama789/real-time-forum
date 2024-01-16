@@ -7,7 +7,7 @@ type Hub struct {
 	unregister chan *Client
 }
 
-// NewHub will will give an instance of an Hub
+// NewHub will give an instance of a Hub
 func NewHub() *Hub {
 	return &Hub{
 		register:   make(chan *Client),

@@ -48,19 +48,31 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			if err := utils.VerifyUsername(user.Username); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			} else if err := utils.IsValidEmail(user.Email); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			} else if err := utils.VerifyName(user.Firstname); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			} else if err := utils.VerifyName(user.Lastname); err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			}
 		}
@@ -70,14 +82,20 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		err = authService.CreateNewUser(&user)
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+			err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+			if err != nil {
+				return
+			}
 		} else {
 			newSess, cookie := authService.GenCookieSession(w, user, r)
 			newSess.UserId = user.UserId
 			http.SetCookie(w, &cookie)
 			err := authService.SessRepo.SaveSession(newSess)
 			if err != nil {
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			}
 			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
@@ -89,34 +107,49 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		tmpl,err := template.ParseFiles("./templates/login.html")
+		tmpl, err := template.ParseFiles("./templates/login.html")
 		if err != nil {
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		}
-		tmpl.Execute(w, nil)
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			return
+		}
 	case http.MethodPost:
 		var credentials = make(map[string]string, 2)
 		if content, err := io.ReadAll(r.Body); err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+			err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+			if err != nil {
+				return
+			}
 			return
 		} else {
 			err := json.Unmarshal(content, &credentials)
 			if err != nil {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			}
 			identifiant := strings.TrimSpace(credentials["identifiant"])
-			credentials["identifiant"]=identifiant
+			credentials["identifiant"] = identifiant
 			if err := utils.VerifyUsername(identifiant); err != nil && !strings.Contains(identifiant, "@") {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			} else if err := utils.IsValidEmail(identifiant); err != nil && strings.Contains(identifiant, "@") {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				err := json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
+				if err != nil {
+					return
+				}
 				return
 			}
 		}
@@ -129,7 +162,10 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		newSess, cookie := authService.GenCookieSession(w, user, r)
 		http.SetCookie(w, &cookie)
-		authService.SessRepo.SaveSession(newSess)
+		err = authService.SessRepo.SaveSession(newSess)
+		if err != nil {
+			return
+		}
 
 		authService.RemExistingUsrSession(user.UserId.String())
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -159,7 +195,10 @@ func SignOutHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		authService.SessRepo.DeleteSession(tokenvalue.SessId)
+		err = authService.SessRepo.DeleteSession(tokenvalue.SessId)
+		if err != nil {
+			return
+		}
 		w.Header().Add("HX-Redirect", "/")
 
 	default:
@@ -172,11 +211,17 @@ func VerifyEmailHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := authService.UserRepo.GetUserByEmail(email)
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"msg": "email already in use"})
+		err := json.NewEncoder(w).Encode(map[string]string{"msg": "email already in use"})
+		if err != nil {
+			return
+		}
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"msg": "valid"})
+	err = json.NewEncoder(w).Encode(map[string]string{"msg": "valid"})
+	if err != nil {
+		return
+	}
 
 }
 
@@ -185,10 +230,16 @@ func VerifyUsernameHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := authService.UserRepo.GetUserByUsername(username)
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"msg": "username already in use"})
+		err := json.NewEncoder(w).Encode(map[string]string{"msg": "username already in use"})
+		if err != nil {
+			return
+		}
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"msg": "valid"})
+	err = json.NewEncoder(w).Encode(map[string]string{"msg": "valid"})
+	if err != nil {
+		return
+	}
 
 }

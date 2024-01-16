@@ -114,7 +114,11 @@ type Error struct {
 func RespondWithJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(data)
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 }
 
 func RespondWithError(w http.ResponseWriter, code int, msg string) {

@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"forum/config"
 	"forum/dto"
@@ -165,14 +166,26 @@ func PostReactHandler(w http.ResponseWriter, r *http.Request) {
 		if react == "LIKE" || react == "DISLIKE" {
 			reaction, err := service.PostSrvice.GetUserPostReact(tokenData.UserId, postId)
 			if err != nil {
-				if err == sql.ErrNoRows {
-					service.PostSrvice.SavePostReaction(post, react, tokenData.UserId)
+				if errors.Is(err, sql.ErrNoRows) {
+					err := service.PostSrvice.SavePostReaction(post, react, tokenData.UserId)
+					if err != nil {
+						RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+						return
+					}
 				}
 			} else if reaction.Reactions == react {
-				repositories.ReactRepo.DeleteReaction(reaction.ReactId.String())
+				err := repositories.ReactRepo.DeleteReaction(reaction.ReactId.String())
+				if err != nil {
+					RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+					return
+				}
 			} else {
 				reaction.Reactions = react
-				repositories.ReactRepo.UpdateReaction(reaction)
+				err := repositories.ReactRepo.UpdateReaction(reaction)
+				if err != nil {
+					RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+					return
+				}
 			}
 			votes, err = service.PostSrvice.GetPostVotes(postId)
 			if err != nil {

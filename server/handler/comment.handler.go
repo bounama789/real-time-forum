@@ -3,11 +3,12 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"forum/models"
 	repo "forum/server/repositories"
 	"forum/server/service"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -34,10 +35,11 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		content, err := io.ReadAll(body)
 		if err != nil {
 			if err == io.EOF {
+				log.Printf("Empty body: %v\n", err)
 				RespondWithError(w, http.StatusBadRequest, "Bad Request")
 				return
 			} else {
-				fmt.Println(err)
+				log.Printf("Can't read body: %v\n", err) // Added formatting directive %v
 				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
@@ -47,7 +49,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		var comment models.Comment
 		err = json.Unmarshal(content, &comment)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Can't Unmarshal comment: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
@@ -55,7 +57,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		// Set user ID and username from token data
 		comment.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Can't recup Comment.UserId: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
@@ -70,7 +72,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		// Create comment in the database
 		err = service.ComSrvice.NewComment(comment)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Can't create comment: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		} else {
@@ -111,7 +113,7 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 				RespondWithError(w, http.StatusBadRequest, "Bad Request")
 				return
 			} else {
-				fmt.Println(err)
+				log.Printf("Can't read Body: %v\n", err)
 				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
@@ -121,7 +123,7 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		var updatedComment models.Comment
 		err = json.Unmarshal(content, &updatedComment)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("%v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
@@ -129,15 +131,14 @@ func EditCommentHandler(w http.ResponseWriter, r *http.Request) {
 		// Set user ID from token data
 		updatedComment.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Error converting user ID to UUID: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
 		// Update comment in the database
-		err = service.ComSrvice.EditComment(updatedComment)
-		if err != nil {
-			fmt.Println(err)
+		if err = service.ComSrvice.EditComment(updatedComment); err != nil {
+			log.Printf("Error updating comment: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		} else {
@@ -157,9 +158,8 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := service.ComSrvice.DeleteComment(commentID)
-		if err != nil {
-			fmt.Println(err)
+		if err := service.ComSrvice.DeleteComment(commentID); err != nil {
+			log.Printf("Error deleting comment: %v\n", err)
 			RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
@@ -217,14 +217,26 @@ func getCommReactHandler(w http.ResponseWriter, r *http.Request) {
 	if react == "LIKE" || react == "DISLIKE" {
 		reaction, err := service.ComSrvice.GetUserCommReact(tokenData.UserId, commentId)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				service.ComSrvice.SaveCommReaction(comment, react, tokenData.UserId)
+			if errors.Is(err, sql.ErrNoRows) {
+				err := service.ComSrvice.SaveCommReaction(comment, react, tokenData.UserId)
+				if err != nil {
+					RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+					return
+				}
 			}
 		} else if reaction.Reactions == react {
-			repo.ReactRepo.DeleteReaction(reaction.ReactId.String())
+			err := repo.ReactRepo.DeleteReaction(reaction.ReactId.String())
+			if err != nil {
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+				return
+			}
 		} else {
 			reaction.Reactions = react
-			repo.ReactRepo.UpdateReaction(reaction)
+			err := repo.ReactRepo.UpdateReaction(reaction)
+			if err != nil {
+				RespondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+				return
+			}
 		}
 
 		votes, err = service.ComSrvice.GetCommentVotes(commentId)
