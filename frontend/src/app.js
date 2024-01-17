@@ -38,6 +38,9 @@ export class App {
       this.wsConnection.addEventListener("open", (event) => {
         console.log("ws connection done");
       })
+
+      this.wsConnection.addEventListener("message", (event) => {
+        console.log("Message from server ", event.data);      })
     })
 
       

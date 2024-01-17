@@ -17,6 +17,11 @@ const (
 	maxMessageSize = 512
 )
 
+const (
+	WS_JOIN_EVENT       = "join-event"
+	WS_DISCONNECT_EVENT = "disconnect-event"
+	WS_MESSAGE_EVENT    = "msg-event"
+)
 
 type Hub struct {
 	Clients           *sync.Map
@@ -31,6 +36,7 @@ type WSClient struct {
 }
 
 type WSPaylaod struct {
+	From string
 	Type string
 	Data interface{}
 }
@@ -63,17 +69,39 @@ func (wsHub *Hub) listen() {
 	}
 }
 
-func (wsHub *Hub) AddClient(coon *websocket.Conn,username string){
+func (wsHub *Hub) AddClient(coon *websocket.Conn, username string) {
 	client := &WSClient{
 		Username:    username,
-        WSCoon:      coon,
-        OutgoingMsg: make(chan interface{}),
+		WSCoon:      coon,
+		OutgoingMsg: make(chan interface{}),
 	}
 
 	go client.messageReader()
 	go client.messageWriter()
 
 	wsHub.RegisterChannel <- client
+
+	var newEvent = WSPaylaod{
+		From: client.Username,
+		Type: WS_JOIN_EVENT,
+		Data: nil,
+	}
+
+	wsHub.HandleEvent(newEvent)
+
+}
+
+func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
+	switch eventPayload.Type {
+	case WS_JOIN_EVENT:
+		wsHub.Clients.Range(func(key, value any) bool {
+			client := value.(*WSClient)
+			if client.Username != eventPayload.From {
+				client.OutgoingMsg <- eventPayload
+			}
+			return true
+		})
+	}
 }
 
 func (client *WSClient) messageReader() {
@@ -113,7 +141,7 @@ func (client *WSClient) messageWriter() {
 		case <-ticker.C:
 			client.WSCoon.SetWriteDeadline(time.Now().Add(writeWait))
 
-			if err :=client.WSCoon.WriteMessage(websocket.PingMessage, nil); err != nil{
+			if err := client.WSCoon.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
