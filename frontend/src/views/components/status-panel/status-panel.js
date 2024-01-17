@@ -1,8 +1,21 @@
+import { getChats, getUsers } from "../../../api/api.js";
 import { Div } from "../../elements/index.js";
 import { StatusItemView } from "./status-item-view.js";
+import { ListView } from "../ListView.js";
 
 export class StatusPanel {
     constructor() {
+        const chatList = new ListView({
+            id: "chatList",
+            itemView: StatusItemView,
+            provider: getChats,
+          });
+          const otherUser = new ListView({
+            id: "userList",
+            itemView: StatusItemView,
+            provider: getUsers,
+          }); 
+
         return new Div({
             className: 'status-panel',
             style: {
@@ -20,20 +33,29 @@ export class StatusPanel {
                 new Div({
                     style: {
                         width: "fit-content",
-                        height: "100px",
-                         position: "fixed",
-                         display:"flex",
-                         flexDirection: "column",
-                         gap: "1rem"
+                        height: "100%",
+                        position: "fixed",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                        overflowY:"scroll"
+
 
                     },
                     children: [
-                        new StatusItemView({username:"coulou",status:"online"}),
-                        new StatusItemView({username:"rehab",status:"online"}),
-                        new StatusItemView({username:"jhonny",status:"offline"}),
-                        new StatusItemView({username:"lampps",status:"online"}),
-                        new StatusItemView({username:"kimm511",status:"offline"}),
-                        new StatusItemView({username:"kuis78",status:"offline"}),
+                        new Div({
+                            className: "chats",
+                            children: [
+                                chatList.listContainer,
+                                otherUser.listContainer,
+
+                            ]
+                        }),
+                        // new StatusItemView({ username: "rehab", status: "online" }),
+                        // new StatusItemView({ username: "jhonny", status: "offline" }),
+                        // new StatusItemView({ username: "lampps", status: "online" }),
+                        // new StatusItemView({ username: "kimm511", status: "offline" }),
+                        // new StatusItemView({ username: "kuis78", status: "offline" }),
 
 
                     ],

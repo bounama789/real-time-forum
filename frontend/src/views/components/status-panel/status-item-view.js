@@ -10,7 +10,7 @@ export class StatusItemView {
                 alignItems: "center",
                 width: "fit-content",
                 height: "fit-content",
-                gap:"1rem"
+                gap:"1rem",
             },
             children:[
                 new Div({
@@ -53,6 +53,9 @@ export class StatusItemView {
                     },
                     children:[
                         new Div({
+                            style:{
+                                color:"var(--bs-blue)"
+                            },
                             children:[
                                 new Text({
                                     text: user.username
@@ -60,6 +63,9 @@ export class StatusItemView {
                             ]
                         }),
                         new Div({
+                            style:{
+                                color:"var(--bs-blue)"
+                            },
                             children:[
                                 new Text({
                                     text: user.status

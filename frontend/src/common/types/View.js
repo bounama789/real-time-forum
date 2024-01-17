@@ -48,6 +48,9 @@ export class View {
         if (Object.hasOwnProperty.call(this.listeners, eventName)) {
           const func = this.listeners[eventName];
           if (func) {
+            if (eventName == 'onclick') {
+              this.element.classList.add('clickable')
+            }
             this.element[eventName] = func
           }
         }

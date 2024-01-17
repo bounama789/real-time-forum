@@ -85,3 +85,17 @@ func (r *UserRepository) SaveUser(user models.User) error {
 	err := r.DB.Insert(r.TableName, user)
 	return err
 }
+
+func (r *UserRepository) GetAllUsers() (users []models.User, err error) {
+	var user models.User
+	rows, err := r.DB.GetAllFrom(r.TableName,nil, "firstname")
+	if err != nil {
+		return users, err
+	}
+	for rows.Next() {
+		rows.Scan(&user.UserId,&user.Firstname,&user.Lastname,&user.Username,&user.AvatarUrl,&user.Email,&user.Password,&user.Status,&user.Blocked,&user.EmailConfirmed,&user.Role,&user.CreatedAt,&user.UpdatedAt)
+		users = append(users, user)
+	}
+
+	return users, nil
+}

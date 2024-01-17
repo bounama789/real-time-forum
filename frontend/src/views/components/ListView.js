@@ -34,7 +34,6 @@ export class ListView {
       className:`list-${this.id}-container`,
       style: {
         width: "100%",
-        height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "start",
@@ -46,6 +45,8 @@ export class ListView {
 
     // if (typeof this.provider == "Function") {
       this.provider(1).then((response)=>{
+        response = response || []
+
         // Add the items to the list
         response.forEach((item) => {
           this.listContainer.addChild(new this.itemView(item));
@@ -80,6 +81,7 @@ export class ListView {
   fetchMoreItems() {
     this.provider(1).then((response)=>{
       // Add the items to the list
+      response = response || []
       response.forEach((item) => {
         this.listContainer.addChild(new this.itemView(item));
       });

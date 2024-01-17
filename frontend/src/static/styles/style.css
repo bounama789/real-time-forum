@@ -29,6 +29,10 @@
     flex-grow: 1;
 }
 
+.clickable{
+    cursor: pointer;
+}
+
 .menu-item{
     align-content: baseline;
     justify-content: baseline;

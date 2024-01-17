@@ -91,7 +91,8 @@ export class ContentPage {
           ],
         }),
         new Div({
-          className: "chat-container",
+          className: "chats-container",
+          id:"chats-container",
           style: {
             display: "flex",
             flexDirection: "row",
@@ -101,7 +102,8 @@ export class ContentPage {
             right: '8%',
             minWidth:'fit-content',
             maxWidth: '45%',
-            height: '32px',
+            maxHeight: '55%'
+
           },
           children:[
             new chatView({})
