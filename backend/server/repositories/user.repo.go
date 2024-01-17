@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	db "forum/backend/database"
+	opt "forum/backend/database/operators"
 	q "forum/backend/database/query"
 	"forum/backend/models"
 )
@@ -18,7 +19,7 @@ func (r *UserRepository) init() {
 }
 
 func (r *UserRepository) GetUserById(userId string) (models.User, error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"user_id": userId})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(userId)})
 	if err == sql.ErrNoRows {
 		return models.User{}, err
 	}
@@ -35,7 +36,7 @@ func (r *UserRepository) GetUserById(userId string) (models.User, error) {
 }
 
 func (r *UserRepository) GetUserByUsername(username string) (models.User, error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"username": username})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"username": opt.Equals(username)})
 	if err != nil {
 		fmt.Println(err)
 		return models.User{}, err
@@ -53,7 +54,7 @@ func (r *UserRepository) GetUserByUsername(username string) (models.User, error)
 }
 
 func (r *UserRepository) GetUserByEmail(email string) (models.User, error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"email": email})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"email": opt.Equals(email)})
 	if err != nil {
 		fmt.Println(err)
 		return models.User{}, err
@@ -71,12 +72,12 @@ func (r *UserRepository) GetUserByEmail(email string) (models.User, error) {
 }
 
 func (r *UserRepository) UpdateUser(user models.User) error {
-	err := r.DB.Update(r.TableName, user, q.WhereOption{"user_id": user.UserId})
+	err := r.DB.Update(r.TableName, user, q.WhereOption{"user_id": opt.Equals(user.UserId)})
 	return err
 }
 
 func (r *UserRepository) DeleteUser(user models.User) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"user_id": user.UserId})
+	err := r.DB.Delete(r.TableName, q.WhereOption{"user_id": opt.Equals(user.UserId)})
 	return err
 }
 

@@ -51,8 +51,9 @@ body {
 }
 
 .wrapper{
+  background-color: rgb(218, 227, 236);
+  /* background-color: aliceblue; */
   position: relative;
-  background-color: aliceblue;
 }
 
 @media (prefers-reduced-motion: no-preference) {

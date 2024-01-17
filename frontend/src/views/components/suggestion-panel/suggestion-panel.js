@@ -18,13 +18,11 @@ export class SuggestionPanel{
                     style:{
                         width:"fit-content",
                         height:"100px",
-                        backgroundColor:"red",
                         position:"fixed",
                     },
                     children: [
                         new Div({
                             style: {
-                                backgroundColor: "blue",
                                 width: "100px",
                                 height: "100px",
                             }

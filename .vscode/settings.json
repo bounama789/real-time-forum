@@ -4,9 +4,9 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-            "database": "${workspaceFolder:forum}/storage/database.db",
-            "name": "FORUM"
-        },
+            "name": "Forum",
+            "database": "${workspaceFolder:real-time-forum}/storage/database.db"
+        }
     ],
     "css.validate": false
 }

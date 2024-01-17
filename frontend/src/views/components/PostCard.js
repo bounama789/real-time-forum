@@ -22,7 +22,7 @@ export class PostCard {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            padding: "15px",
+            padding: "5px",
             width: "100%",
             height: "100%",
             gap: "1rem",
@@ -63,12 +63,21 @@ export class PostCard {
 
         new Div({
           className: "post-title",
+          style:{
+            fontSize:"large",
+            fontWeight:"bold",
+            padding: "5px 15px",
+            width: "100%",
+            gap: "1rem",
+            textAlign:"left",
+            marginBottom: "0.5rem",
+          },
           children: [new Text({ text: postObject.title })],
         }),
         new Div({
             className: "post-content",
             style:{
-              lineBreak:"anywhere"
+              overflowWrap:"anywhere"
             },
             children: [new Text({ text: postObject.body })],
           }),

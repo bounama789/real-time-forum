@@ -7,4 +7,5 @@ import (
 type Chat struct {
 	ChatId    uuid.UUID `json:"chat_id"`
 	CreatedAt string    `json:"created_at"`
+	LastMessageTime string `json:"last_message_time"`
 }

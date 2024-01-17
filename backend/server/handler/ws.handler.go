@@ -9,11 +9,11 @@ import (
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
-    WriteBufferSize: 1024,
+	WriteBufferSize: 1024,
 }
 
 func WSHandler(w http.ResponseWriter, r *http.Request) {
-	tokenData,err := authService.VerifyToken(r)
+	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
 		//TODO handle error here
 		return
@@ -22,5 +22,5 @@ func WSHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//TODO handle error here
 	}
-	ws.WSHub.AddClient(coon,tokenData.Username)
+	ws.WSHub.AddClient(coon, tokenData.Username)
 }

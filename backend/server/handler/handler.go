@@ -26,7 +26,7 @@ type Data struct {
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	cors.SetCors(&w)
 
-	re := regexp.MustCompile(`.*\.(js|css|ico)$`)
+	re := regexp.MustCompile(`.*\.(js|css|ico|svg)$`)
 	p := r.URL.Path
 
 	if re.MatchString(p) {

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	"github.com/gofrs/uuid/v5"
 )
 
 type UpdateOption map[string]interface{}
@@ -127,7 +125,7 @@ func SelectWithJoinQuery(primaryTable string, joinConditions []JoinCondition, wh
 	}
 
 	query := fmt.Sprintf("SELECT %v.* FROM %s %s WHERE %s %s;", primaryTable, primaryTable, joinClausesString, whToString, order)
-
+	println(query)
 	return query
 }
 
@@ -144,15 +142,7 @@ func getWhereOptionsString(w WhereOption) string {
 		if res != "" {
 			res += "AND "
 		}
-		if v, ok := value.(string); ok {
-			res += fmt.Sprintf("%s=\"%v\" ", key, v)
-			continue
-		}
-		if v, ok := value.(uuid.UUID); ok {
-			res += fmt.Sprintf("%s=\"%v\" ", key, v)
-			continue
-		}
-		res += fmt.Sprintf("%s=%v ", key, value)
+		res += fmt.Sprintf("%s%v ", key, value)
 	}
 	return res
 }
@@ -211,7 +201,7 @@ func SearchPostSuggestionQuery(keywords []string) string {
 		%s
 	ORDER BY
 	relevance_score DESC;
-	`,cases,wh)
+	`, cases, wh)
 
 	return query
 }

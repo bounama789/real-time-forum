@@ -33,3 +33,28 @@
     align-content: baseline;
     justify-content: baseline;
 }
+
+.outgoing{
+    align-self:flex-end;
+    flex-direction: row;
+}
+
+.incoming{
+    align-self:flex-start;
+    flex-direction: row-reverse;
+
+}
+
+.incoming .msg-content{
+    background: rgba(57, 57, 58, 0.846);
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 35px;
+    border-top-left-radius: 35px;
+}
+
+.outgoing .msg-content{
+    background: var(--bs-blue);
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 35px;
+    border-top-right-radius: 35px;
+}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	db "forum/backend/database"
+	opt "forum/backend/database/operators"
 	q "forum/backend/database/query"
 	"forum/backend/models"
 	"strconv"
@@ -47,7 +48,7 @@ func (r *PostRepository) SavePost(post models.Post, categories []int) error {
 }
 
 func (r *PostRepository) DeletePost(postId string) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"post_id": postId})
+	err := r.DB.Delete(r.TableName, q.WhereOption{"post_id": opt.Equals(postId)})
 	if err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func (r *PostRepository) DeletePost(postId string) error {
 }
 
 func (r *PostRepository) UpdatePost(post models.Post) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"post_id": post.PostId})
+	err := r.DB.Delete(r.TableName, q.WhereOption{"post_id": opt.Equals(post.PostId)})
 	if err != nil {
 		return err
 	}
@@ -63,7 +64,7 @@ func (r *PostRepository) UpdatePost(post models.Post) error {
 }
 
 func (r *PostRepository) GetPost(postId string) (post models.Post, err error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"post_id": postId})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"post_id": opt.Equals(postId)})
 	if err != nil {
 		return post, err
 	}
@@ -76,7 +77,7 @@ func (r *PostRepository) GetPost(postId string) (post models.Post, err error) {
 
 func (r *PostRepository) GetPostByUser(userId string) (posts []models.Post, err error) {
 	var post models.Post
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": userId}, "")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(userId)}, "")
 	if err != nil {
 		return posts, err
 	}
@@ -90,7 +91,7 @@ func (r *PostRepository) GetPostByUser(userId string) (posts []models.Post, err 
 
 func (r *PostRepository) GetPostByCategory(categoryId int) (posts []models.Post, err error) {
 	var post models.Post
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"category_id": categoryId}, "")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"category_id": opt.Equals(categoryId)}, "")
 	if err != nil {
 		return posts, err
 	}
@@ -108,7 +109,7 @@ func (r *PostRepository) GetPostByFollow(userId string) (posts []models.Post, er
 		{Table: db.USERS_TABLE, ForeignKey: "following_user_id", Reference: "user_id"},
 		{Table: db.FOLLOWS_TABLE, ForeignKey: "followed_user_id", Reference: "user_id"},
 	}
-	rows, err := r.DB.GetAllAndJoin(r.TableName, joinCond, q.WhereOption{"user_id": userId}, "")
+	rows, err := r.DB.GetAllAndJoin(r.TableName, joinCond, q.WhereOption{"user_id": opt.Equals(userId)}, "")
 	if err != nil {
 		return posts, err
 	}
@@ -132,20 +133,19 @@ func (r *PostRepository) GetPosts(t models.TokenData, options map[string]string)
 				Reference:  "post_id",
 			},
 		}...)
-		wh["usr_id"] = t.UserId
-		wh["reactions"] = "LIKE"
-		wh["react_type"] = "POST"
+		wh["usr_id"] = opt.Equals(t.UserId)
+		wh["reactions"] = opt.Equals("LIKE")
+		wh["react_type"] = opt.Equals("POST")
 
 	}
 
 	if options["commented"] == "1" {
-		joinConds = append(joinConds, []q.JoinCondition{
-			{Table: db.COMMENTS_TABLE,
-				ForeignKey: "pst_id",
-				Reference:  "post_id",
-			},
-		}...)
-		wh["usr_id"] = t.UserId
+		joinConds = append(joinConds, q.JoinCondition{
+			Table:      db.COMMENTS_TABLE,
+			ForeignKey: "pst_id",
+			Reference:  "post_id",
+		})
+		wh["usr_id"] = opt.Equals(t.UserId)
 	}
 
 	if categoryId, err := strconv.Atoi(options["category"]); err == nil {
@@ -159,10 +159,10 @@ func (r *PostRepository) GetPosts(t models.TokenData, options map[string]string)
 				Reference:  "category_id",
 			},
 		}...)
-		wh["category_id"] = categoryId
+		wh["category_id"] = opt.Equals(categoryId)
 	}
 	if options["created"] == "1" {
-		wh["user_id"] = t.UserId
+		wh["user_id"] = opt.Equals(t.UserId)
 	}
 	if orderBy != "TIME-ASC" && orderBy != "TIME-DESC" {
 		orderBy = ""
@@ -215,10 +215,10 @@ func (r *PostRepository) GetPostCategories(postId string) (cats []models.Categor
 		},
 	}
 	var wh = q.WhereOption{
-		"pst_id": postId,
+		"pst_id": opt.Equals(postId),
 	}
 	rows, err := r.DB.GetAllAndJoin(db.CATEGORIES_TABLE, joinCond, wh, "name ASC")
-	if err != nil && err != sql.ErrNoRows  {
+	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
 		return nil, err
 	}
@@ -238,7 +238,7 @@ func (r *PostRepository) SearchSuggestions(keywords []string) (rows *sql.Rows) {
 		return
 	}
 	rows, err = stmt.Query()
-	if err != nil && err != sql.ErrNoRows  {
+	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
 		return
 	}

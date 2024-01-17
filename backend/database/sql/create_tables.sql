@@ -7,6 +7,8 @@ CREATE TABLE if not exists follows (
   created_at varchar,
   FOREIGN KEY (following_user_id) REFERENCES users (user_id)
 );
+
+
 CREATE TABLE if not exists users (
   user_id uuid PRIMARY KEY NOT NULL,
   firstname varchar(255) NOT NULL,
@@ -24,6 +26,8 @@ CREATE TABLE if not exists users (
   created_at varchar,
   updated_at varchar
 );
+
+
 CREATE TABLE if not exists comments (
   comment_id uuid PRIMARY KEY,
   usr_id uuid,
@@ -46,8 +50,9 @@ CREATE TABLE if not exists reactions (
   updated_at varchar,
    FOREIGN KEY (pst_id) REFERENCES posts (post_id),
   FOREIGN KEY (usr_id) REFERENCES users (user_id)
-
 );
+
+
 CREATE TABLE if not exists posts (
   post_id uuid PRIMARY KEY,
   title varchar(255) NOT NULL,
@@ -59,6 +64,8 @@ CREATE TABLE if not exists posts (
   updated_at varchar,
   FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
+
+
 CREATE TABLE if not exists sessions (
   sess_id uuid PRIMARY KEY,
   user_id uuid,
@@ -68,14 +75,42 @@ CREATE TABLE if not exists sessions (
   remote_addr varchar(255),
   FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
+
+
 CREATE TABLE if not exists categories (
   category_id INTEGER PRIMARY KEY,
   name varchar(255) UNIQUE NOT NULL,
   color varchar
 );
+
+
 CREATE TABLE if not exists cats_posts (
   cat_id INTEGER,
   pst_id uuid,
   FOREIGN KEY (pst_id) REFERENCES posts (post_id),
   FOREIGN KEY (cat_id) REFERENCES categories (category_id)
+);
+
+
+CREATE TABLE if not exists messages (
+  message_id INTEGER PRIMARY KEY,
+  content varchar,
+  cht_id uuid,
+  sender_id uuid,
+  created_at varchar,
+
+  FOREIGN KEY (sender_id) REFERENCES users (user_id),
+  FOREIGN KEY (cht_id) REFERENCES chats (chat_id)
+  
+);
+
+CREATE TABLE if not exists chats (
+  chat_id uuid PRIMARY KEY,
+  requester_id uuid,
+  recipient_id uuid,
+  last_message_time varchar,
+  created_at varchar,
+
+  FOREIGN KEY (requester_id) REFERENCES users (user_id),
+  FOREIGN KEY (recipient_id) REFERENCES users (user_id)
 );

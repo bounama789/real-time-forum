@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	db "forum/backend/database"
+	opt "forum/backend/database/operators"
 	q "forum/backend/database/query"
 	"forum/backend/models"
 )
@@ -25,7 +26,7 @@ func (r *CatRepo) SaveCategory(category models.Category) error {
 }
 
 func (r *CatRepo) DeleteCategory(categoryId string) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"category_id": categoryId})
+	err := r.DB.Delete(r.TableName, q.WhereOption{"category_id": opt.Equals(categoryId)})
 	if err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func (r *CatRepo) DeleteCategory(categoryId string) error {
 }
 
 func (r *CatRepo) UpdateCategory(Category models.Category) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"category_id": Category.CategoryId})
+	err := r.DB.Delete(r.TableName, q.WhereOption{"category_id": opt.Equals(Category.CategoryId) })
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func (r *CatRepo) UpdateCategory(Category models.Category) error {
 }
 
 func (r *CatRepo) GetCategory(categoryId string) (category models.Category, err error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"category_id": categoryId})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"category_id": opt.Equals(categoryId)})
 	if err != nil {
 		return category, err
 	}
