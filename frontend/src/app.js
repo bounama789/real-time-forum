@@ -1,11 +1,9 @@
-// import { Menu, Navbar } from "./views/components/index.js";
-// import { DefaultLayout } from "./views/layout/default_layout.js";
+
 import { Div } from "./views/elements/index.js";
-// import { MainPage } from "./views/pages/index.js";
 import { ViewPager } from "./lib/pager/view-pager.js";
 import { ContentPage } from "./views/pages/ContentPage.js";
 import { AuthPage } from "./views/pages/index.js";
-import { setWSConnection } from "./api/api.js";
+import { handleWSEvent, setWSConnection } from "./api/api.js";
 
 export class App {
   constructor(options) {
@@ -32,7 +30,7 @@ export class App {
     this.container.appendChild(content.container.element)
     // })
 
-    addEventListener("logged",()=>{
+    addEventListener("logged", () => {
       setWSConnection()
 
       this.wsConnection.addEventListener("open", (event) => {
@@ -40,11 +38,22 @@ export class App {
       })
 
       this.wsConnection.addEventListener("message", (event) => {
-        console.log("Message from server ", event.data);      })
+        console.log("Message from server ", event.data);
+        handleWSEvent(event.data)
+      })
+      this.wsConnection.onclose = function (event) {
+        if (event.wasClean) {
+          alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+          // e.g. server process killed or network down
+          // event.code is usually 1006 in this case
+          alert('[close] Connection died');
+        }
+      };
+
     })
 
-      
-    
+
 
 
   }

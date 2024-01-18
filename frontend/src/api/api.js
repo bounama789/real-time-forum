@@ -1,3 +1,5 @@
+import { getView } from "../lib/lib.js";
+
 const baseUrl = "http://127.0.01:8000";
 
 export async function get(path) {
@@ -63,4 +65,39 @@ export async function getChats() {
 export async function getUsers() {
   const path = "/users"
   return await get(path).catch(error => error)
+}
+
+
+const EventType = {
+  WS_JOIN_EVENT: "join-event",
+  WS_DISCONNECT_EVENT: "disconnect-event",
+  WS_MESSAGE_EVENT: "msg-event"
+}
+
+export function handleWSEvent(wsEvent) {
+  const event = JSON.parse(wsEvent)
+  switch (event["Type"]) {
+    case EventType.WS_JOIN_EVENT:
+      setStatusOnline(event.From)
+      break;
+    case EventType.WS_DISCONNECT_EVENT:
+      setStatusOffline(event.From)
+    break;
+    default:
+      break;
+  }
+}
+
+function setStatusOnline(username) {
+  const dot = getView(`${username}status-dot`).element
+      const text = getView(`${username}-status-text`).element
+      text.innerText = "online"
+      dot.style.backgroundColor = "green"
+}
+
+function setStatusOffline(username) {
+  const dot = getView(`${username}status-dot`).element
+      const text = getView(`${username}-status-text`).element
+      text.innerText = "offline"
+      dot.style.backgroundColor = "gray"
 }

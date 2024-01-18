@@ -1,7 +1,7 @@
-import { Div, Image,Text } from "../../elements/index.js";
+import { Div, Image, Text } from "../../elements/index.js";
 
 export class StatusItemView {
-    constructor(user){
+    constructor(user) {
         return new Div({
             className: "status-item",
             style: {
@@ -10,14 +10,14 @@ export class StatusItemView {
                 alignItems: "center",
                 width: "fit-content",
                 height: "fit-content",
-                gap:"1rem",
+                gap: "1rem",
             },
-            children:[
+            children: [
                 new Div({
-                    style:{
+                    style: {
                         position: "relative",
                     },
-                    children:[
+                    children: [
                         new Image({
                             src: "https://api.dicebear.com/7.x/avataaars/svg",
                             alt: "Author avatar",
@@ -30,43 +30,46 @@ export class StatusItemView {
                         }),
                         new Div({
                             className: "dot",
+                            id: `${user.username}status-dot`,
                             style: {
-                                position:"absolute",
+                                position: "absolute",
                                 bottom: "5px",
                                 left: "3px",
-                                width:"10px",
-                                height:"10px",
+                                width: "10px",
+                                height: "10px",
                                 borderRadius: "50%",
-                                backgroundColor: user.status === "online"?"green":"gray",
+                                backgroundColor: user.status === "online" ? "green" : "gray",
                             },
                         }),
                     ]
                 }),
-                
+
                 new Div({
-                    style:{
+                    style: {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "start",
                         justifyContent: "center"
 
                     },
-                    children:[
+                    children: [
                         new Div({
-                            style:{
-                                color:"var(--bs-blue)"
+                            style: {
+                                color: "var(--bs-blue)"
                             },
-                            children:[
+                            children: [
                                 new Text({
                                     text: user.username
                                 }),
                             ]
                         }),
                         new Div({
-                            style:{
-                                color:"var(--bs-blue)"
+                            id: `${user.username}-status-text`,
+                            style: {
+                                className: "user-status-text",
+                                color: "var(--bs-blue)"
                             },
-                            children:[
+                            children: [
                                 new Text({
                                     text: user.status
                                 }),
@@ -74,7 +77,12 @@ export class StatusItemView {
                         })
                     ]
                 })
-            ]
+            ],
+            listeners: {
+                onclick: () => {
+                    const newEvent = new CustomEvent("chatOe")
+                }
+            }
         })
     }
 }

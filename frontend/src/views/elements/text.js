@@ -1,4 +1,5 @@
 import { View } from "../../common/types/index.js";
+import { setView } from "../../lib/lib.js";
 
 export class Text extends View{
     constructor(props){

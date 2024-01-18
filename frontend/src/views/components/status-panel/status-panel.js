@@ -51,13 +51,6 @@ export class StatusPanel {
 
                             ]
                         }),
-                        // new StatusItemView({ username: "rehab", status: "online" }),
-                        // new StatusItemView({ username: "jhonny", status: "offline" }),
-                        // new StatusItemView({ username: "lampps", status: "online" }),
-                        // new StatusItemView({ username: "kimm511", status: "offline" }),
-                        // new StatusItemView({ username: "kuis78", status: "offline" }),
-
-
                     ],
                 })
             ],

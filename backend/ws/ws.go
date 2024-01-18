@@ -101,6 +101,14 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			}
 			return true
 		})
+	case WS_DISCONNECT_EVENT:
+		wsHub.Clients.Range(func(key, value any) bool {
+			client := value.(*WSClient)
+			if client.Username != eventPayload.From {
+				client.OutgoingMsg <- eventPayload
+			}
+			return true
+		})
 	}
 }
 
@@ -108,6 +116,14 @@ func (client *WSClient) messageReader() {
 	for {
 		_, message, err := client.WSCoon.ReadMessage()
 		if err != nil {
+			WSHub.UnRegisterChannel <- client
+
+			var newEvent = WSPaylaod{
+				From: client.Username,
+				Type: WS_DISCONNECT_EVENT,
+				Data: nil,
+			}
+			WSHub.HandleEvent(newEvent)
 			return
 		}
 		var payload WSPaylaod
@@ -121,11 +137,11 @@ func (client *WSClient) messageReader() {
 }
 
 func (client *WSClient) messageWriter() {
-	ticker := time.NewTicker(pingPeriod)
-	defer func() {
-		ticker.Stop()
-		client.WSCoon.Close()
-	}()
+	// ticker := time.NewTicker(pingPeriod)
+	// defer func() {
+	// 	ticker.Stop()
+	// 	client.WSCoon.Close()
+	// }()
 
 	for {
 		select {
@@ -138,12 +154,12 @@ func (client *WSClient) messageWriter() {
 			if err != nil {
 				return
 			}
-		case <-ticker.C:
-			client.WSCoon.SetWriteDeadline(time.Now().Add(writeWait))
+			// case <-ticker.C:
+			// 	client.WSCoon.SetWriteDeadline(time.Now().Add(writeWait))
 
-			if err := client.WSCoon.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
+			// 	if err := client.WSCoon.WriteMessage(websocket.PingMessage, nil); err != nil {
+			// 		return
+			// 	}
 		}
 	}
 }
