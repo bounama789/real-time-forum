@@ -80,9 +80,10 @@ export class StatusItemView {
             ],
             listeners: {
                 onclick: () => {
-                    const newEvent = new CustomEvent("chatOe")
+                    const newEvent = new CustomEvent("chatOpened",{detail:user})
+                    dispatchEvent(newEvent)
                 }
-            }
+            } 
         })
     }
 }

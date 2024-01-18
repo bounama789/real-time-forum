@@ -68,7 +68,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		var status = "offline"
 
-		if _,ok := ws.WSHub.Clients.Load(user.Username);ok{
+		if _, ok := ws.WSHub.Clients.Load(user.Username); ok {
 			status = "online"
 		}
 		data = append(data, reformatedUserData{Username: user.Username, Status: status})
@@ -76,5 +76,25 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(data)
+}
 
+func GetChatByUser(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
+		return
+	}
+	_, err := authService.VerifyToken(r)
+	if err != nil {
+		w.WriteHeader(401)
+		json.NewEncoder(w).Encode(map[string]string{"msg": "unauthorized"})
+		return
+	}
+
+	username := r.URL.Query().Get("username")
+	if _,err :=repo.UserRepo.GetUserByUsername(username); err == nil {
+		chat,_ := repo.ChatRepo.GetChat(username)
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(chat)
+	}
 }

@@ -1,20 +1,21 @@
-import { getView } from "../../lib/lib.js";
+import { getView, remView } from "../../lib/lib.js";
 import { Div, Image, MaterialIcon, Text, TextField } from "../elements/index.js";
 import { MessageView } from "./MessageView.js";
 
-export class chatView {
-  constructor(chat) {
-    this.chat = chat;
+export class ChatView {
+  constructor(prop) {
+    this.chat = prop.chat;
+    this.recipient = prop.user
   }
 
   get element() {
     return new Div({
-      id: 'chat' + this.chat.id,
+      id: 'chat' + this.recipient.username,
       className: "chat-container",
       style: {
         display: "flex",
         flexDirection: "column",
-        position:'relative',
+        position: 'relative',
         width: "360px",
         boxShadow: "20px 0px 15px -23px rgba(0,0,0,0.1)",
         maxHeight: '55vh',
@@ -23,7 +24,7 @@ export class chatView {
       },
       children: [
         new Div({
-          id: `chatHeader${this.chat.id}`,
+          id: `chatHeader${this.recipient.username}`,
           className: 'chat-header',
           style: {
             backgroundColor: 'rgb(190, 217, 236)',
@@ -45,8 +46,8 @@ export class chatView {
                 flexDirection: 'row',
                 width: '100%',
                 position: "relative",
-                alignItems:"center",
-                gap:'.5rem'
+                alignItems: "center",
+                gap: '.5rem'
 
               },
               children: [
@@ -70,14 +71,15 @@ export class chatView {
                     }),
                     new Div({
                       className: "dot",
+                      id:`chat-${this.recipient.username}-status-dot`,
                       style: {
                         bottom: "5px",
                         left: "3px",
                         width: "10px",
                         height: "10px",
                         borderRadius: "50%",
-                        backgroundColor: 'green',
-                        position:'absolute'
+                        backgroundColor: this.recipient.status === "online" ? 'green' : 'gray',
+                        position: 'absolute'
                       },
                     }),
                   ],
@@ -85,7 +87,7 @@ export class chatView {
                 new Div({
                   className: 'chat-infos',
                   children: [
-                    new Text({ text: "username" })
+                    new Text({ text: this.recipient.username })
                   ]
                 }),
               ],
@@ -102,8 +104,10 @@ export class chatView {
               className: "chat-close",
               listeners: {
                 onclick: () => {
-                  const view = getView('chat' + this.chat.id).element
-                  view.parentNode.removeChild(view)
+                  const view = getView('chat' + this.recipient.username)
+                  const elem = view.element
+                  elem.parentNode.removeChild(elem)
+                  remView(view.id)
                 }
               }
             })
@@ -121,7 +125,7 @@ export class chatView {
             maxHeight: '55vh',
             transition: "max-height 0.5s ease-out",
             flexDirection: "column",
-            gap:"2rem"
+            gap: "2rem"
 
           },
           children: [
@@ -130,52 +134,52 @@ export class chatView {
                 display: "flex",
                 flexDirection: "column",
                 width: "100%",
-                height:"100%",
-                justifyContent:'bottom',
-                marginBottom:'"3rem',
+                height: "100%",
+                justifyContent: 'bottom',
+                marginBottom: '"3rem',
                 justifyContent: 'end'
 
               },
-              children:[
+              children: [
                 new MessageView({})
               ]
             }),
             new Div({
-              id:'msgtyperWrapper',
+              id: 'msgtyperWrapper',
               style: {
                 width: '100%',
-                bottom:"10px",
-                padding:"5px 1rem",
-                alignSelf:'end',
-                display:'flex',
-                flexDirection:'row',
-                gap:'1rem',
-                justifyContent:'center',
-                alignItems:'center',
+                bottom: "10px",
+                padding: "5px 1rem",
+                alignSelf: 'end',
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '1rem',
+                justifyContent: 'center',
+                alignItems: 'center',
               },
               children: [
                 new TextField({
                   placeholder: 'type your message',
                   style: {
-                    height:'34px',
+                    height: '34px',
                     width: '100%',
-                    border:'none',
-                    outline:'none',
-                    borderRadius:'15px',
+                    border: 'none',
+                    outline: 'none',
+                    borderRadius: '15px',
                     border: '1px solid var(--bs-blue)',
-                    padding:"10px"
-                  },  
+                    padding: "10px"
+                  },
                 }),
                 new MaterialIcon({
-                  iconName:'send',
-                  style:{
-                    color:'var(--bs-white)',
-                    backgroundColor:'var(--bs-blue)',
-                    borderRadius:'10px',
-                    padding:'5px'
+                  iconName: 'send',
+                  style: {
+                    color: 'var(--bs-white)',
+                    backgroundColor: 'var(--bs-blue)',
+                    borderRadius: '10px',
+                    padding: '5px'
                   },
-                  listeners:{
-                    onclick:()=>{
+                  listeners: {
+                    onclick: () => {
                       //todo handle click
                     }
                   }
@@ -185,7 +189,7 @@ export class chatView {
             })
           ]
         }),
-      
+
       ],
     }).element
   }
@@ -193,20 +197,19 @@ export class chatView {
   toggleDisplay() {
     let div = getView(`chatContainer${this.chat.id}`).element;
     console.log(getView(`chatContainer${this.chat.id}`));
-    if (div.style.maxHeight === '0px' ) {
+    if (div.style.maxHeight === '0px') {
       div.style.maxHeight = "55vh"
       div.style.height = "55vh"
-      setTimeout(()=>{
+      setTimeout(() => {
         div.style.visibility = "visible"
-
-      },300)
+      }, 300)
 
     } else {
       div.style.maxHeight = "0px"
       div.style.height = "0px"
       // div.style.display = "none"
       div.style.visibility = "hidden"
-      
+
 
     }
   }

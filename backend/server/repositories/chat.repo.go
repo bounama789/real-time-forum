@@ -35,8 +35,8 @@ func (r *ChatRepository) DeleteChat(chatId string) error {
 	return nil
 }
 
-func (r *ChatRepository) GetChat(chatId string) (chat models.Chat, err error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(chatId)})
+func (r *ChatRepository) GetChat(username string) (chat models.Chat, err error) {
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username)+opt.Or("recipient_id",opt.Equals(username))})
 	if err != nil {
 		return chat, err
 	}

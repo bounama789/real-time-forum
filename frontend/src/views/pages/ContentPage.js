@@ -1,7 +1,7 @@
 import { Page } from "../../common/types/index.js";
 import { DefaultLayout } from "../layout/default_layout.js";
 import { Header, Div } from "../elements/index.js";
-import { Navbar, Menu, StatusPanel, SuggestionPanel, chatView } from "../components/index.js";
+import { Navbar, Menu, StatusPanel, SuggestionPanel, ChatContainer } from "../components/index.js";
 import { MainPage } from "./main-page.js";
 import { setPage } from "../../lib/lib.js";
 export class ContentPage {
@@ -90,25 +90,7 @@ export class ContentPage {
             })
           ],
         }),
-        new Div({
-          className: "chats-container",
-          id:"chats-container",
-          style: {
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            position: "fixed",
-            bottom: 0,
-            right: '8%',
-            minWidth:'fit-content',
-            maxWidth: '45%',
-            maxHeight: '55%'
-
-          },
-          children:[
-            new chatView({})
-          ]
-        })
+        new ChatContainer()
       ],
     }).element
   }

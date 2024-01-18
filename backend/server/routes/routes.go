@@ -25,9 +25,11 @@ const (
 	GET_POST_ENDPOINT        = "/post"
 	ABOUT_ENDPOINT           = "/about"
 	VERIF_SESS_ENDPOINT = "/verifsess"
-	CHAT_ENDPOINT = "/chats"
+	CHATS_ENDPOINT = "/chats"
+	USER_CHAT_ENDPOINT = "/chat"
 	USER_ENDPOINT = "/users"
 	WS_ENDPOINT = "/ws"
+
 )
 
 func Route() *http.ServeMux {
@@ -54,7 +56,8 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(ABOUT_ENDPOINT, handler.AboutHandler)
 	mux.HandleFunc(VERIF_SESS_ENDPOINT, handler.VerifySessionHandler)
 	mux.HandleFunc(WS_ENDPOINT, handler.WSHandler)
-	mux.HandleFunc(CHAT_ENDPOINT, handler.GetChats)
+	mux.HandleFunc(CHATS_ENDPOINT, handler.GetChats)
+	mux.HandleFunc(USER_CHAT_ENDPOINT, handler.GetChatByUser)
 	mux.HandleFunc(USER_ENDPOINT, handler.GetUsers)
 
 

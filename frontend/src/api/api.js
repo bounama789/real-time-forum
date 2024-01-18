@@ -62,6 +62,11 @@ export async function getChats() {
   return await get(path).catch(error => error)
 }
 
+export async function getChatByUser(username){
+  const path = `/chat?username=${username}`
+  return await get(path).catch(error => error)
+}
+
 export async function getUsers() {
   const path = "/users"
   return await get(path).catch(error => error)
@@ -93,6 +98,10 @@ function setStatusOnline(username) {
       const text = getView(`${username}-status-text`).element
       text.innerText = "online"
       dot.style.backgroundColor = "green"
+      if (getView(`chat${username}`)){
+        const dot = getView(`chat-${username}-status-dot`).element
+        dot.style.backgroundColor = "green"
+      }
 }
 
 function setStatusOffline(username) {
@@ -100,4 +109,8 @@ function setStatusOffline(username) {
       const text = getView(`${username}-status-text`).element
       text.innerText = "offline"
       dot.style.backgroundColor = "gray"
+      if (getView(`chat${username}`)){
+        const dot = getView(`chat-${username}-status-dot`).element
+        dot.style.backgroundColor = "gray"
+      }
 }

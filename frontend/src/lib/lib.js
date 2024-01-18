@@ -15,6 +15,10 @@ export function setView(view){
     ViewElement.views.set(view.id,view)
 }
 
+export function remView(viewId){
+    ViewElement.views.delete(viewId)
+}
+
 export function setPage(page){
     ViewElement.pages.set(page.id,page)
 }
