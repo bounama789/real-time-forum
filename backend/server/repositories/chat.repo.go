@@ -35,12 +35,12 @@ func (r *ChatRepository) DeleteChat(chatId string) error {
 	return nil
 }
 
-func (r *ChatRepository) GetChat(username string) (chat models.Chat, err error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username)+opt.Or("recipient_id",opt.Equals(username))})
+func (r *ChatRepository) GetChat(from string,username string) (chat models.Chat, err error) {
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username)+opt.Or("requester_id",opt.Equals(from)),"recipient_id":opt.Equals(from)+opt.Or("recipient_id",username)})
 	if err != nil {
 		return chat, err
 	}
-	err = row.Scan(&chat.ChatId, &chat.CreatedAt)
+	err = row.Scan(&chat.ChatId,&chat.Requester,&chat.Recipient,&chat.LastMessageTime, &chat.CreatedAt)
 	if err != nil {
 		return chat, err
 	}
@@ -70,7 +70,7 @@ func (r *ChatRepository) GetChatMessages(chatId string) (messages []models.Messa
 	}
 	for rows.Next() {
 		var message models.Message
-		err := rows.Scan(&message.MessId, &message.ChatId, &message.SenderId, &message.Body, &message.CreatedAt)
+		err := rows.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.CreatedAt)
 		if err != nil {
 			return messages, err
 		}

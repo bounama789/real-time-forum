@@ -1,3 +1,4 @@
+import { EventType } from "../../api/api.js";
 import { getView, remView } from "../../lib/lib.js";
 import { Div, Image, MaterialIcon, Text, TextField } from "../elements/index.js";
 import { MessageView } from "./MessageView.js";
@@ -159,6 +160,7 @@ export class ChatView {
               },
               children: [
                 new TextField({
+                  id:"msg-input",
                   placeholder: 'type your message',
                   style: {
                     height: '34px',
@@ -180,7 +182,17 @@ export class ChatView {
                   },
                   listeners: {
                     onclick: () => {
-                      //todo handle click
+                      const text =  this.getInput.trim()
+
+                      if (text != "") {
+                        const wsEvent = {
+                          to:this.recipient.username,
+                          content: text,
+                          time: new Date(Date.now()).toString(),
+                          chatId: this.chat.id 
+                        }
+                        app.wsConnection.send(JSON.stringify(wsEvent))
+                      }
                     }
                   }
 
@@ -192,6 +204,10 @@ export class ChatView {
 
       ],
     }).element
+  }
+
+  get getInput() {
+    return getView("msg-input").element.value
   }
 
   toggleDisplay() {

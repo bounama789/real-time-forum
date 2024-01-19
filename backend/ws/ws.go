@@ -2,11 +2,13 @@ package ws
 
 import (
 	"encoding/json"
-	"fmt"
+	"forum/backend/models"
+	repo "forum/backend/server/repositories"
 	"log"
 	"sync"
 	"time"
 
+	"github.com/gofrs/uuid/v5"
 	"github.com/gorilla/websocket"
 )
 
@@ -109,6 +111,31 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			}
 			return true
 		})
+	case WS_MESSAGE_EVENT:
+		data := eventPayload.Data.(map[string]any)
+		c, ok := WSHub.Clients.Load(data["to"])
+		client := c.(*WSClient)
+
+		if c, err := repo.ChatRepo.GetChat(client.Username,data["to"].(string)); err != nil || c.ChatId.String() != data["chatId"] {
+			return
+		}
+		if ok {
+			var message = models.Message{
+				Sender:    client.Username,
+				Body:      data["content"].(string),
+				CreatedAt: data["time"].(string),
+				ChatId:    uuid.FromStringOrNil(data["chatId"].(string)),
+			}
+			repo.MessRepo.SaveMessage(&message)
+
+			var event = WSPaylaod{
+				Type: WS_MESSAGE_EVENT,
+				From: client.Username,
+				Data: message,
+			}
+
+			client.OutgoingMsg <- event
+		}
 	}
 }
 
@@ -126,13 +153,19 @@ func (client *WSClient) messageReader() {
 			WSHub.HandleEvent(newEvent)
 			return
 		}
-		var payload WSPaylaod
+		var payload map[string]any
 		err = json.Unmarshal(message, &payload)
 		if err != nil {
 			return
 		}
-		fmt.Println(payload.Data)
-		// TODO handle incomming msg from the client
+
+		wsEvent := WSPaylaod{
+			From: client.Username,
+			Type: WS_MESSAGE_EVENT,
+			Data: payload,
+		}
+
+		WSHub.HandleEvent(wsEvent)
 	}
 }
 

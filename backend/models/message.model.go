@@ -3,9 +3,9 @@ package models
 import "github.com/gofrs/uuid/v5"
 
 type Message struct {
-	MessId   uuid.UUID `json:"message_id"`
-	ChatId   uuid.UUID `json:"cht_id"`
-	SenderId uuid.UUID `json:"sender_id"`
-	Body     string    `json:"content"`
+	MessId    uuid.UUID `json:"message_id"`
+	ChatId    uuid.UUID `json:"cht_id"`
+	Sender    string    `json:"sender_id"`
+	Body      string    `json:"content"`
 	CreatedAt string    `json:"created_at"`
 }

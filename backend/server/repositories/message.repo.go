@@ -16,8 +16,8 @@ func (r *MessageRepository) init() {
 	r.TableName = db.MESSAGES_TABLE
 }
 
-func (r *MessageRepository) SaveMessage(message models.Message) error {
-	err := r.DB.Insert(r.TableName, message)
+func (r *MessageRepository) SaveMessage(message *models.Message) error {
+	err := r.DB.Insert(r.TableName, *message)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (r *MessageRepository) GetMessage(messageId string) (message models.Message
 	if err != nil {
 		return message, err
 	}
-	err = row.Scan(&message.MessId, &message.ChatId, &message.SenderId, &message.Body, &message.CreatedAt)
+	err = row.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.CreatedAt)
 	if err != nil {
 		return message, err
 	}
@@ -59,7 +59,7 @@ func (r *MessageRepository) GetChatMessages(ChatId string) (messages []models.Me
 	}
 	for rows.Next() {
 		var message models.Message
-		err := rows.Scan(&message.MessId, &message.ChatId, &message.SenderId, &message.Body, &message.CreatedAt)
+		err := rows.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.CreatedAt)
 		if err != nil {
 			return messages, err
 		}

@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
+	"forum/backend/models"
 	"forum/backend/server/cors"
 	repo "forum/backend/server/repositories"
+	"forum/backend/server/service"
 	"forum/backend/ws"
 	"net/http"
 )
@@ -84,7 +87,7 @@ func GetChatByUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		return
 	}
-	_, err := authService.VerifyToken(r)
+	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
 		w.WriteHeader(401)
 		json.NewEncoder(w).Encode(map[string]string{"msg": "unauthorized"})
@@ -93,7 +96,16 @@ func GetChatByUser(w http.ResponseWriter, r *http.Request) {
 
 	username := r.URL.Query().Get("username")
 	if _,err :=repo.UserRepo.GetUserByUsername(username); err == nil {
-		chat,_ := repo.ChatRepo.GetChat(username)
+		chat,err := repo.ChatRepo.GetChat(tokenData.Username,username)
+
+		if err == sql.ErrNoRows {
+			chat = models.Chat{
+				Requester: tokenData.Username,
+				Recipient: username,
+			}
+
+			service.ChatSrvice.NewChat(&chat)
+		}
 		w.WriteHeader(200)
 		json.NewEncoder(w).Encode(chat)
 	}

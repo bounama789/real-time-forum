@@ -73,7 +73,7 @@ export async function getUsers() {
 }
 
 
-const EventType = {
+export const EventType = {
   WS_JOIN_EVENT: "join-event",
   WS_DISCONNECT_EVENT: "disconnect-event",
   WS_MESSAGE_EVENT: "msg-event"
