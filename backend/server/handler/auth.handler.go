@@ -5,6 +5,7 @@ import (
 	"forum/backend/config"
 	"forum/backend/models"
 	"forum/backend/server/cors"
+	"forum/backend/server/repositories"
 	"forum/backend/server/service"
 	"forum/backend/utils"
 	"io"
@@ -79,7 +80,15 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(map[string]string{"msg": err.Error()})
 				return
 			}
-			json.NewEncoder(w).Encode(map[string]string{"authToken": newSess.Token,"msg":"success"})
+
+			reformatedUserInfo := map[string]any{
+                "username": user.Username,
+                "firstname": user.Firstname,
+                "lastname": user.Lastname,
+                "email": user.Email,
+			}
+
+			json.NewEncoder(w).Encode(map[string]any{"authToken": newSess.Token,"msg":"success","user":reformatedUserInfo})
 
 		}
 	}
@@ -137,8 +146,15 @@ func SignInHandler(w http.ResponseWriter,r *http.Request) {
 
 		authService.RemExistingUsrSession(user.UserId.String())
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]string{"authToken": newSess.Token,"msg":"success"})
-	default:
+		reformatedUserInfo := map[string]any{
+			"username": user.Username,
+			"firstname": user.Firstname,
+			"lastname": user.Lastname,
+			"email": user.Email,
+		}
+
+		json.NewEncoder(w).Encode(map[string]any{"authToken": newSess.Token,"msg":"success","user":reformatedUserInfo})
+default:
 		RenderErrorPage(http.StatusMethodNotAllowed, w)
 		return
 	}
@@ -223,12 +239,23 @@ func VerifySessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := authService.VerifyToken(r)
+	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
 		w.WriteHeader(401)
 		json.NewEncoder(w).Encode(map[string]any{"msg": "unauthorized"})
 		return
 	}
+
+	user,_ := repositories.UserRepo.GetUserByUsername(tokenData.Username)
+
 	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(map[string]any{"msg": "success"})
+		reformatedUserInfo := map[string]any{
+                "username": user.Username,
+                "firstname": user.Firstname,
+                "lastname": user.Lastname,
+                "email": user.Email,
+			}
+
+			json.NewEncoder(w).Encode(map[string]any{"msg":"success","user":reformatedUserInfo})
+
 }

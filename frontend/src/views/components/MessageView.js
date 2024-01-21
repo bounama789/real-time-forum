@@ -7,7 +7,7 @@ export class MessageView {
 
     get element() {
         return new Div({
-            className: "message-container outgoing",
+            className: `message-container ${this.message.isSender ? 'outgoing':'incoming'}`,
             style: {
                 display: "flex",
                 gap:"0.5rem",
@@ -23,7 +23,7 @@ export class MessageView {
                     },
                     children: [
                         new Text({
-                            text: "17:30",
+                            text: new Date(this.message.created_at).getDate() ,
 
                         })
                     ]
@@ -37,7 +37,7 @@ export class MessageView {
                     },
                     children: [
                         new Text({
-                            text: "Hello dear, qdfdf fqsf sdfdfqdf sdsdfdsf sdfsdfqsf fzefaze tetazt rgfe ggre rer er erer r'r ",
+                            text: this.message.content,
 
                         })
                     ]

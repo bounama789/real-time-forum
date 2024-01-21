@@ -1,12 +1,33 @@
-import { EventType } from "../../api/api.js";
+import { EventType, getMessages } from "../../api/api.js";
 import { getView, remView } from "../../lib/lib.js";
 import { Div, Image, MaterialIcon, Text, TextField } from "../elements/index.js";
 import { MessageView } from "./MessageView.js";
+import { ListView } from "./ListView.js";
 
 export class ChatView {
+
   constructor(prop) {
     this.chat = prop.chat;
     this.recipient = prop.user
+
+    this.messageList = new ListView({
+      id: `messageList${this.chat.chat_id}`,
+      itemView: MessageView,
+      provider: getMessages,
+      providerParams: {
+        chatId:this.chat.chat_id,
+      },
+      style:{
+        flexDirection:"column-reverse",
+        overflowY:"scroll",
+      }
+    });
+
+    addEventListener("newMessage",(event)=>{
+      const message = event.detail.Data
+      this.messageList.prependItem(message)
+    })
+
   }
 
   get element() {
@@ -126,7 +147,7 @@ export class ChatView {
             maxHeight: '55vh',
             transition: "max-height 0.5s ease-out",
             flexDirection: "column",
-            gap: "2rem"
+            gap: "1.5rem"
 
           },
           children: [
@@ -135,22 +156,22 @@ export class ChatView {
                 display: "flex",
                 flexDirection: "column",
                 width: "100%",
-                height: "100%",
+                height: "75%",
                 justifyContent: 'bottom',
-                marginBottom: '"3rem',
-                justifyContent: 'end'
+                // marginBottom: '"3rem',
 
               },
               children: [
-                new MessageView({})
+                this.messageList.listContainer
               ]
             }),
             new Div({
               id: 'msgtyperWrapper',
               style: {
+                // flex:"1",
                 width: '100%',
                 bottom: "10px",
-                padding: "5px 1rem",
+                padding: "0 1rem",
                 alignSelf: 'end',
                 display: 'flex',
                 flexDirection: 'row',
@@ -182,16 +203,11 @@ export class ChatView {
                   },
                   listeners: {
                     onclick: () => {
-                      const text =  this.getInput.trim()
-
-                      if (text != "") {
-                        const wsEvent = {
-                          to:this.recipient.username,
-                          content: text,
-                          time: new Date(Date.now()).toString(),
-                          chatId: this.chat.id 
-                        }
-                        app.wsConnection.send(JSON.stringify(wsEvent))
+                     this.send()
+                    },
+                    onkeydown:(e)=>{
+                      if( e.key = "Enter"){
+                        this.send()
                       }
                     }
                   }
@@ -208,6 +224,25 @@ export class ChatView {
 
   get getInput() {
     return getView("msg-input").element.value
+  }
+
+  send(){
+    const text =  this.getInput.trim()
+
+    if (text != "") {
+      const wsEvent = {
+        to:this.recipient.username,
+        content: text,
+        time: new Date(Date.now()).toString(),
+        chatId: this.chat.chat_id 
+      }
+      app.wsConnection.send(JSON.stringify(wsEvent))
+      this.resetInput()
+    }
+  }
+
+  resetInput(){
+    getView("msg-input").element.value = ""
   }
 
   toggleDisplay() {

@@ -93,13 +93,13 @@ CREATE TABLE if not exists cats_posts (
 
 
 CREATE TABLE if not exists messages (
-  message_id INTEGER PRIMARY KEY,
+  message_id uuid PRIMARY KEY,
   content varchar,
   cht_id uuid,
-  sender_id uuid,
+  sender_id varchar,
   created_at varchar,
 
-  FOREIGN KEY (sender_id) REFERENCES users (user_id),
+  FOREIGN KEY (sender_id) REFERENCES users (username),
   FOREIGN KEY (cht_id) REFERENCES chats (chat_id)
   
 );
@@ -108,9 +108,9 @@ CREATE TABLE if not exists chats (
   chat_id uuid PRIMARY KEY,
   requester_id uuid,
   recipient_id uuid,
-  last_message_time varchar,
+  last_message_time varchar DEFAULT "",
   created_at varchar,
 
-  FOREIGN KEY (requester_id) REFERENCES users (user_id),
-  FOREIGN KEY (recipient_id) REFERENCES users (user_id)
+  FOREIGN KEY (requester_id) REFERENCES users (username),
+  FOREIGN KEY (recipient_id) REFERENCES users (username)
 );

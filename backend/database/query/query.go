@@ -142,7 +142,7 @@ func getWhereOptionsString(w WhereOption) string {
 		if res != "" {
 			res += "AND "
 		}
-		res += fmt.Sprintf("%s%v ", key, value)
+		res += fmt.Sprintf("(%s%v) ", key, value)
 	}
 	return res
 }

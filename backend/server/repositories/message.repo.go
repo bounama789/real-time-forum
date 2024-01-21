@@ -5,6 +5,8 @@ import (
 	opt "forum/backend/database/operators"
 	q "forum/backend/database/query"
 	"forum/backend/models"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 type MessageRepository struct {
@@ -17,7 +19,23 @@ func (r *MessageRepository) init() {
 }
 
 func (r *MessageRepository) SaveMessage(message *models.Message) error {
-	err := r.DB.Insert(r.TableName, *message)
+	msgId, _ := uuid.NewV4()
+	message.MessId = msgId
+	type messTable struct {
+		MessId    uuid.UUID `json:"message_id"`
+		ChatId    uuid.UUID `json:"cht_id"`
+		Sender    string    `json:"sender_id"`
+		Body      string    `json:"content"`
+		CreatedAt string    `json:"created_at"`
+	}
+	var mess = messTable{
+		MessId:    message.MessId,
+		Sender:    message.Sender,
+		Body:      message.Body,
+		CreatedAt: message.CreatedAt,
+		ChatId:    message.ChatId,
+	}
+	err := r.DB.Insert(r.TableName, mess)
 	if err != nil {
 		return err
 	}
@@ -59,7 +77,7 @@ func (r *MessageRepository) GetChatMessages(ChatId string) (messages []models.Me
 	}
 	for rows.Next() {
 		var message models.Message
-		err := rows.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.CreatedAt)
+		err := rows.Scan(&message.MessId, &message.Body, &message.ChatId, &message.Sender, &message.CreatedAt)
 		if err != nil {
 			return messages, err
 		}

@@ -24,4 +24,9 @@
 
 -- SELECT posts.* FROM posts LEFT JOIN comments ON pst_id = post_id WHERE usr_id="b4acf1bd-c24a-41d4-97e2-b3fbea3bdb23"  ;
 
-UPDATE reactions SET updated_at=`2023-10-05 12:03:52`, usr_id=`7ffccf9c-a320-482b-be40-2f191a54b4e2`, react_id=`bd3ec121-0093-4e2a-b701-e83a1a491bd6`, reactions=`DISLIKE`, pst_id=`54bf250d-259b-46ae-bb57-fd5d6d2fb0c7`, comment_id=`00000000-0000-0000-0000-000000000000`, react_type=`POST` WHERE react_id="bd3ec121-0093-4e2a-b701-e83a1a491bd6" ;
+-- UPDATE reactions SET updated_at=`2023-10-05 12:03:52`, usr_id=`7ffccf9c-a320-482b-be40-2f191a54b4e2`, react_id=`bd3ec121-0093-4e2a-b701-e83a1a491bd6`, reactions=`DISLIKE`, pst_id=`54bf250d-259b-46ae-bb57-fd5d6d2fb0c7`, comment_id=`00000000-0000-0000-0000-000000000000`, react_type=`POST` WHERE react_id="bd3ec121-0093-4e2a-b701-e83a1a491bd6" ;
+
+-- DROP TABLE chats;
+-- DROP TABLE messages;
+
+-- SELECT * FROM chats WHERE (requester_id="coulou789"  OR recipient_id="coulou789")   AND (recipient_id="jasonwatkins"  OR requester_id="jasonwatkins" )  ;

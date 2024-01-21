@@ -27,7 +27,8 @@ const (
 	VERIF_SESS_ENDPOINT = "/verifsess"
 	CHATS_ENDPOINT = "/chats"
 	USER_CHAT_ENDPOINT = "/chat"
-	USER_ENDPOINT = "/users"
+	MESSAGE_ENDPOINT = "/messages"
+	USERS_STATUS_ENDPOINT = "/users-status"
 	WS_ENDPOINT = "/ws"
 
 )
@@ -35,8 +36,7 @@ const (
 func Route() *http.ServeMux {
 
 	var mux = http.ServeMux{}
-	// mux.Handle(HOME_ENDPOINT,http.FileServer(http.Dir("./frontend/")))
-	// mux.HandleFunc(STATIC_ENDPOINT, handler.StaticHandler)
+	
 	mux.HandleFunc(HOME_ENDPOINT, handler.IndexHandler)
 	mux.HandleFunc(SIGNUP_ENDPOINT, handler.SignUpHandler)
 	mux.HandleFunc(SIGNIN_ENDPOINT, handler.SignInHandler)
@@ -56,13 +56,9 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(ABOUT_ENDPOINT, handler.AboutHandler)
 	mux.HandleFunc(VERIF_SESS_ENDPOINT, handler.VerifySessionHandler)
 	mux.HandleFunc(WS_ENDPOINT, handler.WSHandler)
-	mux.HandleFunc(CHATS_ENDPOINT, handler.GetChats)
 	mux.HandleFunc(USER_CHAT_ENDPOINT, handler.GetChatByUser)
-	mux.HandleFunc(USER_ENDPOINT, handler.GetUsers)
+	mux.HandleFunc(USERS_STATUS_ENDPOINT, handler.GetStatus)
+	mux.HandleFunc(MESSAGE_ENDPOINT, handler.GetMessages)
 
-
-
-	// mux.Handle("app.js",http.FileServer(http.Serve("./frontend/app.js")))
 	return &mux
-
 }

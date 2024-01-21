@@ -57,26 +57,25 @@ export function setWSConnection() {
 
 }
 
-export async function getChats() {
-  const path = "/chats"
-  return await get(path).catch(error => error)
-}
-
-export async function getChatByUser(username){
+export async function getChatByUser(username) {
   const path = `/chat?username=${username}`
   return await get(path).catch(error => error)
 }
 
-export async function getUsers() {
-  const path = "/users"
+export async function getUsersStatus() {
+  const path = "/users-status"
   return await get(path).catch(error => error)
 }
-
 
 export const EventType = {
   WS_JOIN_EVENT: "join-event",
   WS_DISCONNECT_EVENT: "disconnect-event",
   WS_MESSAGE_EVENT: "msg-event"
+}
+
+export async function getMessages(queries) {
+  const path = `/messages?${queries}`;
+  return await get(path).catch(error => error)
 }
 
 export function handleWSEvent(wsEvent) {
@@ -87,7 +86,9 @@ export function handleWSEvent(wsEvent) {
       break;
     case EventType.WS_DISCONNECT_EVENT:
       setStatusOffline(event.From)
-    break;
+      break;
+    case EventType.WS_MESSAGE_EVENT:
+      dispatchEvent(new CustomEvent("newMessage", { detail: event }))
     default:
       break;
   }
@@ -95,22 +96,26 @@ export function handleWSEvent(wsEvent) {
 
 function setStatusOnline(username) {
   const dot = getView(`${username}status-dot`).element
-      const text = getView(`${username}-status-text`).element
-      text.innerText = "online"
-      dot.style.backgroundColor = "green"
-      if (getView(`chat${username}`)){
-        const dot = getView(`chat-${username}-status-dot`).element
-        dot.style.backgroundColor = "green"
-      }
+  const text = getView(`${username}-status-text`).element
+  const statusItmView = getView(`user-status${username}`)
+  statusItmView.user.status = "online"
+  text.innerText = "online"
+  dot.style.backgroundColor = "green"
+  if (getView(`chat${username}`)) {
+    const dot = getView(`chat-${username}-status-dot`).element
+    dot.style.backgroundColor = "green"
+  }
 }
 
 function setStatusOffline(username) {
   const dot = getView(`${username}status-dot`).element
-      const text = getView(`${username}-status-text`).element
-      text.innerText = "offline"
-      dot.style.backgroundColor = "gray"
-      if (getView(`chat${username}`)){
-        const dot = getView(`chat-${username}-status-dot`).element
-        dot.style.backgroundColor = "gray"
-      }
+  const text = getView(`${username}-status-text`).element
+  const statusItmView = getView(`user-status${username}`)
+  statusItmView.user.status = "offline"
+  text.innerText = "offline"
+  dot.style.backgroundColor = "gray"
+  if (getView(`chat${username}`)) {
+    const dot = getView(`chat-${username}-status-dot`).element
+    dot.style.backgroundColor = "gray"
+  }
 }

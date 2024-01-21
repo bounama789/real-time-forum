@@ -1,8 +1,14 @@
+import { setView } from "../../../lib/lib.js";
 import { Div, Image, Text } from "../../elements/index.js";
 
 export class StatusItemView {
     constructor(user) {
+        this.user = user
+        this.id = `user-status${user.username}`
+
+        setView(this)
         return new Div({
+            id:`status-item-${this.user.username}`,
             className: "status-item",
             style: {
                 display: "flex",
@@ -19,7 +25,7 @@ export class StatusItemView {
                     },
                     children: [
                         new Image({
-                            src: "https://api.dicebear.com/7.x/avataaars/svg",
+                            src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.user.username}`,
                             alt: "Author avatar",
                             style: {
                                 width: "48px",
@@ -30,7 +36,7 @@ export class StatusItemView {
                         }),
                         new Div({
                             className: "dot",
-                            id: `${user.username}status-dot`,
+                            id: `${this.user.username}status-dot`,
                             style: {
                                 position: "absolute",
                                 bottom: "5px",
@@ -59,19 +65,19 @@ export class StatusItemView {
                             },
                             children: [
                                 new Text({
-                                    text: user.username
+                                    text: this.user.username
                                 }),
                             ]
                         }),
                         new Div({
-                            id: `${user.username}-status-text`,
+                            id: `${this.user.username}-status-text`,
                             style: {
                                 className: "user-status-text",
                                 color: "var(--bs-blue)"
                             },
                             children: [
                                 new Text({
-                                    text: user.status
+                                    text: this.user.status
                                 }),
                             ]
                         })
@@ -80,7 +86,7 @@ export class StatusItemView {
             ],
             listeners: {
                 onclick: () => {
-                    const newEvent = new CustomEvent("chatOpened",{detail:user})
+                    const newEvent = new CustomEvent("chatOpened",{detail:this.user})
                     dispatchEvent(newEvent)
                 }
             } 

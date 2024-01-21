@@ -113,6 +113,11 @@ export class View {
     this.element.appendChild(child.element);
   }
 
+  removeChild(child){
+    this.children.splice(this.children.indexOf(child), 1);
+    this.element.removeChild(child.element);
+  }
+
   replaceContent(view) {
     this.children = []
     this.element.innerHTML = ''

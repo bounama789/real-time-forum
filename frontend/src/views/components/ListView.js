@@ -1,4 +1,5 @@
 import { View } from "../../common/types/View.js";
+import { setView } from "../../lib/lib.js";
 import { Div } from "../elements/index.js";
 
 /**
@@ -10,7 +11,7 @@ import { Div } from "../elements/index.js";
  * @returns {Div} The container element for the ListView.
  */
 export class ListView {
-  constructor({ id, items = [], itemView, provider = async ()=>{} } = {}) {
+  constructor({ id, items = [], itemView, provider = async ()=>{},providerParams = {}, style = {} } = {}) {
     this.page = 1;
 
     this.id=id
@@ -27,24 +28,36 @@ export class ListView {
 
     this.provider = provider;
 
+    this.providerParams = providerParams
+
     /**
      * @type {Div}
      */
     this.listContainer = new Div({
-      className:`list-${this.id}-container`,
-      style: {
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "start",
-        borderRadius: "10px",
-        gap: "1rem",
-        backgroundColor:'transparent',
-      },
+      id:`list-${this.id}-container`,
+      className: "list-container",
+      style: style,
     });
 
+    let query = ""
+
+    for (const key in this.providerParams) {
+      if (Object.hasOwnProperty.call(this.providerParams, key)) {
+
+        if (query =! "") {
+          query += "&"
+        }
+        const value = this.providerParams[key];
+        query += `&${key}=${value}`;
+      }
+    }
+
+    this.providerQueries = query
+
+    query += `&page=${this.page}`
+
     // if (typeof this.provider == "Function") {
-      this.provider(1).then((response)=>{
+      this.provider(query).then((response)=>{
         response = response || []
 
         // Add the items to the list
@@ -53,6 +66,8 @@ export class ListView {
         });
       })
     // }
+
+    setView(this)
 
   }
 
@@ -78,8 +93,15 @@ export class ListView {
     });
   }
 
+  removeItemView(itemView) {
+    this.listContainer.removeChild(itemView);
+  }
+
   fetchMoreItems() {
-    this.provider(1).then((response)=>{
+    this.page++;
+    this.providerQueries += `&page=${this.page}`
+
+    this.provider(this.providerQueries).then((response)=>{
       // Add the items to the list
       response = response || []
       response.forEach((item) => {
@@ -88,7 +110,6 @@ export class ListView {
     })
     try {
       this.addItem()
-      this.page++;
       // this.provider(this.page+1).then(async(response)=>{
       //   this.page++;
       //   this.addItem(response)

@@ -88,7 +88,7 @@ export class SignupPanel {
                                 if (response.msg === "success") {
                                     localStorage.setItem("auth-token", response.authToken)
 
-                                    const event = new CustomEvent("logged")
+                                    const event = new CustomEvent("logged", {detail:{user:response.user}})
                                     dispatchEvent(event)
                                     goTo("contentPage")
                                 }

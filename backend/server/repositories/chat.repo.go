@@ -27,6 +27,14 @@ func (r *ChatRepository) SaveChat(chat models.Chat) error {
 	return nil
 }
 
+func (r *ChatRepository) UpdateChat(chat models.Chat) error {
+	err := r.DB.Update(r.TableName, chat,q.WhereOption{"chat_id":opt.Equals(chat.ChatId)})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ChatRepository) DeleteChat(chatId string) error {
 	err := r.DB.Delete(r.TableName, q.WhereOption{"cht_id": opt.Equals(chatId)})
 	if err != nil {
@@ -36,7 +44,7 @@ func (r *ChatRepository) DeleteChat(chatId string) error {
 }
 
 func (r *ChatRepository) GetChat(from string,username string) (chat models.Chat, err error) {
-	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username)+opt.Or("requester_id",opt.Equals(from)),"recipient_id":opt.Equals(from)+opt.Or("recipient_id",username)})
+	row, err := r.DB.GetOneFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username)+opt.Or("recipient_id",opt.Equals(username)),"recipient_id":opt.Equals(from)+opt.Or("requester_id",opt.Equals(from))})
 	if err != nil {
 		return chat, err
 	}
@@ -87,16 +95,16 @@ func (r *ChatRepository) AddUserToChat(chatId uuid.UUID, userId uuid.UUID) error
 	return nil
 }
 
-func (r *ChatRepository) GetUserChats(userId string) (chats []models.Chat, err error) {
+func (r *ChatRepository) GetUserChats(username string) (chats []models.Chat, err error) {
 
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(userId) + opt.Or("recipient_id", opt.Equals(userId))}, "last_message_time")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username) + opt.Or("recipient_id", opt.Equals(username))}, "last_message_time DESC")
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
 		var chat models.Chat
-		err := rows.Scan(&chat.ChatId, &chat.CreatedAt, &chat.LastMessageTime)
+		err := rows.Scan(&chat.ChatId,&chat.Requester,&chat.Recipient, &chat.LastMessageTime, &chat.CreatedAt)
 		if err != nil {
 			println(err)
 			return nil, err

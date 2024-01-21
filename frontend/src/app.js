@@ -3,13 +3,14 @@ import { Div } from "./views/elements/index.js";
 import { ViewPager } from "./lib/pager/view-pager.js";
 import { ContentPage } from "./views/pages/ContentPage.js";
 import { AuthPage } from "./views/pages/index.js";
-import { handleWSEvent, setWSConnection } from "./api/api.js";
+import {  handleWSEvent, setWSConnection } from "./api/api.js";
 
 export class App {
   constructor(options) {
     this.container = options.container
     this.currentPath = options.currentPath
     this.wsConnection
+    this.user = options.user
 
     history.pushState("app", "", this.currentPath)
   }
@@ -30,8 +31,14 @@ export class App {
     this.container.appendChild(content.container.element)
     // })
 
-    addEventListener("logged", () => {
+    addEventListener("logged", (event) => {
       setWSConnection()
+      
+      if (!this.user) {
+        const user = event.detail.user
+        this.user = user
+      }
+
 
       this.wsConnection.addEventListener("open", (event) => {
         console.log("ws connection done");
@@ -42,13 +49,13 @@ export class App {
         handleWSEvent(event.data)
       })
       this.wsConnection.onclose = function (event) {
-        if (event.wasClean) {
-          alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        } else {
-          // e.g. server process killed or network down
-          // event.code is usually 1006 in this case
-          alert('[close] Connection died');
-        }
+        // if (event.wasClean) {
+        //   alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        // } else {
+        //   // e.g. server process killed or network down
+        //   // event.code is usually 1006 in this case
+        //   alert('[close] Connection died');
+        // }
       };
 
     })

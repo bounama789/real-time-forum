@@ -1,20 +1,35 @@
-import { getChats, getUsers } from "../../../api/api.js";
+import { getUsersStatus } from "../../../api/api.js";
 import { Div } from "../../elements/index.js";
 import { StatusItemView } from "./status-item-view.js";
 import { ListView } from "../ListView.js";
+import { getView } from "../../../lib/lib.js";
 
 export class StatusPanel {
     constructor() {
-        const chatList = new ListView({
-            id: "chatList",
-            itemView: StatusItemView,
-            provider: getChats,
-          });
-          const otherUser = new ListView({
+
+        this.usersStatus = new ListView({
             id: "userList",
             itemView: StatusItemView,
-            provider: getUsers,
-          }); 
+            provider: getUsersStatus,
+        });
+
+        addEventListener("newMessage", (event) => {
+            const data = event.detail
+            let user
+            let statusItmView
+            if (data.From != app.user.username) {
+                 
+                user = getView(`user-status${data.From}`).user
+                statusItmView = getView(`status-item-${data.From}`)
+            } else {
+                
+                user = user = getView(`user-status${data.To}`).user
+                statusItmView = getView(`status-item-${data.To}`)
+            }
+            this.usersStatus.removeItemView(statusItmView)
+            this.usersStatus.prependItem(user)
+
+        })
 
         return new Div({
             className: 'status-panel',
@@ -27,7 +42,6 @@ export class StatusPanel {
                 height: "100%",
                 backgroundColor: 'var(--bs-white)',
                 boxShadow: "20px 0px 15px -23px rgba(0,0,0,0.1)",
-                // top:`${getView("header").clientHeight}`
             },
             children: [
                 new Div({
@@ -38,17 +52,13 @@ export class StatusPanel {
                         display: "flex",
                         flexDirection: "column",
                         gap: "1rem",
-                        overflowY:"scroll"
-
-
+                        overflowY: "scroll"
                     },
                     children: [
                         new Div({
                             className: "chats",
                             children: [
-                                chatList.listContainer,
-                                otherUser.listContainer,
-
+                                this.usersStatus.listContainer,
                             ]
                         }),
                     ],

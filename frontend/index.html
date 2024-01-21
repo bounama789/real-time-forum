@@ -26,7 +26,7 @@
           path = "/auth/signin"
         }
 
-        const app = new App({ container, currentPath: path })
+        const app = new App({ container, currentPath: path, user: response.user })
         window.app = app
         app.run()
 

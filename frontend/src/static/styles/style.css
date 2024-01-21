@@ -62,3 +62,13 @@
     border-bottom-left-radius: 35px;
     border-top-right-radius: 35px;
 }
+
+.list-container{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        border-radius: 10px;
+        gap: 1rem;
+        background-color:transparent;
+}
+

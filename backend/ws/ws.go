@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"forum/backend/config"
 	"forum/backend/models"
 	repo "forum/backend/server/repositories"
 	"log"
@@ -41,6 +42,7 @@ type WSPaylaod struct {
 	From string
 	Type string
 	Data interface{}
+	To string
 }
 
 var WSHub *Hub
@@ -113,28 +115,48 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 		})
 	case WS_MESSAGE_EVENT:
 		data := eventPayload.Data.(map[string]any)
-		c, ok := WSHub.Clients.Load(data["to"])
-		client := c.(*WSClient)
+		to := data["to"].(string)
+		c, ok := WSHub.Clients.Load(to)
+		from := eventPayload.From
 
-		if c, err := repo.ChatRepo.GetChat(client.Username,data["to"].(string)); err != nil || c.ChatId.String() != data["chatId"] {
-			return
-		}
+		var client *WSClient
+
 		if ok {
+			client = c.(*WSClient)
+
+			if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
+				return
+			} else {
+				chat.LastMessageTime = time.Now().Format(config.Get("TIME_FORMAT").ToString())
+				repo.ChatRepo.UpdateChat(chat)
+			}
+
+			cid := data["chatId"].(string)
+			chatId := uuid.FromStringOrNil(cid)
 			var message = models.Message{
-				Sender:    client.Username,
+				Sender:    eventPayload.From,
 				Body:      data["content"].(string),
 				CreatedAt: data["time"].(string),
-				ChatId:    uuid.FromStringOrNil(data["chatId"].(string)),
+				ChatId:    chatId,
 			}
 			repo.MessRepo.SaveMessage(&message)
+			message.IsSender = false
 
 			var event = WSPaylaod{
 				Type: WS_MESSAGE_EVENT,
-				From: client.Username,
+				From: eventPayload.From,
 				Data: message,
+				To: to,
 			}
-
 			client.OutgoingMsg <- event
+
+			sender, ok := wsHub.Clients.Load(eventPayload.From)
+			if ok {
+				senderClient := sender.(*WSClient)
+				message.IsSender = true
+				event.Data = message
+				senderClient.OutgoingMsg <- event
+			}
 		}
 	}
 }
