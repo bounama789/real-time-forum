@@ -27,6 +27,7 @@ func (r *MessageRepository) SaveMessage(message *models.Message) error {
 		Sender    string    `json:"sender_id"`
 		Body      string    `json:"content"`
 		CreatedAt string    `json:"created_at"`
+		Read      bool      `json:"read"`
 	}
 	var mess = messTable{
 		MessId:    message.MessId,
@@ -34,6 +35,7 @@ func (r *MessageRepository) SaveMessage(message *models.Message) error {
 		Body:      message.Body,
 		CreatedAt: message.CreatedAt,
 		ChatId:    message.ChatId,
+		Read: false,
 	}
 	err := r.DB.Insert(r.TableName, mess)
 	if err != nil {
@@ -63,7 +65,7 @@ func (r *MessageRepository) GetMessage(messageId string) (message models.Message
 	if err != nil {
 		return message, err
 	}
-	err = row.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.CreatedAt)
+	err = row.Scan(&message.MessId, &message.ChatId, &message.Sender, &message.Body, &message.Read, &message.CreatedAt)
 	if err != nil {
 		return message, err
 	}
@@ -77,11 +79,39 @@ func (r *MessageRepository) GetChatMessages(ChatId string) (messages []models.Me
 	}
 	for rows.Next() {
 		var message models.Message
-		err := rows.Scan(&message.MessId, &message.Body, &message.ChatId, &message.Sender, &message.CreatedAt)
+		err := rows.Scan(&message.MessId, &message.Body, &message.ChatId, &message.Sender, &message.Read, &message.CreatedAt)
 		if err != nil {
 			return messages, err
 		}
 		messages = append(messages, message)
 	}
 	return messages, nil
+}
+
+func (r *MessageRepository) GetChatUnreadMessages(ChatId string, username string) (messages []models.Message, err error) {
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(ChatId),"sender_id":opt.NotEqual(username),"read":opt.Equals(false)}, "created_at DESC")
+	if err != nil {
+		return messages, err
+	}
+	for rows.Next() {
+		var message models.Message
+		err := rows.Scan(&message.MessId, &message.Body, &message.ChatId, &message.Sender, &message.Read, &message.CreatedAt)
+		if err != nil {
+			return messages, err
+		}
+		messages = append(messages, message)
+	}
+	return messages, nil
+}
+
+func (r *MessageRepository) GetChatUnreadMessagesCount(ChatId string, username string) (count int, err error) {
+	row, err := r.DB.GetCount(r.TableName, q.WhereOption{"cht_id": opt.Equals(ChatId), "sender_id": opt.NotEqual(username),"read":opt.Equals(false)})
+	if err != nil {
+		return 0, err
+	}
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

@@ -5,6 +5,7 @@ export class StatusItemView {
     constructor(user) {
         this.user = user
         this.id = `user-status${user.username}`
+        this.unreadMsg = user.unread_count || 0
 
         setView(this)
         return new Div({
@@ -24,6 +25,30 @@ export class StatusItemView {
                         position: "relative",
                     },
                     children: [
+                        new Div({
+                            id:`unread-badge-${this.id}`,
+                            className:"unread-badge",
+                            style:{
+                                display: this.unreadMsg > 0? "flex" : "none",
+                                position: "absolute",
+                                top: "5px",
+                                right: "3px",
+                                width: "15px",
+                                height: "15px",
+                                backgroundColor: "red",
+                                borderRadius: "50%",
+                                color: "white",
+                                fontWeight:"bold",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            },
+                            children: [
+                                new Text({
+                                    text: this.unreadMsg
+                                }),
+                            ]
+                        }),
                         new Image({
                             src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.user.username}`,
                             alt: "Author avatar",

@@ -22,9 +22,9 @@ func Equals(value any) string {
 func NotEqual(value any) string {
 	var res string
 	if v, ok := value.(string); ok {
-		res = fmt.Sprintf("!=%v ", v)
+		res = fmt.Sprintf("!=\"%v\" ", v)
 	} else if v, ok := value.(uuid.UUID); ok {
-		res = fmt.Sprintf("!=%v ", v)
+		res = fmt.Sprintf("!=\"%v\" ", v)
 	} else {
 		res = fmt.Sprintf("!=%v ", value)
 	}

@@ -84,11 +84,13 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 	type reformatedUserData struct {
 		Username string `json:"username"`
 		Status   string `json:"status"`
+		UnreadCount int `json:"unread_count"`
 	}
 
 	var data []reformatedUserData
 
 	for _, chat := range chats {
+		unreadCount,_ := repositories.MessRepo.GetChatUnreadMessagesCount(chat.ChatId.String(),username)
 		var uname string
 		if username == chat.Recipient {
 			uname = chat.Requester
@@ -100,7 +102,7 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 		if ok {
 			status = "online"
 		}
-		data = append(data, reformatedUserData{Username: uname, Status: status})
+		data = append(data, reformatedUserData{Username: uname, Status: status,UnreadCount: unreadCount})
 	}
 
 	users, err := repositories.UserRepo.GetAllUsers()

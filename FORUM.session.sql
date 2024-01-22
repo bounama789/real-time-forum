@@ -30,3 +30,5 @@
 -- DROP TABLE messages;
 
 -- SELECT * FROM chats WHERE (requester_id="coulou789"  OR recipient_id="coulou789")   AND (recipient_id="jasonwatkins"  OR requester_id="jasonwatkins" )  ;
+
+SELECT COUNT(*) FROM messages WHERE (cht_id="766240ae-32a7-4857-86d9-60e0b900af98" ) AND (sender_id!="walllucas" ) AND (read=false ) ;

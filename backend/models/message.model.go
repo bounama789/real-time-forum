@@ -8,5 +8,6 @@ type Message struct {
 	Sender    string    `json:"sender_id"`
 	Body      string    `json:"content"`
 	CreatedAt string    `json:"created_at"`
-	IsSender bool `json:"isSender"`
+	Read      bool      `json:"read"`
+	IsSender  bool      `json:"isSender"`
 }

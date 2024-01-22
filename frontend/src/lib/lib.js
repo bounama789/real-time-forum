@@ -13,7 +13,6 @@ export function getView(viewId){
 
 export function setView(view){
     ViewElement.views.set(view.id,view)
-    console.log(ViewElement.views.get(view.id).id);
 }
 
 export function remView(viewId){

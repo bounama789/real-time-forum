@@ -97,6 +97,7 @@ CREATE TABLE if not exists messages (
   content varchar,
   cht_id uuid,
   sender_id varchar,
+  read boolean,
   created_at varchar,
 
   FOREIGN KEY (sender_id) REFERENCES users (username),
