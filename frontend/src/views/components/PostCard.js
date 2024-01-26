@@ -83,7 +83,6 @@ export class PostCard {
                   style: {
                     fontFamily: "Open Sans",
                     fontWeight: "light",
-                    fontSize: "small",
                     fontSize: "12px",
                   },
                   children: [new Text({ text: postObject.Age })],

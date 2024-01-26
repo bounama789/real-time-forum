@@ -191,7 +191,6 @@ export class ChatView {
                     fontFamily:"Open Sans",
                     height: '34px',
                     width: '100%',
-                    border: 'none',
                     outline: 'none',
                     borderRadius: '15px',
                     border: '1px solid var(--bs-blue)',
