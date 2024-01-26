@@ -1,7 +1,8 @@
-import {setView} from "../../lib/lib";
+import { setView } from "../../lib/lib";
+import { Button, Div, Form, Input, Text } from "../elements/index.js";
 
 export class CreatePost {
-  constructor(options) {
+  constructor() {
     this.path = "/create-post";
     setView(this);
     this.render();
@@ -11,12 +12,12 @@ export class CreatePost {
       id: "create-post-container",
       className: "create-post-container",
       style: {
-        display: "flex",
+        display: "none",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        // width: "100%",
-        // height: "100%",
+        width: "100%",
+        height: "100%",
         gap: "1rem",
       },
       children: [
@@ -43,7 +44,7 @@ export class CreatePost {
             }),
           ],
         }),
-        new Div({
+        new Form({
           id: "create-post-form",
           className: "create-post-form",
           style: {
@@ -83,7 +84,7 @@ export class CreatePost {
             new Button({
               id: "create-post-submit",
               className: "create-post-submit",
-              text: "Create",
+              text: "Create Post",
               style: {
                 width: "100%",
                 height: "100%",
@@ -94,10 +95,19 @@ export class CreatePost {
                 color: "white",
                 fontWeight: "bold",
               },
+              listeners: {
+                click: () => {
+                  createPost();
+                },
+              },
             }),
           ],
         }),
       ],
     }).element;
   }
+}
+
+function createPost() {
+  console.log("Create post button clicked");
 }
