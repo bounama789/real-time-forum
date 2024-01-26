@@ -48,27 +48,30 @@ export class ListView {
           query += "&"
         }
         const value = this.providerParams[key];
-        query += `&${key}=${value}`;
+        query += `${key}=${value}`;
       }
     }
 
-    this.providerQueries = query
 
-    query += `&page=${this.page}`
 
-    // if (typeof this.provider == "Function") {
-      this.provider(query).then((response)=>{
-        response = response || []
-
-        // Add the items to the list
-        response.forEach((item) => {
-          this.listContainer.addChild(new this.itemView(item));
-        });
-      })
-    // }
+    this.fetch()
 
     setView(this)
 
+  }
+
+  async fetch(query){
+    this.providerQueries = query
+
+    query += `&page=${this.page}`
+    await this.provider().then((response)=>{
+      response = response || []
+
+      // Add the items to the list
+      response.forEach((item) => {
+        this.listContainer.addChild(new this.itemView(item));
+      });
+    })
   }
 
   /**
@@ -98,24 +101,24 @@ export class ListView {
   }
 
   fetchMoreItems() {
-    this.page++;
-    this.providerQueries += `&page=${this.page}`
+    // this.page++;
+    // this.providerQueries += `&page=${this.page}`
 
-    this.provider(this.providerQueries).then((response)=>{
-      // Add the items to the list
-      response = response || []
-      response.forEach((item) => {
-        this.listContainer.addChild(new this.itemView(item));
-      });
-    })
-    try {
-      this.addItem()
-      // this.provider(this.page+1).then(async(response)=>{
-      //   this.page++;
-      //   this.addItem(response)
-      // })
-    } catch (error) {
-      console.log(error);
-    }
+    // this.provider(this.providerQueries).then((response)=>{
+    //   // Add the items to the list
+    //   response = response || []
+    //   response.forEach((item) => {
+    //     this.listContainer.addChild(new this.itemView(item));
+    //   });
+    // })
+    // try {
+    //   this.addItem()
+    //   // this.provider(this.page+1).then(async(response)=>{
+    //   //   this.page++;
+    //   //   this.addItem(response)
+    //   // })
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 }

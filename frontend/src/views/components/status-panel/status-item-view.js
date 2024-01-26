@@ -1,4 +1,5 @@
-import { setView } from "../../../lib/lib.js";
+import { EventType } from "../../../api/api.js";
+import { getView, setView } from "../../../lib/lib.js";
 import { Div, Image, Text } from "../../elements/index.js";
 
 export class StatusItemView {
@@ -7,9 +8,24 @@ export class StatusItemView {
         this.id = `user-status${user.username}`
         this.unreadMsg = user.unread_count || 0
 
+        addEventListener("unreadMsg", (event) => {
+            const u = event.detail
+            const count = u.unread_count
+            const badge = getView(`unread-badge-${this.id}`)
+            if (this.user.username === u.username) {
+                if (count > 0) {
+                    badge.element.innerText = count > 9 ? "+9": count
+                    badge.show()
+                } else {
+                    badge.hide()
+                }
+            }
+
+        })
+
         setView(this)
         return new Div({
-            id:`status-item-${this.user.username}`,
+            id: `status-item-${this.user.username}`,
             className: "status-item",
             style: {
                 display: "flex",
@@ -26,10 +42,10 @@ export class StatusItemView {
                     },
                     children: [
                         new Div({
-                            id:`unread-badge-${this.id}`,
-                            className:"unread-badge",
-                            style:{
-                                display: this.unreadMsg > 0? "flex" : "none",
+                            id: `unread-badge-${this.id}`,
+                            className: "unread-badge",
+                            style: {
+                                display: this.unreadMsg > 0 ? "flex" : "none",
                                 position: "absolute",
                                 top: "5px",
                                 right: "3px",
@@ -38,14 +54,17 @@ export class StatusItemView {
                                 backgroundColor: "red",
                                 borderRadius: "50%",
                                 color: "white",
-                                fontWeight:"bold",
+                                fontWeight: "bold",
                                 flexDirection: "column",
                                 justifyContent: "center",
-                                alignItems: "center"
+                                alignItems: "center",
+                                textAlign: "center",
+                                fontSize: "10px",
+                                padding: "2px",
                             },
                             children: [
                                 new Text({
-                                    text: this.unreadMsg
+                                    text: this.unreadMsg  > 9 ? "+9": this.unreadMsg
                                 }),
                             ]
                         }),
@@ -111,10 +130,19 @@ export class StatusItemView {
             ],
             listeners: {
                 onclick: () => {
-                    const newEvent = new CustomEvent("chatOpened",{detail:this.user})
+                    const newEvent = new CustomEvent("chatOpened", { detail: this.user })
                     dispatchEvent(newEvent)
+
+                    this.user.unread_count = 0
+                    dispatchEvent(new CustomEvent("unreadMsg", { detail: this.user }))
+                    const wsEvent = {
+                        type: EventType.WS_READ_EVENT,
+                        time: new Date(Date.now()).toString(),
+                        username: this.user.username
+                    }
+                    app.wsConnection.send(JSON.stringify(wsEvent))
                 }
-            } 
+            }
         })
     }
 }

@@ -27,6 +27,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		content, err := io.ReadAll(body)
 		if err != nil {
 			RenderErrorPage(http.StatusBadRequest, w)
+			return
 		}
 		pId := r.URL.Query().Get("postid")
 		postId, err := uuid.FromString(pId)
@@ -66,24 +67,9 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		} else {
-			tml, err := template.ParseFiles("./templates/comment.html")
-			if err != nil {
-				RenderErrorPage(http.StatusInternalServerError, w)
-				return
-			}
-			tmpl := template.Must(tml, err)
 			w.WriteHeader(http.StatusCreated)
-			comments, _ := service.ComSrvice.GetCommentsByPostId(pId, tokenData)
-			data := Data{
-				Username: tokenData.Username,
-				Comments: comments,
-			}
-			err = tmpl.Execute(w, data)
-			if err != nil {
-				fmt.Println(err)
-			}
+			json.NewEncoder(w).Encode(map[string]any{"msg":"success"})
 		}
-
 	}
 }
 
@@ -188,19 +174,9 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 		postId := r.URL.Query().Get("postid")
 		tokenData, _ := authService.VerifyToken(r)
 		comments, _ := service.ComSrvice.GetCommentsByPostId(postId, tokenData)
-		data := Data{
-			Username: tokenData.Username,
-			Comments: comments,
-		}
-		tml, err := template.ParseFiles("./templates/comment.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl := template.Must(tml, err)
+		
 		w.WriteHeader(http.StatusOK)
-		err = tmpl.Execute(w, data)
-		fmt.Println(err)
+		json.NewEncoder(w).Encode(comments)
 	}
 }
 

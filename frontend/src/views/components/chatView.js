@@ -130,6 +130,8 @@ export class ChatView {
                   const elem = view.element
                   elem.parentNode.removeChild(elem)
                   remView(view.id)
+                  const chatContainer = getView("chatsContainer")
+                  chatContainer.chatViews.splice(chatContainer.chatViews.indexOf(elem), 1)
                 }
               }
             })
@@ -137,7 +139,7 @@ export class ChatView {
 
         }),
         new Div({
-          id: `chatContainer${this.chat.id}`,
+          id: `chatContainer${this.chat.chat_id}`,
           className: "messages-container",
           style: {
             display: "flex",
@@ -147,7 +149,9 @@ export class ChatView {
             maxHeight: '55vh',
             transition: "max-height 0.5s ease-out",
             flexDirection: "column",
-            gap: "1.5rem"
+            gap: "1.5rem",
+            paddingBottom:"1.1rem"
+
 
           },
           children: [
@@ -184,6 +188,7 @@ export class ChatView {
                   id:"msg-input",
                   placeholder: 'type your message',
                   style: {
+                    fontFamily:"Open Sans",
                     height: '34px',
                     width: '100%',
                     border: 'none',
@@ -231,6 +236,7 @@ export class ChatView {
 
     if (text != "") {
       const wsEvent = {
+        type:EventType.WS_MESSAGE_EVENT,
         to:this.recipient.username,
         content: text,
         time: new Date(Date.now()).toString(),
@@ -246,20 +252,20 @@ export class ChatView {
   }
 
   toggleDisplay() {
-    let div = getView(`chatContainer${this.chat.id}`).element;
-    console.log(getView(`chatContainer${this.chat.id}`));
+    let div = getView(`chatContainer${this.chat.chat_id}`).element;
+    console.log(getView(`chatContainer${this.chat.chat_id}`));
     if (div.style.maxHeight === '0px') {
       div.style.maxHeight = "55vh"
       div.style.height = "55vh"
       setTimeout(() => {
-        div.style.visibility = "visible"
+        div.style.display = "flex"
       }, 300)
 
     } else {
       div.style.maxHeight = "0px"
       div.style.height = "0px"
-      // div.style.display = "none"
-      div.style.visibility = "hidden"
+      div.style.display = "none"
+      // div.style.visibility = "hidden"
 
 
     }

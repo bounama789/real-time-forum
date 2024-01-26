@@ -1,10 +1,11 @@
 import { getChatByUser } from "../../api/api.js"
 import { ChatView } from "./chatView.js"
 import { Div } from "../elements/index.js"
-import { getView, remView } from "../../lib/lib.js"
+import { getView, remView, setView } from "../../lib/lib.js"
 
 export class ChatContainer {
     constructor() {
+        this.id =  "chatsContainer"
         this.chatViews = []
 
         addEventListener("chatOpened", (event) => {
@@ -27,6 +28,7 @@ export class ChatContainer {
             }
 
         })
+        setView(this)
     }
 
     get element() {
@@ -36,7 +38,7 @@ export class ChatContainer {
             style: {
                 display: "flex",
                 flexDirection: "row-reverse",
-                alignItems: "center",
+                alignItems: "end",
                 position: "fixed",
                 bottom: 0,
                 right: '8%',

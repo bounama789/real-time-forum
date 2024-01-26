@@ -24,6 +24,7 @@ const (
 	WS_JOIN_EVENT       = "join-event"
 	WS_DISCONNECT_EVENT = "disconnect-event"
 	WS_MESSAGE_EVENT    = "msg-event"
+	WS_READ_EVENT       = "read-event"
 )
 
 type Hub struct {
@@ -42,7 +43,7 @@ type WSPaylaod struct {
 	From string
 	Type string
 	Data interface{}
-	To string
+	To   string
 }
 
 var WSHub *Hub
@@ -116,13 +117,11 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 	case WS_MESSAGE_EVENT:
 		data := eventPayload.Data.(map[string]any)
 		to := data["to"].(string)
-		c, ok := WSHub.Clients.Load(to)
 		from := eventPayload.From
 
 		var client *WSClient
+		var message  models.Message
 
-		if ok {
-			client = c.(*WSClient)
 
 			if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
 				return
@@ -133,22 +132,25 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 
 			cid := data["chatId"].(string)
 			chatId := uuid.FromStringOrNil(cid)
-			var message = models.Message{
+			message = models.Message{
 				Sender:    eventPayload.From,
 				Body:      data["content"].(string),
 				CreatedAt: data["time"].(string),
 				ChatId:    chatId,
 			}
-			repo.MessRepo.SaveMessage(&message)
 			message.IsSender = false
 
 			var event = WSPaylaod{
 				Type: WS_MESSAGE_EVENT,
 				From: eventPayload.From,
 				Data: message,
-				To: to,
+				To:   to,
 			}
-			client.OutgoingMsg <- event
+			c, ok := WSHub.Clients.Load(to)
+			if ok {
+				client = c.(*WSClient)
+				client.OutgoingMsg <- event
+			}
 
 			sender, ok := wsHub.Clients.Load(eventPayload.From)
 			if ok {
@@ -156,6 +158,26 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 				message.IsSender = true
 				event.Data = message
 				senderClient.OutgoingMsg <- event
+			}
+		
+		repo.MessRepo.SaveMessage(&message)
+
+	case WS_READ_EVENT:
+		data := eventPayload.Data.(map[string]any)
+		chatId := data["username"].(string)
+		username := eventPayload.From
+
+		messages, err := repo.MessRepo.GetChatUnreadMessages(chatId, username)
+		if err != nil {
+			return
+		}
+
+		for _, message := range messages {
+			message.Read = true
+			err := repo.MessRepo.UpdateMessage(message)
+
+			if err != nil {
+				return
 			}
 		}
 	}
@@ -181,9 +203,11 @@ func (client *WSClient) messageReader() {
 			return
 		}
 
+		eventType := payload["type"].(string)
+
 		wsEvent := WSPaylaod{
 			From: client.Username,
-			Type: WS_MESSAGE_EVENT,
+			Type: eventType,
 			Data: payload,
 		}
 
@@ -192,12 +216,6 @@ func (client *WSClient) messageReader() {
 }
 
 func (client *WSClient) messageWriter() {
-	// ticker := time.NewTicker(pingPeriod)
-	// defer func() {
-	// 	ticker.Stop()
-	// 	client.WSCoon.Close()
-	// }()
-
 	for {
 		select {
 		case message := <-client.OutgoingMsg:
@@ -209,12 +227,6 @@ func (client *WSClient) messageWriter() {
 			if err != nil {
 				return
 			}
-			// case <-ticker.C:
-			// 	client.WSCoon.SetWriteDeadline(time.Now().Add(writeWait))
-
-			// 	if err := client.WSCoon.WriteMessage(websocket.PingMessage, nil); err != nil {
-			// 		return
-			// 	}
 		}
 	}
 }

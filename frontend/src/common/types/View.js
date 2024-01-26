@@ -85,7 +85,6 @@ export class View {
    */
   _appendChildren() {
     this.children.forEach((child) => {
-      console.log(typeof child);
       if (child instanceof Node) {
         this.element.appendChild(child)
       } else {

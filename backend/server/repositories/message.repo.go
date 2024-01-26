@@ -53,7 +53,23 @@ func (r *MessageRepository) DeleteMessage(messageId string) error {
 }
 
 func (r *MessageRepository) UpdateMessage(message models.Message) error {
-	err := r.DB.Delete(r.TableName, q.WhereOption{"mess_id": opt.Equals(message.MessId)})
+	type messTable struct {
+		MessId    uuid.UUID `json:"message_id"`
+		ChatId    uuid.UUID `json:"cht_id"`
+		Sender    string    `json:"sender_id"`
+		Body      string    `json:"content"`
+		CreatedAt string    `json:"created_at"`
+		Read      bool      `json:"read"`
+	}
+	var mess = messTable{
+		MessId:    message.MessId,
+		Sender:    message.Sender,
+		Body:      message.Body,
+		CreatedAt: message.CreatedAt,
+		ChatId:    message.ChatId,
+		Read: message.Read,
+	}
+	err := r.DB.Update(r.TableName, mess, q.WhereOption{"message_id": opt.Equals(message.MessId)})
 	if err != nil {
 		return err
 	}
@@ -88,8 +104,12 @@ func (r *MessageRepository) GetChatMessages(ChatId string) (messages []models.Me
 	return messages, nil
 }
 
-func (r *MessageRepository) GetChatUnreadMessages(ChatId string, username string) (messages []models.Message, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(ChatId),"sender_id":opt.NotEqual(username),"read":opt.Equals(false)}, "created_at DESC")
+func (r *MessageRepository) GetChatUnreadMessages(to string, username string) (messages []models.Message, err error) {
+	chat,err := ChatRepo.GetChat(username,to)
+	if err!= nil {
+        return messages, err
+    }
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(chat.ChatId),"sender_id":opt.NotEqual(username),"read":opt.Equals(false)}, "created_at DESC")
 	if err != nil {
 		return messages, err
 	}

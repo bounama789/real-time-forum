@@ -34,6 +34,8 @@ export class MessageView {
                         fontWeight: "bold",
                         color: "var(--bs-white)",
                         padding: "1rem 1.2rem",
+                        fontFamily:"Open Sans",
+
                     },
                     children: [
                         new Text({

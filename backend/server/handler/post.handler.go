@@ -164,6 +164,11 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostReactHandler(w http.ResponseWriter, r *http.Request) {
+	cors.SetCors(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(200)
+		return
+	}
 	tokenData, err := authService.VerifyToken(r)
 	if err != nil {
 		RenderErrorPage(http.StatusUnauthorized, w)
@@ -200,7 +205,7 @@ func PostReactHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				RenderErrorPage(http.StatusInternalServerError, w)
 			}
-			json.NewEncoder(w).Encode(votes)
+			json.NewEncoder(w).Encode(map[string]any{"votes": votes, "msg": "success"})
 		} else {
 			RenderErrorPage(http.StatusBadRequest, w)
 			return
@@ -228,12 +233,12 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
 			"created":   created,
 			"commented": commented,
 		}
-		
+
 		var posts []dto.PostDTO
 		tokenData, err := authService.VerifyToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(map[string]string{"msg":"unauthorized"})
+			json.NewEncoder(w).Encode(map[string]string{"msg": "unauthorized"})
 			return
 		}
 		posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)

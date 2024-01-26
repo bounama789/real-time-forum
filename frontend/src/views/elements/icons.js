@@ -11,6 +11,5 @@ export class MaterialIcon extends View{
         this._setConstraints()
         this._setEventListeners()
 
-        console.log(this);
     }
 }

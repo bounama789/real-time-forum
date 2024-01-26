@@ -50,14 +50,6 @@ func (chatService *ChatService) DeleteChat(chatId string) error {
 	return nil
 }
 
-// func (chatService *ChatService) GetChat(chatId string) (models.Chat, error) {
-// 	chat, err := chatService.ChatRepo.GetChat(chatId)
-// 	if err != nil {
-// 		return models.Chat{}, err
-// 	}
-// 	return chat, nil
-// }
-
 func (chatService *ChatService) GetAllChats(t models.TokenData) ([]models.Chat, error) {
 	chats, err := chatService.ChatRepo.GetAllChats(t)
 	if err != nil {
@@ -82,15 +74,15 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 	}
 
 	type reformatedUserData struct {
-		Username string `json:"username"`
-		Status   string `json:"status"`
-		UnreadCount int `json:"unread_count"`
+		Username    string `json:"username"`
+		Status      string `json:"status"`
+		UnreadCount int    `json:"unread_count"`
 	}
 
 	var data []reformatedUserData
 
 	for _, chat := range chats {
-		unreadCount,_ := repositories.MessRepo.GetChatUnreadMessagesCount(chat.ChatId.String(),username)
+		unreadCount, _ := repositories.MessRepo.GetChatUnreadMessagesCount(chat.ChatId.String(), username)
 		var uname string
 		if username == chat.Recipient {
 			uname = chat.Requester
@@ -98,11 +90,11 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 			uname = chat.Recipient
 		}
 		var status = "offline"
- 		_, ok := ws.WSHub.Clients.Load(uname);
+		_, ok := ws.WSHub.Clients.Load(uname)
 		if ok {
 			status = "online"
 		}
-		data = append(data, reformatedUserData{Username: uname, Status: status,UnreadCount: unreadCount})
+		data = append(data, reformatedUserData{Username: uname, Status: status, UnreadCount: unreadCount})
 	}
 
 	users, err := repositories.UserRepo.GetAllUsers()
@@ -132,11 +124,3 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 
 	return data, nil
 }
-
-// func (chatService *ChatService) AddUserToChat(userChat models.) error {
-// 	err := chatService.ChatRepo.AddUserToChat(userChat.ChatId, userChat.UserId)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

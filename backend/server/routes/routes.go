@@ -40,7 +40,7 @@ func Route() *http.ServeMux {
 	mux.HandleFunc(HOME_ENDPOINT, handler.IndexHandler)
 	mux.HandleFunc(SIGNUP_ENDPOINT, handler.SignUpHandler)
 	mux.HandleFunc(SIGNIN_ENDPOINT, handler.SignInHandler)
-	mux.HandleFunc(GET_COMMENT_ENDPOINT, handler.GetCommentsHandler)
+	mux.HandleFunc(GET_COMMENT_ENDPOINT,handler.Authorization( handler.GetCommentsHandler))
 	mux.HandleFunc(CREATE_POST_ENDPOINT, handler.Authorization(handler.CreatePostHandler))
 	mux.HandleFunc(POSTREACT_ENDPOINT, handler.Authorization(handler.PostReactHandler))
 	mux.HandleFunc(CREATE_COMMENT_ENDPOINT, handler.Authorization(handler.CreateCommentHandler))

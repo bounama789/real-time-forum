@@ -39,8 +39,8 @@ func (r *ReactionRepository) GetReactByUser(userId, id, reactType string) (react
 			return reaction, err
 		}
 		err = row.Scan(&reaction.ReactId, &reaction.PostId, &reaction.CommentId, &reaction.UserId, &reaction.Reactions, &reaction.ReacType, &reaction.CreatedAt, &reaction.UpdatedAt)
-		if err != nil && err != sql.ErrNoRows {
-			fmt.Println(err)
+		if err != nil  {
+			// fmt.Println(err)
 			return reaction, err
 		}
 		return reaction, nil

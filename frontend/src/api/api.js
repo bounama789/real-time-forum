@@ -43,6 +43,16 @@ export async function getPosts() {
   return await get(path).catch(error => error)
 }
 
+export async function getPostComments(queries){
+  const path = `/post/comments?${queries}`
+  return await get(path).catch(error => error)
+}
+
+export async function postComment(postId,data){
+  const path = `/post/comment/create?postid=${postId}`
+  return post(path,data).catch(error => error)
+}
+
 export async function checkSession() {
   const token = localStorage.getItem("auth-token")
   return await post("/verifsess", { token }).catch(error => error)
@@ -70,12 +80,18 @@ export async function getUsersStatus() {
 export const EventType = {
   WS_JOIN_EVENT: "join-event",
   WS_DISCONNECT_EVENT: "disconnect-event",
-  WS_MESSAGE_EVENT: "msg-event"
+  WS_MESSAGE_EVENT: "msg-event",
+  WS_READ_EVENT: "read-event",
 }
 
 export async function getMessages(queries) {
   const path = `/messages?${queries}`;
   return await get(path).catch(error => error)
+}
+
+export async function postReact(postId,react){
+const path = `/post/react?postid=${postId}&react=${react}`;
+return get(path).catch(error => error)
 }
 
 export function handleWSEvent(wsEvent) {
@@ -88,7 +104,15 @@ export function handleWSEvent(wsEvent) {
       setStatusOffline(event.From)
       break;
     case EventType.WS_MESSAGE_EVENT:
-      dispatchEvent(new CustomEvent("newMessage", { detail: event }))
+      if (getView('chat' + event.From) || event.From === app.user.username) {
+        dispatchEvent(new CustomEvent("newMessage", { detail: event }))
+      } else {
+        // if () {
+          const statusItmView = getView(`user-status${event.From}`)
+          statusItmView.user.unread_count += 1
+          dispatchEvent(new CustomEvent("unreadMsg", { detail: statusItmView.user }))
+        // }
+      }
     default:
       break;
   }

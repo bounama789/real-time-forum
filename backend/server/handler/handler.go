@@ -30,7 +30,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	p := r.URL.Path
 
 	if re.MatchString(p) {
-		p2,_ := strings.CutPrefix(p,"/src")
+		p2, _ := strings.CutPrefix(p, "/src")
 		http.ServeFile(w, r, path.Join("./frontend/src", p2))
 		return
 	}
@@ -54,6 +54,11 @@ func StaticHandler(w http.ResponseWriter, r *http.Request) {
 
 func Authorization(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		cors.SetCors(&w)
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(200)
+			return
+		}
 		if _, err := authService.VerifyToken(r); err != nil {
 			// w.WriteHeader(http.StatusPermanentRedirect)
 			if r.URL.Path == "/post/create" {
