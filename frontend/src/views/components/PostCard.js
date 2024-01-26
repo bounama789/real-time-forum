@@ -1,4 +1,5 @@
-import { Div, Image, Text } from "../elements/index.js";
+import {Button, Div, Image, MaterialIcon, Text, TextField} from "../elements/index.js";
+import {Form} from "../elements/form";
 
 export class PostCard {
   constructor(postObject) {
@@ -81,6 +82,50 @@ export class PostCard {
             },
             children: [new Text({ text: postObject.body })],
           }),
+          new Div ({
+            className: "post-reactions",
+            style:{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "start",
+              justifyContent: "space-between"
+            },
+            children: [ new Button({name: "like"}), new Button({name:"comments", className:"post-comment"})]
+          }),
+          new Div({
+            className:"CommentPost",
+            children:[
+                new Form({
+                  method: "post",
+                  className: "comment-created",
+                  id: "comment-created",
+                  children:[
+                      new Image({
+                        src:"https://api.dicebear.com/7.x/avataaars/svg",
+                        alt: "New Post",
+                        style: {
+                          width: "48px",
+                          height: "48px",
+                          borderRadius: "50%",
+                          backgroundColor: "var(--bs-gray)",
+                        },}),
+                      new TextField({
+                        id:"commentInput",
+                        className:"comment-input",
+                        placeholder: "Enter your comment",
+                        maxlenght:"280"
+                      }),
+                      new Button({
+                        type: "submit",
+                        className:"confirmCommentInput",
+                        children: [new MaterialIcon({iconName:"send"})]
+                      })
+                  ]
+                }),
+                new Div({})
+
+            ]
+          })
       ],
     });
   }

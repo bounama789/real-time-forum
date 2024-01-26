@@ -36,7 +36,7 @@ export class CommentformComponent {
     commentformComponent.classList.add("comment-creation-card");
     commentformComponent.innerHTML = `
         <form method="post" class="comment-created" id="comment-created">
-          <input type="text" class="coomment-created-text" placeholder="Enter Your Comment" maxlenght="280" required>
+          <input type="text" class="comment-created-text" placeholder="Enter Your Comment" maxlenght="280" required>
           <div class="comment-created-toolbar">
             <button class="reset-button" type="reset"><span class="material-symbols-outlined">delete</span></button>
             <button class="confirm-button" type="submit"><span class="material-symbols-outlined">send</span></button>
