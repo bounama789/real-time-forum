@@ -1,6 +1,7 @@
 import { getPosts } from "../../api/api.js";
 import { ListView, PostCard } from "../components/index.js";
 import { Div, Image, Text, TextField } from "../elements/index.js";
+import { throttle, debounce } from "../../lib/lib.js";
 
 export class MainPage {
   constructor(options) {
@@ -20,11 +21,12 @@ export class MainPage {
     });
 
 
-    window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', throttle(() => {
+      console.log(window.innerHeight + window.scrollY >= document.body.offsetHeight);
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        postList.fetchMoreItems();
+        debounce(postList.fetchMoreItems(),500) ;
       }
-    });
+    },3000));
 
     return new Div({
       className: "main-page",

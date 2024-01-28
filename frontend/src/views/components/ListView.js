@@ -54,7 +54,7 @@ export class ListView {
 
 
 
-    this.fetch()
+    this.fetch(query)
 
     setView(this)
 
@@ -64,7 +64,7 @@ export class ListView {
     this.providerQueries = query
 
     query += `&page=${this.page}`
-    await this.provider().then((response)=>{
+    await this.provider(query).then((response)=>{
       response = response || []
 
       // Add the items to the list
@@ -101,24 +101,24 @@ export class ListView {
   }
 
   fetchMoreItems() {
-    // this.page++;
-    // this.providerQueries += `&page=${this.page}`
+    this.page++;
+    this.providerQueries += `&page=${this.page}`
 
-    // this.provider(this.providerQueries).then((response)=>{
-    //   // Add the items to the list
-    //   response = response || []
-    //   response.forEach((item) => {
-    //     this.listContainer.addChild(new this.itemView(item));
-    //   });
-    // })
-    // try {
-    //   this.addItem()
-    //   // this.provider(this.page+1).then(async(response)=>{
-    //   //   this.page++;
-    //   //   this.addItem(response)
-    //   // })
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    this.provider(this.providerQueries).then((response)=>{
+      // Add the items to the list
+      response = response || []
+      response.forEach((item) => {
+        this.listContainer.addChild(new this.itemView(item));
+      });
+    })
+    try {
+      this.addItem()
+      // this.provider(this.page+1).then(async(response)=>{
+      //   this.page++;
+      //   this.addItem(response)
+      // })
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

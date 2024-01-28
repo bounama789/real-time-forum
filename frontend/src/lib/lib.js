@@ -1,4 +1,3 @@
-
 const ViewElement = {
     views: new Map(),
     pages: new Map(),
@@ -38,4 +37,26 @@ export function setViewPager(pager){
 
 export function getViewPager(pagerId){
     return ViewElement.pagers.get(pagerId)
+}
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+export function debounce(func, delay){
+  let debounceTimer;
+  return function(){
+    const context = this;
+    const args = arguments;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(context, args), delay);
+  };
 }
