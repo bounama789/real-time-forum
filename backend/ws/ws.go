@@ -25,6 +25,7 @@ const (
 	WS_DISCONNECT_EVENT = "disconnect-event"
 	WS_MESSAGE_EVENT    = "msg-event"
 	WS_READ_EVENT       = "read-event"
+	WS_TYPING_EVENT     = "typing-event"
 )
 
 type Hub struct {
@@ -120,46 +121,45 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 		from := eventPayload.From
 
 		var client *WSClient
-		var message  models.Message
+		var message models.Message
 
+		if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
+			return
+		} else {
+			chat.LastMessageTime = time.Now().Format(config.Get("TIME_FORMAT").ToString())
+			repo.ChatRepo.UpdateChat(chat)
+		}
 
-			if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
-				return
-			} else {
-				chat.LastMessageTime = time.Now().Format(config.Get("TIME_FORMAT").ToString())
-				repo.ChatRepo.UpdateChat(chat)
-			}
+		cid := data["chatId"].(string)
+		chatId := uuid.FromStringOrNil(cid)
+		message = models.Message{
+			Sender:    eventPayload.From,
+			Body:      data["content"].(string),
+			CreatedAt: data["time"].(string),
+			ChatId:    chatId,
+		}
+		message.IsSender = false
 
-			cid := data["chatId"].(string)
-			chatId := uuid.FromStringOrNil(cid)
-			message = models.Message{
-				Sender:    eventPayload.From,
-				Body:      data["content"].(string),
-				CreatedAt: data["time"].(string),
-				ChatId:    chatId,
-			}
-			message.IsSender = false
+		var event = WSPaylaod{
+			Type: WS_MESSAGE_EVENT,
+			From: eventPayload.From,
+			Data: message,
+			To:   to,
+		}
+		c, ok := WSHub.Clients.Load(to)
+		if ok {
+			client = c.(*WSClient)
+			client.OutgoingMsg <- event
+		}
 
-			var event = WSPaylaod{
-				Type: WS_MESSAGE_EVENT,
-				From: eventPayload.From,
-				Data: message,
-				To:   to,
-			}
-			c, ok := WSHub.Clients.Load(to)
-			if ok {
-				client = c.(*WSClient)
-				client.OutgoingMsg <- event
-			}
+		sender, ok := wsHub.Clients.Load(eventPayload.From)
+		if ok {
+			senderClient := sender.(*WSClient)
+			message.IsSender = true
+			event.Data = message
+			senderClient.OutgoingMsg <- event
+		}
 
-			sender, ok := wsHub.Clients.Load(eventPayload.From)
-			if ok {
-				senderClient := sender.(*WSClient)
-				message.IsSender = true
-				event.Data = message
-				senderClient.OutgoingMsg <- event
-			}
-		
 		repo.MessRepo.SaveMessage(&message)
 
 	case WS_READ_EVENT:
@@ -179,6 +179,22 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			if err != nil {
 				return
 			}
+		}
+	case WS_TYPING_EVENT:
+		data := eventPayload.Data.(map[string]any)
+		to := data["to"].(string)
+		from := eventPayload.From
+
+		var event = WSPaylaod{
+			Type: WS_TYPING_EVENT,
+			From: from,
+			Data: nil,
+			To:   to,
+		}
+		c, ok := WSHub.Clients.Load(to)
+		if ok {
+			client := c.(*WSClient)
+			client.OutgoingMsg <- event
 		}
 	}
 }

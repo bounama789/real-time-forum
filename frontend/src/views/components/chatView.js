@@ -1,5 +1,5 @@
 import { EventType, getMessages } from "../../api/api.js";
-import { getView, remView } from "../../lib/lib.js";
+import {getView, remView, throttle} from "../../lib/lib.js";
 import { Div, Image, MaterialIcon, Text, TextField } from "../elements/index.js";
 import { MessageView } from "./MessageView.js";
 import { ListView } from "./ListView.js";
@@ -191,12 +191,14 @@ export class ChatView {
                     fontFamily:"Open Sans",
                     height: '34px',
                     width: '100%',
-                    border: 'none',
                     outline: 'none',
                     borderRadius: '15px',
                     border: '1px solid var(--bs-blue)',
                     padding: "10px"
                   },
+                    listeners: {
+                      oninput: (e) => this.handleInput(e)
+                    }
                 }),
                 new MaterialIcon({
                   iconName: 'send',
@@ -270,4 +272,23 @@ export class ChatView {
 
     }
   }
+  handleInput(e) {
+    const wsEvent = this.generateWsEvent();
+    throttle(() => this.sendMessage(wsEvent), 1000)
+  }
+
+  generateWsEvent() {
+    return {
+      type: EventType.WS_TYPING_EVENT,
+      to: this.recipient.username,
+      content: "",
+      time: new Date(Date.now()).toString(),
+      chatId: this.chat.chat_id
+    }
+  }
+
+  sendMessage(wsEvent) {
+    app.wsConnection.send(JSON.stringify(wsEvent));
+  }
+
 }
