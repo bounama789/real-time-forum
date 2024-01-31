@@ -104,6 +104,9 @@ export class ChatView {
                         position: 'absolute'
                       },
                     }),
+                      new Div({
+                        className: "loader",
+                        })
                   ],
                 }),
                 new Div({
