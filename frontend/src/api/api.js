@@ -3,78 +3,80 @@ import { getView } from "../lib/lib.js";
 const baseUrl = "http://127.0.01:8000";
 
 export async function get(path) {
-  const url = baseUrl + path
-  const token = localStorage.getItem("auth-token") || "none"
+  const url = baseUrl + path;
+  const token = localStorage.getItem("auth-token") || "none";
 
   return fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Accept': 'application/json',
-      'auth-token': JSON.stringify({ token })
+      Accept: "application/json",
+      "auth-token": JSON.stringify({ token }),
     },
   })
-    .then(response => {
+    .then((response) => {
       console.log(response);
-      return response.json()
+      return response.json();
     })
-    .then(data => data).catch(error => error)
+    .then((data) => data)
+    .catch((error) => error);
 }
 
 export async function post(path, data) {
-  const url = baseUrl + path
-  const token = localStorage.getItem("auth-token") || "none"
+  const url = baseUrl + path;
+  const token = localStorage.getItem("auth-token") || "none";
 
   return fetch(url, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(data),
     headers: {
-      'auth-token': JSON.stringify({ token })
-    }
-
+      "auth-token": JSON.stringify({ token }),
+    },
   })
-    .then(response => {
-      return response.json()
+    .then((response) => {
+      return response.json();
     })
-    .then(data => data).catch(error => error)
+    .then((data) => data)
+    .catch((error) => error);
 }
 
 export async function getPosts() {
-  const path = "/posts/get"
-  return await get(path).catch(error => error)
+  const path = "/posts/get";
+  return await get(path).catch((error) => error);
 }
 
-export async function getPostComments(queries){
-  const path = `/post/comments?${queries}`
-  return await get(path).catch(error => error)
+export async function getPostComments(queries) {
+  const path = `/post/comments?${queries}`;
+  return await get(path).catch((error) => error);
 }
 
-export async function postComment(postId,data){
-  const path = `/post/comment/create?postid=${postId}`
-  return post(path,data).catch(error => error)
+export async function postComment(postId, data) {
+  const path = `/post/comment/create?postid=${postId}`;
+  return post(path, data).catch((error) => error);
 }
 
 export async function checkSession() {
-  const token = localStorage.getItem("auth-token")
-  return await post("/verifsess", { token }).catch(error => error)
+  const token = localStorage.getItem("auth-token");
+  return await post("/verifsess", { token }).catch((error) => error);
 }
 
 export function setWSConnection() {
-  const token = localStorage.getItem("auth-token")
+  const token = localStorage.getItem("auth-token");
   if (window.WebSocket) {
-    const socket = new WebSocket(`ws://localhost:8000/ws?token=${JSON.stringify({ token })}}`)
-    window.app.wsConnection = socket
+    const socket = new WebSocket(
+      `ws://localhost:8000/ws?token=${JSON.stringify({ token })}}`
+    );
+    window.app.wsConnection = socket;
   }
-
 }
 
 export async function getChatByUser(username) {
-  const path = `/chat?username=${username}`
-  return await get(path).catch(error => error)
+  const path = `/chat?username=${username}`;
+  return await get(path).catch((error) => error);
 }
 
 export async function getUsersStatus() {
-  const path = "/users-status"
-  return await get(path).catch(error => error)
+  const path = "/users-status";
+  return await get(path).catch((error) => error);
 }
 
 export const EventType = {
@@ -82,64 +84,78 @@ export const EventType = {
   WS_DISCONNECT_EVENT: "disconnect-event",
   WS_MESSAGE_EVENT: "msg-event",
   WS_READ_EVENT: "read-event",
-}
+  WS_TYPING_EVENT: "typing-event",
+};
 
 export async function getMessages(queries) {
   const path = `/messages?${queries}`;
-  return await get(path).catch(error => error)
+  return await get(path).catch((error) => error);
 }
 
-export async function postReact(postId,react){
-const path = `/post/react?postid=${postId}&react=${react}`;
-return get(path).catch(error => error)
+export async function postReact(postId, react) {
+  const path = `/post/react?postid=${postId}&react=${react}`;
+  return get(path).catch((error) => error);
 }
 
 export function handleWSEvent(wsEvent) {
-  const event = JSON.parse(wsEvent)
+  const event = JSON.parse(wsEvent);
   switch (event["Type"]) {
     case EventType.WS_JOIN_EVENT:
-      setStatusOnline(event.From)
+      setStatusOnline(event.From);
       break;
     case EventType.WS_DISCONNECT_EVENT:
-      setStatusOffline(event.From)
+      setStatusOffline(event.From);
       break;
     case EventType.WS_MESSAGE_EVENT:
-      if (getView('chat' + event.From) || event.From === app.user.username) {
-        dispatchEvent(new CustomEvent("newMessage", { detail: event }))
+      if (getView("chat" + event.From) || event.From === app.user.username) {
+        dispatchEvent(new CustomEvent("newMessage", { detail: event }));
       } else {
         // if () {
-          const statusItmView = getView(`user-status${event.From}`)
-          statusItmView.user.unread_count += 1
-          dispatchEvent(new CustomEvent("unreadMsg", { detail: statusItmView.user }))
+        const statusItmView = getView(`user-status${event.From}`);
+        statusItmView.user.unread_count += 1;
+        dispatchEvent(
+          new CustomEvent("unreadMsg", { detail: statusItmView.user })
+        );
         // }
       }
+      break;
+    case EventType.WS_TYPING_EVENT:
+      if (getView("chat" + event.From)) {
+        dispatchEvent(new CustomEvent("typing", { detail: event }));
+      }
+      break;
     default:
       break;
   }
 }
 
 function setStatusOnline(username) {
-  const dot = getView(`${username}status-dot`).element
-  const text = getView(`${username}-status-text`).element
-  const statusItmView = getView(`user-status${username}`)
-  statusItmView.user.status = "online"
-  text.innerText = "online"
-  dot.style.backgroundColor = "green"
+  const dot = getView(`${username}status-dot`).element;
+  const text = getView(`${username}-status-text`).element;
+  const statusItmView = getView(`user-status${username}`);
+  statusItmView.user.status = "online";
+  text.innerText = "online";
+  dot.style.backgroundColor = "green";
   if (getView(`chat${username}`)) {
-    const dot = getView(`chat-${username}-status-dot`).element
-    dot.style.backgroundColor = "green"
+    const dot = getView(`chat-${username}-status-dot`).element;
+    dot.style.backgroundColor = "green";
   }
 }
 
 function setStatusOffline(username) {
-  const dot = getView(`${username}status-dot`).element
-  const text = getView(`${username}-status-text`).element
-  const statusItmView = getView(`user-status${username}`)
-  statusItmView.user.status = "offline"
-  text.innerText = "offline"
-  dot.style.backgroundColor = "gray"
+  const dot = getView(`${username}status-dot`).element;
+  const text = getView(`${username}-status-text`).element;
+  const statusItmView = getView(`user-status${username}`);
+  statusItmView.user.status = "offline";
+  text.innerText = "offline";
+  dot.style.backgroundColor = "gray";
   if (getView(`chat${username}`)) {
-    const dot = getView(`chat-${username}-status-dot`).element
-    dot.style.backgroundColor = "gray"
+    const dot = getView(`chat-${username}-status-dot`).element;
+    dot.style.backgroundColor = "gray";
   }
+}
+
+function isTyping(username) {
+  const text = getView(`${username}-status-text`).element;
+  text.innerText = "typing...";
 }
