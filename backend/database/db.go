@@ -120,13 +120,14 @@ func (d *Database) GetOneFrom(table string, where q.WhereOption,) (*sql.Row, err
 	return row, nil
 }
 
-func (d *Database) GetAllFrom(table string, where q.WhereOption,orderby string) (*sql.Rows, error) {
+func (d *Database) GetAllFrom(table string, where q.WhereOption,orderby string,limit []int) (*sql.Rows, error) {
 	var query string
 	if where == nil {
-		query = q.SelectAllFrom(table,orderby)
+		query = q.SelectAllFrom(table,orderby,limit)
 	} else {
-		query = q.SelectAllWhere(table, where,orderby)
+		query = q.SelectAllWhere(table, where,orderby,limit)
 	}
+
 	stmt, err := d.Prepare(query)
 	if err != nil {
 		fmt.Println(err)
@@ -140,8 +141,8 @@ func (d *Database) GetAllFrom(table string, where q.WhereOption,orderby string) 
 	return rows, nil
 }
 
-func (d *Database) GetAllAndJoin(table string, j []q.JoinCondition, where q.WhereOption,orderby string) (*sql.Rows, error) {
-	var query = q.SelectWithJoinQuery(table, j, where,orderby)
+func (d *Database) GetAllAndJoin(table string, j []q.JoinCondition, where q.WhereOption,orderby string,limit []int) (*sql.Rows, error) {
+	var query = q.SelectWithJoinQuery(table, j, where,orderby,limit)
 
 	stmt, err := d.Prepare(query)
 	if err != nil {

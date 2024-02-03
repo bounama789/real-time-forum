@@ -1,4 +1,4 @@
-import { View } from "../../common/types";
+import { View } from "../../common/types/index.js";
 export class Form extends View {
   constructor(properties) {
     super(properties);

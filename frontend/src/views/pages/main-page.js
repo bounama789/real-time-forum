@@ -1,5 +1,6 @@
 import { getPosts } from "../../api/api.js";
-import { ListView, PostCard } from "../components/index.js";
+import { debounce, getView, throttle } from "../../lib/lib.js";
+import { CreatePost, ListView, PostCard } from "../components/index.js";
 import { Div, Image, Text, TextField } from "../elements/index.js";
 
 export class MainPage {
@@ -12,18 +13,27 @@ export class MainPage {
 
   }
   get element() {
-
     const postList = new ListView({
       id: "postList",
       itemView: PostCard,
       provider: getPosts,
     });
 
+    addEventListener("newPost", (event) => {
+      const post = event.detail;
+      postList.prependItem(post);
+    })
 
-    window.addEventListener('scroll', () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        postList.fetchMoreItems();
-      }
+    addEventListener('scroll',() => {
+      const scrollTop = document.scrollingElement.scrollTop;
+
+      const isAtBottom = throttle(()=>{
+       return scrollTop >= (document.scrollingElement.scrollHeight * 0.80)
+      },500)
+        if (isAtBottom()) {
+          postList.fetchMoreItems()
+          console.log("bottom reached");
+        }
     });
 
     return new Div({
@@ -82,6 +92,13 @@ export class MainPage {
                     width: "100%",
                     height: "3.5rem",
                   },
+                  listeners: {
+                    onfocus: () => {
+                      console.log("focused");
+                      const createPostView = getView("createPost")
+                      createPostView.show();
+                    }
+                  }
                 }),
               ],
             }),

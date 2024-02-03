@@ -23,6 +23,7 @@ export class View {
     this.listeners = options.listeners
     this.onScroll = options.onScroll;
     this.constraints = options.constraints
+    this.attr = options.attr
 
     setView(this);
   }
@@ -39,6 +40,15 @@ export class View {
       this.element.name = this.name;
     if (this.placeholder)
       this.element.placeholder = this.placeholder;
+
+    if (this.attr) {
+      for (const attr in this.attr) {
+        if (Object.hasOwnProperty.call(this.attr, attr)) {
+          const value = this.attr[attr];
+          this.element.setAttribute(attr, value);
+        }
+      }
+    }
   }
 
   _setEventListeners() {
@@ -103,6 +113,7 @@ export class View {
       );
   }
 
+  
   /**
    * Adds a child element to the view.
    * @param {View} child - The child element to add.

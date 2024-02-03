@@ -1,21 +1,18 @@
-import { Page } from "../../common/types/index.js"
-import { getPageByPath, getView, setPage } from "../../lib/lib.js";
+import { getView, setPage } from "../../lib/lib.js";
 import { Divider } from "../components/divider.js";
-import { LoginPanel, SignupPanel } from "../components/index.js";
+import { LoginPanel, SignupPanel, Snackbar } from "../components/index.js";
 import { Div, Text } from "../elements/index.js";
 import { AuthLayout } from "../layout/auth-layout.js";
 
 
 export class AuthPage {
     constructor(options) {
-        // super(options)
         this.id = "auth"
-        this.pagerId = options.id
+        this.pagerId = options.pagerId
         this.title = "Authentication"
         this.loginPanel = getView("loginPanel") || new LoginPanel()
         this.signupPanel = getView("signupPanel") || new SignupPanel()
         this.currentPanel = location.pathname === "/auth/signin" ? this.loginPanel : this.signupPanel
-        // this.path = "/auth"
         if (/\/auth\/\w+/.test(location.pathname)) {
             this.currentPanel.element.style.display = "flex"
         }
@@ -24,8 +21,6 @@ export class AuthPage {
         })
 
         setPage(this)
-        // const panelId = location.pathname == "/auth/signin" ? "loginPanel" : "signupPanel"
-        // this.switchPanel(panelId)
     }
     get element() {
 
@@ -117,7 +112,8 @@ export class AuthPage {
                             ]
                         })
                     ]
-                })
+                }),
+                new Snackbar()
             ]
         }).element
 

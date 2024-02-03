@@ -1,40 +1,40 @@
-import { Div, Text } from "../elements/index.js"
-
+import { Div } from "../elements/index.js"
+import { getView } from "../../lib/lib.js"
 export class Snackbar {
-    constructor(error){
-        this.error = error
+    constructor(){
+        addEventListener("errorOccur",(event)=>{
+            const error = event.detail
+            const msgDiv = getView("errorMsg").element
+
+            msgDiv.innerHTML = error.msg
+
+            this.show()
+        })
     }
 
     get element(){
         return new Div({
+            id:"snackbar",
             className:"snackbar",
-            children:[
+            
+            children:[  
                 new Div({
                     className: "snackbar-message",
                     children:[
                         new Div({
-                            children:[
-                                new Text({text:this.error.code})
-                            ]
-                        }),
-                        new Div({
-                            children:[
-                                new Text({text:this.error.msg})
-                            ]
+                            id:"errorMsg",
                         })
                     ]
                 })
             ]
-        })
+        }).element
     }
 
     show() {
-        // Append the snackbar to the body
-        document.body.appendChild(this.element);
+        document.getElementById("snackbar").classList.add('show')
 
-        // After 3 seconds, remove the snackbar
         setTimeout(() => {
-            this.element.remove();
+            document.getElementById("snackbar").classList.remove('show')
         }, 3000);
     }
 }

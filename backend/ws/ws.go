@@ -14,23 +14,20 @@ import (
 )
 
 const (
-	writeWait      = 10 * time.Second
-	pongWait       = 60 * time.Second
-	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
-)
-
-const (
 	WS_JOIN_EVENT       = "join-event"
 	WS_DISCONNECT_EVENT = "disconnect-event"
 	WS_MESSAGE_EVENT    = "msg-event"
 	WS_READ_EVENT       = "read-event"
+	WS_NEW_POST_EVENT = "new-post-event"
+	WS_NEW_USER_EVENT = "new-user-event"
+
 )
 
 type Hub struct {
 	Clients           *sync.Map
 	RegisterChannel   chan *WSClient
 	UnRegisterChannel chan *WSClient
+	SSE               chan WSPaylaod
 }
 
 type WSClient struct {
@@ -58,6 +55,7 @@ func newHub() *Hub {
 		Clients:           &sync.Map{},
 		RegisterChannel:   make(chan *WSClient),
 		UnRegisterChannel: make(chan *WSClient),
+		SSE: make(chan WSPaylaod),
 	}
 }
 
@@ -70,6 +68,8 @@ func (wsHub *Hub) listen() {
 		case client := <-wsHub.UnRegisterChannel:
 			wsHub.Clients.Delete(client.Username)
 			log.Printf("%s is disconnected\n", client.Username)
+		case message := <-wsHub.SSE:
+			wsHub.HandleEvent(message)
 		}
 	}
 }
@@ -98,6 +98,23 @@ func (wsHub *Hub) AddClient(coon *websocket.Conn, username string) {
 
 func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 	switch eventPayload.Type {
+	case WS_NEW_USER_EVENT:
+		wsHub.Clients.Range(func(key, value any) bool {
+			client := value.(*WSClient)
+			if client.Username != eventPayload.From {
+				client.OutgoingMsg <- eventPayload
+			}
+			return true
+		})
+	case WS_NEW_POST_EVENT:
+		wsHub.Clients.Range(func(key, value any) bool {
+			client := value.(*WSClient)
+			if client.Username != eventPayload.From {
+				client.OutgoingMsg <- eventPayload
+			}
+			return true
+		})
+
 	case WS_JOIN_EVENT:
 		wsHub.Clients.Range(func(key, value any) bool {
 			client := value.(*WSClient)
@@ -120,46 +137,45 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 		from := eventPayload.From
 
 		var client *WSClient
-		var message  models.Message
+		var message models.Message
 
+		if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
+			return
+		} else {
+			chat.LastMessageTime = time.Now().Format(config.Get("TIME_FORMAT").ToString())
+			repo.ChatRepo.UpdateChat(chat)
+		}
 
-			if chat, err := repo.ChatRepo.GetChat(from, to); err != nil {
-				return
-			} else {
-				chat.LastMessageTime = time.Now().Format(config.Get("TIME_FORMAT").ToString())
-				repo.ChatRepo.UpdateChat(chat)
-			}
+		cid := data["chatId"].(string)
+		chatId := uuid.FromStringOrNil(cid)
+		message = models.Message{
+			Sender:    eventPayload.From,
+			Body:      data["content"].(string),
+			CreatedAt: data["time"].(string),
+			ChatId:    chatId,
+		}
+		message.IsSender = false
 
-			cid := data["chatId"].(string)
-			chatId := uuid.FromStringOrNil(cid)
-			message = models.Message{
-				Sender:    eventPayload.From,
-				Body:      data["content"].(string),
-				CreatedAt: data["time"].(string),
-				ChatId:    chatId,
-			}
-			message.IsSender = false
+		var event = WSPaylaod{
+			Type: WS_MESSAGE_EVENT,
+			From: eventPayload.From,
+			Data: message,
+			To:   to,
+		}
+		c, ok := WSHub.Clients.Load(to)
+		if ok {
+			client = c.(*WSClient)
+			client.OutgoingMsg <- event
+		}
 
-			var event = WSPaylaod{
-				Type: WS_MESSAGE_EVENT,
-				From: eventPayload.From,
-				Data: message,
-				To:   to,
-			}
-			c, ok := WSHub.Clients.Load(to)
-			if ok {
-				client = c.(*WSClient)
-				client.OutgoingMsg <- event
-			}
+		sender, ok := wsHub.Clients.Load(eventPayload.From)
+		if ok {
+			senderClient := sender.(*WSClient)
+			message.IsSender = true
+			event.Data = message
+			senderClient.OutgoingMsg <- event
+		}
 
-			sender, ok := wsHub.Clients.Load(eventPayload.From)
-			if ok {
-				senderClient := sender.(*WSClient)
-				message.IsSender = true
-				event.Data = message
-				senderClient.OutgoingMsg <- event
-			}
-		
 		repo.MessRepo.SaveMessage(&message)
 
 	case WS_READ_EVENT:

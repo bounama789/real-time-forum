@@ -1,3 +1,4 @@
+import { formatDate } from "../../lib/lib.js";
 import { Div, Text } from "../elements/index.js";
 
 export class MessageView {
@@ -11,8 +12,8 @@ export class MessageView {
             style: {
                 display: "flex",
                 gap:"0.5rem",
-                maxWidth: "80%",
-
+                maxWidth: "85%",
+                overflowWrap: "anywhere"
             },
             children: [
                 new Div({
@@ -20,10 +21,12 @@ export class MessageView {
                         color: "var(--bs-gray)",
                         fontWeight: "bold",
                         alignSelf: "end",
+                        fontSize:"12px"
+                        
                     },
                     children: [
                         new Text({
-                            text: new Date(this.message.created_at).getDate() ,
+                            text: formatDate(new Date(this.message.created_at)) ,
 
                         })
                     ]

@@ -27,23 +27,11 @@ type PostCatLink struct {
 	CategoryId int       `json:"cat_id"`
 }
 
-func (r *PostRepository) SavePost(post models.Post, categories []int) error {
+func (r *PostRepository) SavePost(post models.Post) error {
 	err := r.DB.Insert(r.TableName, post)
 	if err != nil {
 		return err
 	}
-	for _, id := range categories {
-		link := PostCatLink{
-			PostId:     post.PostId,
-			CategoryId: id,
-		}
-		err := r.DB.Insert(db.CAT_POST_TABLE, link)
-		if err != nil {
-			r.DeletePost(post.PostId.String())
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -77,7 +65,7 @@ func (r *PostRepository) GetPost(postId string) (post models.Post, err error) {
 
 func (r *PostRepository) GetPostByUser(userId string) (posts []models.Post, err error) {
 	var post models.Post
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(userId)}, "")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(userId)}, "",nil)
 	if err != nil {
 		return posts, err
 	}
@@ -91,7 +79,7 @@ func (r *PostRepository) GetPostByUser(userId string) (posts []models.Post, err 
 
 func (r *PostRepository) GetPostByCategory(categoryId int) (posts []models.Post, err error) {
 	var post models.Post
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"category_id": opt.Equals(categoryId)}, "")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"category_id": opt.Equals(categoryId)}, "",nil)
 	if err != nil {
 		return posts, err
 	}
@@ -109,7 +97,7 @@ func (r *PostRepository) GetPostByFollow(userId string) (posts []models.Post, er
 		{Table: db.USERS_TABLE, ForeignKey: "following_user_id", Reference: "user_id"},
 		{Table: db.FOLLOWS_TABLE, ForeignKey: "followed_user_id", Reference: "user_id"},
 	}
-	rows, err := r.DB.GetAllAndJoin(r.TableName, joinCond, q.WhereOption{"user_id": opt.Equals(userId)}, "")
+	rows, err := r.DB.GetAllAndJoin(r.TableName, joinCond, q.WhereOption{"user_id": opt.Equals(userId)}, "",nil)
 	if err != nil {
 		return posts, err
 	}
@@ -126,6 +114,15 @@ func (r *PostRepository) GetPosts(t models.TokenData, options map[string]string)
 	var wh = make(q.WhereOption)
 	var joinConds []q.JoinCondition
 	var orderBy string
+
+	page,err := strconv.Atoi(options["page"]) 
+	if err != nil {
+		page = 0
+	}
+	limit := 10
+
+	dataoffset :=page*limit
+
 	if options["liked"] == "1" {
 		joinConds = append(joinConds, []q.JoinCondition{
 			{Table: db.REACTIONS_TABLE,
@@ -169,21 +166,21 @@ func (r *PostRepository) GetPosts(t models.TokenData, options map[string]string)
 	} else {
 		orderBy = "created_at " + strings.Split(orderBy, "-")[1]
 	}
-
+	
 	var rows *sql.Rows
 	if len(joinConds) > 0 {
-		rows, err = r.DB.GetAllAndJoin(r.TableName, joinConds, wh, orderBy)
+		rows, err = r.DB.GetAllAndJoin(r.TableName, joinConds, wh, orderBy,[]int{dataoffset,dataoffset+limit})
 		if err != nil {
 			return posts, err
 		}
 	} else {
 		n := len(wh)
 		if n > 0 {
-			rows, err = r.DB.GetAllFrom(r.TableName, wh, "created_at DESC")
+			rows, err = r.DB.GetAllFrom(r.TableName, wh, "created_at DESC",[]int{dataoffset,limit})
 		} else {
-			rows, err = r.DB.GetAllFrom(r.TableName, nil, "created_at DESC")
+			rows, err = r.DB.GetAllFrom(r.TableName, nil, "created_at DESC",[]int{dataoffset,limit})
 
-		}
+		}		
 		if err != nil {
 			return posts, err
 		}
@@ -217,7 +214,7 @@ func (r *PostRepository) GetPostCategories(postId string) (cats []models.Categor
 	var wh = q.WhereOption{
 		"pst_id": opt.Equals(postId),
 	}
-	rows, err := r.DB.GetAllAndJoin(db.CATEGORIES_TABLE, joinCond, wh, "name ASC")
+	rows, err := r.DB.GetAllAndJoin(db.CATEGORIES_TABLE, joinCond, wh, "name ASC",nil)
 	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
 		return nil, err

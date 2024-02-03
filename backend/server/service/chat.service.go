@@ -2,6 +2,8 @@ package service
 
 import (
 	"forum/backend/config"
+	"forum/backend/database/operators"
+	"forum/backend/database/query"
 	"forum/backend/models"
 	"forum/backend/server/repositories"
 	r "forum/backend/server/repositories"
@@ -94,6 +96,11 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 		if ok {
 			status = "online"
 		}
+		msgCount,_ := chatService.GetMessageCount(chat.ChatId.String())
+
+		if msgCount == 0 {
+			continue
+		}
 		data = append(data, reformatedUserData{Username: uname, Status: status, UnreadCount: unreadCount})
 	}
 
@@ -119,8 +126,21 @@ func (chatService *ChatService) GetChatStatus(username string) (any, error) {
 			status = "online"
 		}
 
+
 		data = append(data, reformatedUserData{Username: user.Username, Status: status})
 	}
 
 	return data, nil
+}
+
+func (chatService *ChatService) GetMessageCount(chatId string) (count int, err error) {
+	row, err := chatService.ChatRepo.DB.GetCount("messages", query.WhereOption{"cht_id": operators.Equals(chatId)})
+	if err != nil {
+		return 0, err
+	}
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

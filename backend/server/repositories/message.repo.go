@@ -88,8 +88,11 @@ func (r *MessageRepository) GetMessage(messageId string) (message models.Message
 	return message, nil
 }
 
-func (r *MessageRepository) GetChatMessages(ChatId string) (messages []models.Message, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(ChatId)}, "created_at DESC")
+func (r *MessageRepository) GetChatMessages(ChatId string,page int) (messages []models.Message, err error) {
+	limit := 10
+	dataOffset := page*limit
+
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(ChatId)}, "created_at DESC",[]int{dataOffset,limit})
 	if err != nil {
 		return messages, err
 	}
@@ -109,7 +112,7 @@ func (r *MessageRepository) GetChatUnreadMessages(to string, username string) (m
 	if err!= nil {
         return messages, err
     }
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(chat.ChatId),"sender_id":opt.NotEqual(username),"read":opt.Equals(false)}, "created_at DESC")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"cht_id": opt.Equals(chat.ChatId),"sender_id":opt.NotEqual(username),"read":opt.Equals(false)}, "created_at DESC",nil)
 	if err != nil {
 		return messages, err
 	}

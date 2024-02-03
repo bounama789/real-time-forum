@@ -1,7 +1,6 @@
-import { Page } from "../../common/types/index.js";
 import { DefaultLayout } from "../layout/default_layout.js";
 import { Header, Div } from "../elements/index.js";
-import { Navbar, Menu, StatusPanel, SuggestionPanel, ChatContainer } from "../components/index.js";
+import { Navbar, Menu, StatusPanel, SuggestionPanel, ChatContainer,CreatePost } from "../components/index.js";
 import { MainPage } from "./main-page.js";
 import { setPage } from "../../lib/lib.js";
 export class ContentPage {
@@ -10,10 +9,13 @@ export class ContentPage {
     this.pagerId = options.pagerId
     this.title = "Home"
     this.path = "/"
+    this.CreatePostView = new CreatePost()
+
     setPage(this)
 
   }
   get element() {
+
     return new DefaultLayout({
       style: {
         width: '100%',
@@ -90,7 +92,8 @@ export class ContentPage {
             })
           ],
         }),
-        new ChatContainer()
+        new ChatContainer(),
+        this.CreatePostView
       ],
     }).element
   }

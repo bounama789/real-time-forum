@@ -56,7 +56,7 @@ func (r *ChatRepository) GetChat(from string,username string) (chat models.Chat,
 }
 
 func (r *ChatRepository) GetAllChats(t models.TokenData) (chats []models.Chat, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(t.UserId)}, "created_at DESC")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"user_id": opt.Equals(t.UserId)}, "created_at DESC",nil)
 	if err != nil {
 		return chats, err
 	}
@@ -72,7 +72,7 @@ func (r *ChatRepository) GetAllChats(t models.TokenData) (chats []models.Chat, e
 }
 
 func (r *ChatRepository) GetChatMessages(chatId string) (messages []models.Message, err error) {
-	rows, err := r.DB.GetAllFrom(db.MESSAGES_TABLE, q.WhereOption{"cht_id": opt.Equals(chatId)}, "created_at DESC")
+	rows, err := r.DB.GetAllFrom(db.MESSAGES_TABLE, q.WhereOption{"cht_id": opt.Equals(chatId)}, "created_at DESC",nil)
 	if err != nil {
 		return messages, err
 	}
@@ -97,7 +97,7 @@ func (r *ChatRepository) AddUserToChat(chatId uuid.UUID, userId uuid.UUID) error
 
 func (r *ChatRepository) GetUserChats(username string) (chats []models.Chat, err error) {
 
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username) + opt.Or("recipient_id", opt.Equals(username))}, "last_message_time DESC")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"requester_id": opt.Equals(username) + opt.Or("recipient_id", opt.Equals(username))}, "last_message_time DESC",nil)
 	if err != nil {
 		return nil, err
 	}

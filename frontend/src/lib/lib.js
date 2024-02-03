@@ -1,4 +1,3 @@
-
 const ViewElement = {
     views: new Map(),
     pages: new Map(),
@@ -39,3 +38,42 @@ export function setViewPager(pager){
 export function getViewPager(pagerId){
     return ViewElement.pagers.get(pagerId)
 }
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    if (!inThrottle) {
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+        return func.apply(this, args);
+    }
+  };
+}
+
+export function debounce(func, delay) {
+  let timeoutId;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      return func.apply(context, args);
+    }, delay);
+  };
+}
+
+export function formatDate(date) {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+    const dayName = days[date.getDay()];
+    const monthName = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+    return `${dayName} ${monthName} ${day} ${year} ${hours}:${minutes}:${seconds}`;
+  }

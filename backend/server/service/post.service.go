@@ -24,7 +24,7 @@ func (postService *PostService) init() {
 	postService.CommentRepo = r.CommRepo
 }
 
-func (postService *PostService) NewPost(post models.Post, cat []int) error {
+func (postService *PostService) NewPost(post *models.Post) error {
 	postId, err := uuid.NewV4()
 	if err != nil {
 		return err
@@ -34,7 +34,7 @@ func (postService *PostService) NewPost(post models.Post, cat []int) error {
 	post.CreatedAt = time.Now().Format(config.Get("TIME_FORMAT").ToString())
 	post.UpdatedAt = post.CreatedAt
 
-	err = postService.PostRepo.SavePost(post, cat)
+	err = postService.PostRepo.SavePost(*post)
 	if err != nil {
 		return err
 	}

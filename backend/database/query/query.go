@@ -72,16 +72,20 @@ func SelectOneFrom(table string, where WhereOption) string {
 	return query
 }
 
-func SelectAllFrom(table string, orderby string) string {
+func SelectAllFrom(table string, orderby string, limit []int) string {
 	var order string
 	if orderby != "" {
 		order = fmt.Sprintf("ORDER BY %s", orderby)
 	}
 	query := fmt.Sprintf("SELECT * FROM %v %s;", table, order)
+	if limit != nil {
+		query = fmt.Sprintf("SELECT * FROM %v %s LIMIT %v, %v;", table, order,limit[0],limit[1])
+
+	}
 	return query
 }
 
-func SelectAllWhere(table string, where WhereOption, orderby string) string {
+func SelectAllWhere(table string, where WhereOption, orderby string,limit []int) string {
 
 	whToString := getWhereOptionsString(where)
 	var order string
@@ -89,6 +93,11 @@ func SelectAllWhere(table string, where WhereOption, orderby string) string {
 		order = fmt.Sprintf("ORDER BY %s", orderby)
 	}
 	query := fmt.Sprintf("SELECT * FROM %v WHERE %v %s;", table, whToString, order)
+
+	if limit != nil {
+		query = fmt.Sprintf("SELECT * FROM %v WHERE %v %s LIMIT %v, %v;", table, whToString, order,limit[0],limit[1])
+
+	}
 
 	return query
 }
@@ -107,7 +116,7 @@ func InsertQuery(table string, object any) (string, error) {
 	return query, nil
 }
 
-func SelectWithJoinQuery(primaryTable string, joinConditions []JoinCondition, where WhereOption, orderby string) string {
+func SelectWithJoinQuery(primaryTable string, joinConditions []JoinCondition, where WhereOption, orderby string,limit []int) string {
 
 	joinClauses := []string{}
 
@@ -125,11 +134,20 @@ func SelectWithJoinQuery(primaryTable string, joinConditions []JoinCondition, wh
 	}
 
 	query := fmt.Sprintf("SELECT %v.* FROM %s %s WHERE %s %s;", primaryTable, primaryTable, joinClausesString, whToString, order)
-	println(query)
+	if limit != nil {
+		query = fmt.Sprintf("SELECT %v.* FROM %s %s WHERE %s %s LIMIT %v, %v;", primaryTable, primaryTable, joinClausesString, whToString, order,limit[0],limit[1])
+	}
 	return query
 }
 
 func GetCountQuery(table string, w WhereOption) string {
+	whToString := getWhereOptionsString(w)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE %v;", table, whToString)
+	return query
+
+}
+
+func GetRowIndexQuery(table string, w WhereOption) string {
 	whToString := getWhereOptionsString(w)
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %v WHERE %v;", table, whToString)
 	return query

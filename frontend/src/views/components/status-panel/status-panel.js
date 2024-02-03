@@ -13,23 +13,30 @@ export class StatusPanel {
             provider: getUsersStatus,
         });
 
-        addEventListener("newMessage", (event) => {
-            const data = event.detail
-            let user
-            let statusItmView
-            if (data.From != app.user.username) {
-                 
-                user = getView(`user-status${data.From}`).user
-                statusItmView = getView(`status-item-${data.From}`)
-            } else {
-                
-                user = user = getView(`user-status${data.To}`).user
-                statusItmView = getView(`status-item-${data.To}`)
-            }
-            this.usersStatus.removeItemView(statusItmView)
-            this.usersStatus.prependItem(user)
+        addEventListener("newUser", (event) => {
+            this.usersStatus.refresh()
 
         })
+
+
+        addEventListener("newMessage", (event) => {
+                const data = event.detail
+                let user
+                let statusItmView
+                if (data.From != app.user.username) {
+
+                    user = getView(`user-status${data.From}`).user
+                    statusItmView = getView(`status-item-${data.From}`)
+                } else {
+
+                    user = user = getView(`user-status${data.To}`).user
+                    statusItmView = getView(`status-item-${data.To}`)
+                }
+                this.usersStatus.removeItemView(statusItmView)
+                this.usersStatus.prependItem(user)
+            
+        })
+
 
         return new Div({
             className: 'status-panel',

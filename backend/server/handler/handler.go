@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/backend/dto"
 	"forum/backend/models"
@@ -10,7 +11,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"text/template"
 )
 
 type Data struct {
@@ -75,15 +75,8 @@ func Authorization(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func RenderErrorPage(errorCode int, w http.ResponseWriter) {
-	tmpl, err := template.ParseFiles("templates/error.html")
-	if err != nil {
-		w.WriteHeader(errorCode)
-		fmt.Fprintln(w, ErrorMsgMap[errorCode])
-		return
-	}
 	w.WriteHeader(errorCode)
-	err = tmpl.Execute(w, ErrorMsgMap[errorCode])
-	fmt.Println(err)
+	json.NewEncoder(w).Encode(map[string]any{"msg": ErrorMsgMap[errorCode].Msg})
 }
 
 var ErrorMsgMap = map[int]Error{
@@ -92,6 +85,7 @@ var ErrorMsgMap = map[int]Error{
 	http.StatusInternalServerError: {http.StatusInternalServerError, "Internal Server Error"},
 	http.StatusMethodNotAllowed:    {http.StatusMethodNotAllowed, "Method Not Allowed"},
 	http.StatusUnauthorized:        {http.StatusUnauthorized, "Unauthorized"},
+	http.StatusUnprocessableEntity: {http.StatusUnprocessableEntity, "Unprocessable Entity"},
 }
 
 type Error struct {

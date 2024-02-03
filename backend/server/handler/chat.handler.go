@@ -9,25 +9,9 @@ import (
 	repo "forum/backend/server/repositories"
 	"forum/backend/server/service"
 	"net/http"
+	"strconv"
 )
 
-// func GetStatus(w http.ResponseWriter, r *http.Request) {
-// 	cors.SetCors(&w)
-// 	if r.Method == "OPTIONS" {
-// 		w.WriteHeader(200)
-// 		return
-// 	}
-// 	tokenData, err := authService.VerifyToken(r)
-// 	if err != nil {
-// 		w.WriteHeader(401)
-// 		json.NewEncoder(w).Encode(map[string]string{"msg": "unauthorized"})
-// 		return
-// 	}
-
-// 	w.WriteHeader(200)
-// 	json.NewEncoder(w).Encode(data)
-
-// }
 
 func GetStatus(w http.ResponseWriter, r *http.Request) {
 	cors.SetCors(&w)
@@ -97,8 +81,11 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	page,_ := strconv.Atoi(r.URL.Query().Get("page"))
+	
+
 	chatId := r.URL.Query().Get("chatId")
-	messages, err := repo.MessRepo.GetChatMessages(chatId)
+	messages, err := repo.MessRepo.GetChatMessages(chatId,page)
 
 	for i, message := range messages {
 		if message.Sender == tokenData.Username {

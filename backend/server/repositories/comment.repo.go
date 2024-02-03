@@ -65,7 +65,7 @@ func (r *CommentRepository) UpdateComment(comment models.Comment) error {
 }
 
 func (r *CommentRepository) GetPostComments(postId string) (comments []models.Comment, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"pst_id": opt.Equals(postId)}, "created_at DESC")
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"pst_id": opt.Equals(postId)}, "created_at DESC",nil)
 	if err != nil {
 		return comments, err
 	}
