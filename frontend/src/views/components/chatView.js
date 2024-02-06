@@ -1,5 +1,5 @@
 import { EventType, getMessages } from "../../api/api.js";
-import { debounce, getView, remView } from "../../lib/lib.js";
+import { getView, remView, throttle } from "../../lib/lib.js";
 import {
   Div,
   Image,
@@ -10,7 +10,7 @@ import {
 import { ListView } from "./ListView.js";
 import { MessageView } from "./MessageView.js";
 
-let typingStatus = false;
+let typingStatus;
 
 export class ChatView {
   constructor(prop) {
@@ -33,6 +33,15 @@ export class ChatView {
     addEventListener("newMessage", (event) => {
       const message = event.detail.Data;
       this.messageList.prependItem(message);
+    });
+    addEventListener("typing", (event) => {
+      const data = event.detail;
+      clearTimeout(typingStatus);
+      if (data.from === this.recipient.username) {
+        typingStatus = setTimeout(() => {
+          this.showTypingnotification(data.from);
+        }, 1500);
+      }
     });
   }
 
@@ -110,11 +119,10 @@ export class ChatView {
                 }),
                 new Div({
                   className: "chat-infos",
-
                   children: [
                     new Text({ text: this.recipient.username }),
                     new Div({
-                      className: "typingstatus",
+                      className: `${this.recipient.username}-typingstatus`,
                       id: "typingstatus",
                       style: {
                         display: "flex",
@@ -280,7 +288,7 @@ export class ChatView {
 
   handleInput(e) {
     const wsEvent = this.generateWsEvent();
-    debounce(() => this.sendMessage(wsEvent), 1000);
+    throttle(() => this.sendMessage(wsEvent), 1000);
   }
 
   generateWsEvent() {
@@ -298,12 +306,10 @@ export class ChatView {
   }
 
   showTypingnotification() {
-    const typingNotification = getView("typingstatus").element;
+    const typingNotification = getView(`${data.from}-typingstatus`).element;
     console.log(typingNotification);
-    typingNotification.style.display = "flex";
-    setTimeout(() => {
-      typingNotification.style.display = "none";
-    }, 1500);
+    typingNotification.style.display === "none"
+      ? (typingNotification.style.display = "flex")
+      : (typingNotification.style.display = "none");
   }
-  /*new Div({className: "loader",})*/
 }
