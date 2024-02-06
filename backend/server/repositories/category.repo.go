@@ -55,7 +55,7 @@ func (r *CatRepo) GetCategory(categoryId string) (category models.Category, err 
 
 func (r *CatRepo) GetCategories() (categories []models.Category, err error) {
 	var category models.Category
-	rows, err := r.DB.GetAllFrom(r.TableName, nil,"")
+	rows, err := r.DB.GetAllFrom(r.TableName, nil,"",nil)
 	if err != nil {
 		return categories, err
 	}

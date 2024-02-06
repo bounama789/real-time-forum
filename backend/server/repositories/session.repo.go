@@ -63,7 +63,7 @@ func (s *SessionRepository) GetSession(sessId string) (models.Session, error) {
 
 func (s *SessionRepository) GetSessionsByUserId(userId string) (sessions []models.Session, err error) {
 	var sess models.Session
-	rows, err := s.DB.GetAllFrom(s.TableName, q.WhereOption{"user_id": opt.Equals(userId)}, "created_at DESC")
+	rows, err := s.DB.GetAllFrom(s.TableName, q.WhereOption{"user_id": opt.Equals(userId)}, "created_at DESC",nil)
 	if err != nil {
 		return nil, err
 	}

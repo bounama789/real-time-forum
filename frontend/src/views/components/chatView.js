@@ -20,6 +20,9 @@ export class ChatView {
       style:{
         flexDirection:"column-reverse",
         overflowY:"scroll",
+        height: "100%",
+        width: "100%",
+        overflowX:"hidden"
       }
     });
 
@@ -82,7 +85,7 @@ export class ChatView {
                   children: [
 
                     new Image({
-                      src: "https://api.dicebear.com/7.x/avataaars/svg",
+                      src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.recipient.username}`,
                       alt: "Author avatar",
                       style: {
                         width: "32px",
@@ -187,11 +190,11 @@ export class ChatView {
                 new TextField({
                   id:"msg-input",
                   placeholder: 'type your message',
+                  multiLine: true,
                   style: {
                     fontFamily:"Open Sans",
                     height: '34px',
                     width: '100%',
-                    border: 'none',
                     outline: 'none',
                     borderRadius: '15px',
                     border: '1px solid var(--bs-blue)',

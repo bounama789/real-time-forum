@@ -88,7 +88,7 @@ func (r *UserRepository) SaveUser(user models.User) error {
 
 func (r *UserRepository) GetAllUsers() (users []models.User, err error) {
 	var user models.User
-	rows, err := r.DB.GetAllFrom(r.TableName,nil, "username")
+	rows, err := r.DB.GetAllFrom(r.TableName,nil, "username",nil)
 	if err != nil {
 		return users, err
 	}

@@ -27,7 +27,7 @@ func NotEqual(value any) string {
 		res = fmt.Sprintf("!=\"%v\" ", v)
 	} else {
 		res = fmt.Sprintf("!=%v ", value)
-	}
+		}
 	return res
 }
 
@@ -84,14 +84,6 @@ func Or(key string, value string) string {
 
 }
 
-// func Or(value any) string {
-// 	var res string
-// 	if v, ok := value.(string); ok {
-// 		res = fmt.Sprintf("OR %v ", v)
-// 	} else if v, ok := value.(uuid.UUID); ok {
-// 		res = fmt.Sprintf("OR %v ", v)
-// 	} else {
-// 		res = fmt.Sprintf("OR %v ", value)
-// 	}
-// 	return res
-// }
+func Between(start int, end int) string {
+	return fmt.Sprintf(" BETWEEN %v AND %v ", start, end)
+}

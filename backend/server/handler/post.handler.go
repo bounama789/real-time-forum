@@ -11,6 +11,7 @@ import (
 	"forum/backend/server/repositories"
 	"forum/backend/server/service"
 	"forum/backend/utils"
+	"forum/backend/ws"
 	"io"
 	"net/http"
 	"strings"
@@ -28,20 +29,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case http.MethodGet:
-		tml, err := template.ParseFiles("./templates/createpost.html", "./templates/main.html", "./templates/profile.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl := template.Must(tml, err)
-		categories, _ := repositories.CategRepo.GetCategories()
-		data := Data{
-			Categories:      categories,
-			IsAuthenticated: true,
-			Username:        tokenData.Username,
-		}
-		err = tmpl.ExecuteTemplate(w, "main", data)
-		fmt.Println(err)
+
 	case http.MethodPost:
 		err := r.ParseForm()
 		if err != nil {
@@ -49,12 +37,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		}
-		cats := strings.Split(r.URL.Query().Get("categories"), ",")
-		catsInt, err := utils.ParseArrayInt(cats)
-		if err != nil {
-			RenderErrorPage(http.StatusBadRequest, w)
-			return
-		}
+
 		body := r.Body
 		if err != nil {
 			if err == io.EOF {
@@ -70,6 +53,12 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		post.Username = tokenData.Username
 
 		err = json.NewDecoder(body).Decode(&post)
+
+		if err != nil {
+			fmt.Println(err)
+			RenderErrorPage(http.StatusInternalServerError, w)
+			return
+		}
 		post.Body = strings.ReplaceAll(post.Body, "\"", `&quot;`)
 		post.Title = strings.ReplaceAll(post.Title, "\"", `&quot;`)
 
@@ -78,24 +67,31 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err != nil {
-			fmt.Println(err)
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
 		post.UserId, err = uuid.FromString(tokenData.UserId)
 		if err != nil {
 			fmt.Println(err)
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		}
-		err = service.PostSrvice.NewPost(post, catsInt)
+		err = service.PostSrvice.NewPost(&post)
 		if err != nil {
 			fmt.Println(err)
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		} else {
-			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+			postDto := dto.PostDTO{
+				Post:          post,
+				Votes:         0,
+				CommentsCount: 0,
+			}
+			newEvent := ws.WSPaylaod{
+				Type: ws.WS_NEW_POST_EVENT,
+				Data: postDto,
+				From: tokenData.Username,
+			}
+			ws.WSHub.SSE <- newEvent
+
+			json.NewEncoder(w).Encode(map[string]any{"msg": "success", "post": postDto})
 			return
 		}
 	}
@@ -106,27 +102,9 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		tml, err := template.ParseFiles("./templates/edit.post", "./templates/main.html")
-		if err != nil {
-			RenderErrorPage(http.StatusInternalServerError, w)
-			return
-		}
-		tmpl := template.Must(tml, err)
-		categories, _ := repositories.CategRepo.GetCategories()
-		data := Data{
-			Categories:      categories,
-			IsAuthenticated: true,
-			Username:        tokenData.Username,
-		}
-		err = tmpl.ExecuteTemplate(w, "main", data)
-		fmt.Println(err)
+
 	case http.MethodPost:
-		cats := strings.Split(r.URL.Query().Get("categories"), ",")
-		catsInt, err := utils.ParseArrayInt(cats)
-		if err != nil {
-			RenderErrorPage(http.StatusBadRequest, w)
-			return
-		}
+
 		body := r.Body
 		if _, err := io.ReadAll(body); err != nil {
 			if err == io.EOF {
@@ -140,7 +118,7 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		var post models.Post
 
-		err = json.NewDecoder(body).Decode(&post)
+		err := json.NewDecoder(body).Decode(&post)
 		if err != nil {
 			fmt.Println(err)
 			RenderErrorPage(http.StatusInternalServerError, w)
@@ -152,7 +130,7 @@ func EditPostHandler(w http.ResponseWriter, r *http.Request) {
 			RenderErrorPage(http.StatusInternalServerError, w)
 			return
 		}
-		err = service.PostSrvice.NewPost(post, catsInt)
+		err = service.PostSrvice.NewPost(&post)
 		if err != nil {
 			fmt.Println(err)
 			RenderErrorPage(http.StatusInternalServerError, w)
@@ -221,26 +199,31 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case http.MethodGet:
-		liked := r.URL.Query().Get("liked")
-		order := r.URL.Query().Get("order")
-		category := r.URL.Query().Get("category")
-		created := r.URL.Query().Get("created")
-		commented := r.URL.Query().Get("commented")
-		var options = map[string]string{
-			"liked":     liked,
-			"order":     order,
-			"category":  category,
-			"created":   created,
-			"commented": commented,
-		}
-
-		var posts []dto.PostDTO
 		tokenData, err := authService.VerifyToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{"msg": "unauthorized"})
 			return
 		}
+		pageNum := r.URL.Query().Get("page")
+
+		liked := r.URL.Query().Get("liked")
+		order := r.URL.Query().Get("order")
+		category := r.URL.Query().Get("category")
+		created := r.URL.Query().Get("created")
+		commented := r.URL.Query().Get("commented")
+
+		var options = map[string]string{
+			"liked":     liked,
+			"order":     order,
+			"category":  category,
+			"created":   created,
+			"commented": commented,
+			"page":      pageNum,
+		}
+
+		var posts []dto.PostDTO
+
 		posts, _ = service.PostSrvice.GetAllPosts(tokenData, options)
 		w.WriteHeader(200)
 		json.NewEncoder(w).Encode(posts)

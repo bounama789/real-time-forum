@@ -1,5 +1,5 @@
 import { EventType } from "../../../api/api.js";
-import { getView, setView } from "../../../lib/lib.js";
+import { getView, setView, throttle } from "../../../lib/lib.js";
 import { Div, Image, Text } from "../../elements/index.js";
 
 export class StatusItemView {
@@ -93,19 +93,18 @@ export class StatusItemView {
                         }),
                     ]
                 }),
-
                 new Div({
                     style: {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "start",
-                        justifyContent: "center"
-
+                        justifyContent: "center",
                     },
                     children: [
                         new Div({
                             style: {
-                                color: "var(--bs-blue)"
+                                color: "var(--bs-blue)",
+                                fontSize:"14px"
                             },
                             children: [
                                 new Text({
@@ -117,7 +116,8 @@ export class StatusItemView {
                             id: `${this.user.username}-status-text`,
                             style: {
                                 className: "user-status-text",
-                                color: "var(--bs-blue)"
+                                color: "var(--bs-blue)",
+                                fontSize:"12px"
                             },
                             children: [
                                 new Text({
@@ -129,7 +129,7 @@ export class StatusItemView {
                 })
             ],
             listeners: {
-                onclick: () => {
+                onclick: throttle(() => {
                     const newEvent = new CustomEvent("chatOpened", { detail: this.user })
                     dispatchEvent(newEvent)
 
@@ -141,7 +141,7 @@ export class StatusItemView {
                         username: this.user.username
                     }
                     app.wsConnection.send(JSON.stringify(wsEvent))
-                }
+                },500)
             }
         })
     }

@@ -1,3 +1,14 @@
+
+-- SELECT * FROM posts ORDER BY created_at DESC LIMIT 3, 6;
+SELECT row_num
+FROM (
+  SELECT
+    username,
+    ROW_NUMBER() OVER (ORDER BY username) AS row_num
+  FROM users
+) 
+WHERE username = 'coulou789';
+
 -- SELECT * FROM posts JOIN cats_posts ON pst_id = post_id JOIN categories ON cat_id = category_id WHERE category_id=1;
 
 -- delete from sessions where sess_id = "3475e583-4846-4bf2-99bb-0fbe8c035d97"
@@ -31,4 +42,7 @@
 
 -- SELECT * FROM chats WHERE (requester_id="coulou789"  OR recipient_id="coulou789")   AND (recipient_id="jasonwatkins"  OR requester_id="jasonwatkins" )  ;
 
-SELECT COUNT(*) FROM messages WHERE (cht_id="766240ae-32a7-4857-86d9-60e0b900af98" ) AND (sender_id!="walllucas" ) AND (read=false ) ;
+-- SELECT COUNT(*) FROM messages WHERE (cht_id="766240ae-32a7-4857-86d9-60e0b900af98" ) AND (sender_id!="walllucas" ) AND (read=false ) ;
+
+-- SELECT * FROM posts ORDER BY created_at DESC LIMIT 0, 3 
+

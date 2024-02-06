@@ -47,7 +47,7 @@ export class LoginPanel {
                     listeners:{
                         onclick:()=>{
                             post("/auth/signin",this.formData).then((response)=>{
-                                if (response.msg === "success") {
+                                if (response) {
                                     localStorage.setItem("auth-token",response.authToken)
                                     const event = new CustomEvent("logged",{detail:{user:response.user}})
                                     dispatchEvent(event)

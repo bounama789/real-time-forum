@@ -83,7 +83,6 @@ export class PostCard {
                   style: {
                     fontFamily: "Open Sans",
                     fontWeight: "light",
-                    fontSize: "small",
                     fontSize: "12px",
                   },
                   children: [new Text({ text: postObject.Age })],
@@ -185,7 +184,7 @@ export class PostCard {
                             onclick: () => {
                               postReact(postObject.post_id, "LIKE").then(
                                 (response) => {
-                                  if (response.msg === "success") {
+                                  if (response) {
                                     document
                                       .getElementById(
                                         `likeIcon-${postObject.post_id}`,
@@ -226,7 +225,7 @@ export class PostCard {
                             onclick: () => {
                               postReact(postObject.post_id, "DISLIKE").then(
                                 (response) => {
-                                  if (response.msg === "success") {
+                                  if (response) {
                                     document
                                       .getElementById(
                                         `dislikeIcon-${postObject.post_id}`,
@@ -356,7 +355,7 @@ export class PostCard {
                         postObject.post_id,
                         {body:text}
                       ).then(async(response)=>{
-                        if(response.msg === "success"){
+                        if(response){
                           await commentList.fetch()
                         }
                       })

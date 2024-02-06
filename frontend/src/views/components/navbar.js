@@ -1,4 +1,6 @@
-import { Div, Nav, MaterialIcon, TextField, Text } from "../elements/index.js";
+import { logout } from "../../api/api.js";
+import { goTo } from "../../lib/pager/navigation.js";
+import { Div, Nav, MaterialIcon, TextField, Text, Image } from "../elements/index.js";
 import { Logo } from "./logo.js";
 export class Navbar {
   constructor() {
@@ -56,22 +58,57 @@ export class Navbar {
         new Div({
           className: "icon-bar",
           children: [
-            new MaterialIcon({ iconName: "home" }),
-            new MaterialIcon({ iconName: "notifications" }),
-            new MaterialIcon({ iconName: "message" }),
-            new MaterialIcon({ iconName: "person" }),
+            new MaterialIcon({ iconName: "home" }), 
             new Div({
               style:{
-                color:"var(--bs-blue)"
+                display:"flex",
+                flexDirection:'row',
+                gap:"0.5rem"
               },
               children:[
-                new Text({
-                 text: app.user.username
+                new Image({
+                  src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${app.user.username}`,
+                  alt: "Author avatar",
+                  style: {
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--bs-gray)",
+                  },
+              }),
+                new Div({
+                  style:{
+                    color:"var(--bs-blue)"
+                  },
+                  children:[
+                    new Text({
+                     text: app.user.username
+                    })
+                  ]
+                }),
+                new MaterialIcon({
+                  style:{
+                    fontSize:"16px"
+                  },
+                  className:"logout",
+                  iconName:"logout",
+                  listeners:{
+                    onclick:()=>{
+                      logout().then(response=>{
+                        if (response) {
+                          localStorage.clear();
+                          app.user = null
+                          goTo("auth")
+                        }
+                      });
+                    }
+                  }
                 })
               ]
-            })
-          ]
-        }),
+            }),
+              ]
+            }),
+           
 
       ]
     })

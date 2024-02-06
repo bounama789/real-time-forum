@@ -19,14 +19,14 @@
         let valid = false
         let path = "/"
         console.log(response);
-        if (response.msg === "success") {
+        if (response) {
           valid = true
           path = /\/auth\/\w+/.test(location.pathname) ? "/" : location.pathname
         } else {
           path = "/auth/signin"
         }
 
-        const app = new App({ container, currentPath: path, user: response.user })
+        const app = new App({ container, currentPath: path, user: response && response.user })
         window.app = app
         app.run()
 
