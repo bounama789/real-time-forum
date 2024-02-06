@@ -1,6 +1,7 @@
 import { getView } from "../lib/lib.js";
+const host = location.host
 
-const baseUrl = "http://127.0.01:8000";
+const baseUrl = "http://"+host;
 
 export async function get(path) {
   const url = baseUrl + path
@@ -60,7 +61,6 @@ export async function del(path) {
     },
   })
     .then(response => {
-      console.log(response);
       return response.json()
     })
     .then(data => data)
@@ -99,7 +99,7 @@ export async function checkSession() {
 export function setWSConnection() {
   const token = localStorage.getItem("auth-token")
   if (window.WebSocket) {
-    const socket = new WebSocket(`ws://localhost:8000/ws?token=${JSON.stringify({ token })}}`)
+    const socket = new WebSocket(`ws://${host}/ws?token=${JSON.stringify({ token })}}`)
     window.app.wsConnection = socket
   }
 
