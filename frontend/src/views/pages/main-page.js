@@ -2,7 +2,6 @@ import { getPosts } from "../../api/api.js";
 import { debounce, getView, throttle } from "../../lib/lib.js";
 import { CreatePost, ListView, PostCard } from "../components/index.js";
 import { Div, Image, Text, TextField } from "../elements/index.js";
-import { throttle, debounce } from "../../lib/lib.js";
 
 export class MainPage {
   constructor(options) {
