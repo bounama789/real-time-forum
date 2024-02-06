@@ -1,5 +1,5 @@
 import { EventType, getMessages } from "../../api/api.js";
-import { getView, remView, throttle } from "../../lib/lib.js";
+import { debounce, getView, remView } from "../../lib/lib.js";
 import {
   Div,
   Image,
@@ -9,6 +9,8 @@ import {
 } from "../elements/index.js";
 import { ListView } from "./ListView.js";
 import { MessageView } from "./MessageView.js";
+
+let typingStatus = false;
 
 export class ChatView {
   constructor(prop) {
@@ -81,7 +83,7 @@ export class ChatView {
                   },
                   children: [
                     new Image({
-                      src: "https://api.dicebear.com/7.x/avataaars/svg",
+                      src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.recipient.username}`,
                       alt: "Author avatar",
                       style: {
                         width: "32px",
@@ -108,7 +110,21 @@ export class ChatView {
                 }),
                 new Div({
                   className: "chat-infos",
-                  children: [new Text({ text: this.recipient.username })],
+
+                  children: [
+                    new Text({ text: this.recipient.username }),
+                    new Div({
+                      className: "typingstatus",
+                      id: "typingstatus",
+                      style: {
+                        display: "flex",
+                        color: "var(--bs-blue)",
+                        fontSize: "1rem",
+                        bottom: "0",
+                      },
+                      children: [new Text({ text: "typing..." })],
+                    }),
+                  ],
                 }),
               ],
 
@@ -261,9 +277,10 @@ export class ChatView {
       // div.style.visibility = "hidden"
     }
   }
+
   handleInput(e) {
     const wsEvent = this.generateWsEvent();
-    throttle(() => this.sendMessage(wsEvent), 1000);
+    debounce(() => this.sendMessage(wsEvent), 1000);
   }
 
   generateWsEvent() {
@@ -281,7 +298,8 @@ export class ChatView {
   }
 
   showTypingnotification() {
-    const typingNotification = getView("loader").element;
+    const typingNotification = getView("typingstatus").element;
+    console.log(typingNotification);
     typingNotification.style.display = "flex";
     setTimeout(() => {
       typingNotification.style.display = "none";
