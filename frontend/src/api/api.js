@@ -1,6 +1,6 @@
 import { getView } from "../lib/lib.js";
 
-const baseUrl = "http://127.0.01:8000";
+const baseUrl = "http://172.19.183.167:8000";
 
 export async function get(path) {
   const url = baseUrl + path;
@@ -155,7 +155,7 @@ function setStatusOffline(username) {
   }
 }
 
-function isTyping(username) {
+function setTypingStatus(username) {
   const text = getView(`${username}-status-text`).element;
   text.innerText = "typing...";
 }
