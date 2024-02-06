@@ -32,7 +32,6 @@ export class MainPage {
       },500)
         if (isAtBottom()) {
           postList.fetchMoreItems()
-          console.log("bottom reached");
         }
     });
 
@@ -77,7 +76,7 @@ export class MainPage {
               },
               children: [
                 new Image({
-                  src: "https://api.dicebear.com/7.x/avataaars/svg",
+                  src: `https://api.dicebear.com/7.x/avataaars/svg?seed=${app.user.username}`,
                   alt: "New Post",
                   style: {
                     width: "48px",
@@ -94,7 +93,6 @@ export class MainPage {
                   },
                   listeners: {
                     onfocus: () => {
-                      console.log("focused");
                       const createPostView = getView("createPost")
                       createPostView.show();
                     }
