@@ -1,13 +1,14 @@
 
+-- delete from users where username="JDJDSDSDK";
 -- SELECT * FROM posts ORDER BY created_at DESC LIMIT 3, 6;
-SELECT row_num
-FROM (
-  SELECT
-    username,
-    ROW_NUMBER() OVER (ORDER BY username) AS row_num
-  FROM users
-) 
-WHERE username = 'coulou789';
+-- SELECT row_num
+-- FROM (
+--   SELECT
+--     username,
+--     ROW_NUMBER() OVER (ORDER BY username) AS row_num
+--   FROM users
+-- ) 
+-- WHERE username = 'coulou789';
 
 -- SELECT * FROM posts JOIN cats_posts ON pst_id = post_id JOIN categories ON cat_id = category_id WHERE category_id=1;
 

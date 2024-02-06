@@ -1,4 +1,4 @@
-import { EventType, getMessages } from "../../api/api.js";
+import { EventType, checkSession, getMessages } from "../../api/api.js";
 import { getView, remView } from "../../lib/lib.js";
 import { Div, Image, MaterialIcon, Text, TextField } from "../elements/index.js";
 import { MessageView } from "./MessageView.js";
@@ -234,19 +234,24 @@ export class ChatView {
     return getView("msg-input").element.value
   }
 
-  send(){
+  async send(){
     const text =  this.getInput.trim()
 
     if (text != "") {
-      const wsEvent = {
-        type:EventType.WS_MESSAGE_EVENT,
-        to:this.recipient.username,
-        content: text,
-        time: new Date(Date.now()).toString(),
-        chatId: this.chat.chat_id 
-      }
-      app.wsConnection.send(JSON.stringify(wsEvent))
-      this.resetInput()
+      checkSession().then((response) => {
+        if (response){
+          const wsEvent = {
+            type:EventType.WS_MESSAGE_EVENT,
+            to:this.recipient.username,
+            content: text,
+            time: new Date(Date.now()).toString(),
+            chatId: this.chat.chat_id,
+            authToken: authToken
+          }
+          app.wsConnection.send(JSON.stringify(wsEvent))
+          this.resetInput()
+        }
+      })
     }
   }
 
