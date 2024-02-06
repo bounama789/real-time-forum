@@ -151,15 +151,12 @@ export class CreatePost {
               formData.forEach((value, key) => {
                 data[key] = value;
               });
-              console.log(data); // This will log the form data as an object
-              // Now you can use the 'data' object as needed
               createPost(data).then(response=>{
                 if (response) {
-                  console.log(response.post);
                   dispatchEvent(new CustomEvent("newPost",{detail:response.post}))
                   this.hide()
                 }
-              }); // Example: Pass the form data to the createPost function
+              }); 
             },
           },
         }),

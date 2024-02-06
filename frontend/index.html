@@ -18,7 +18,6 @@
       await checkSession().then(response => {
         let valid = false
         let path = "/"
-        console.log(response);
         if (response) {
           valid = true
           path = /\/auth\/\w+/.test(location.pathname) ? "/" : location.pathname

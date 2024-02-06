@@ -270,7 +270,3 @@ const data = {
     },
   ],
 };
-
-// data.data.forEach((post) => {
-//   console.log(post.author);
-// });

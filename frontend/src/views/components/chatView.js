@@ -256,7 +256,6 @@ export class ChatView {
 
   toggleDisplay() {
     let div = getView(`chatContainer${this.chat.chat_id}`).element;
-    console.log(getView(`chatContainer${this.chat.chat_id}`));
     if (div.style.maxHeight === '0px') {
       div.style.maxHeight = "55vh"
       div.style.height = "55vh"

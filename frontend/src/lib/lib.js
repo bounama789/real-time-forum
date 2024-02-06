@@ -6,7 +6,6 @@ const ViewElement = {
 
 
 export function getView(viewId){
-    console.log(ViewElement);
     return ViewElement.views.get(viewId);
 }
 
