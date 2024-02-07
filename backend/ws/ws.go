@@ -18,9 +18,9 @@ const (
 	WS_DISCONNECT_EVENT = "disconnect-event"
 	WS_MESSAGE_EVENT    = "msg-event"
 	WS_READ_EVENT       = "read-event"
-	WS_NEW_POST_EVENT = "new-post-event"
-	WS_NEW_USER_EVENT = "new-user-event"
-
+	WS_NEW_POST_EVENT   = "new-post-event"
+	WS_NEW_USER_EVENT   = "new-user-event"
+	WS_TYPING_EVENT     = "typing-event"
 )
 
 type Hub struct {
@@ -55,7 +55,7 @@ func newHub() *Hub {
 		Clients:           &sync.Map{},
 		RegisterChannel:   make(chan *WSClient),
 		UnRegisterChannel: make(chan *WSClient),
-		SSE: make(chan WSPaylaod),
+		SSE:               make(chan WSPaylaod),
 	}
 }
 
@@ -196,6 +196,30 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 				return
 			}
 		}
+	case WS_TYPING_EVENT:
+		data := eventPayload.Data.(map[string]any)
+		to := data["to"].(string)
+		from := eventPayload.From
+
+		var client *WSClient
+		var event = WSPaylaod{
+			Type: WS_TYPING_EVENT,
+			From: from,
+			Data: data,
+			To:   to,
+		}
+		c, ok := WSHub.Clients.Load(to)
+		if ok {
+			client = c.(*WSClient)
+			client.OutgoingMsg <- event
+		}
+
+		sender, ok := wsHub.Clients.Load(eventPayload.From)
+		if ok {
+			senderClient := sender.(*WSClient)
+			senderClient.OutgoingMsg <- event
+		}
+
 	}
 }
 
