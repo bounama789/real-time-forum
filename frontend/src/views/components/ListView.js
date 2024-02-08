@@ -11,15 +11,22 @@ import { Div } from "../elements/index.js";
  * @returns {Div} The container element for the ListView.
  */
 export class ListView {
-  constructor({ id, items = [], itemView, provider = async () => { }, providerParams = {}, style = {} } = {}) {
+  constructor({
+    id,
+    items = [],
+    itemView,
+    provider = async () => {},
+    providerParams = {},
+    style = {},
+  } = {}) {
     this.page = 0;
 
-    this.id = id
+    this.id = id;
 
     /**
      * @type {Array}
      */
-    this.items = items
+    this.items = items;
 
     /**
      * @type {View}
@@ -28,9 +35,9 @@ export class ListView {
 
     this.provider = provider;
 
-    this.providerParams = providerParams
+    this.providerParams = providerParams;
 
-    this.refreshing = false
+    this.refreshing = false;
 
     /**
      * @type {Div}
@@ -41,54 +48,53 @@ export class ListView {
       style: style,
     });
 
-    this.listContainer.element.addEventListener("scrollend",(event)=>{
+    this.listContainer.element.addEventListener("scrollend", (event) => {
       if (this.isScrollAtBottom()) {
-       this.fetchMoreItems()
+        this.fetchMoreItems();
       }
-    })
+    });
 
-    let query = ""
+    let query = "";
 
     for (const key in this.providerParams) {
       if (Object.hasOwnProperty.call(this.providerParams, key)) {
-
-        if (query = ! "") {
-          query += "&"
+        if ((query = !"")) {
+          query += "&";
         }
         const value = this.providerParams[key];
         query += `${key}=${value}`;
       }
     }
 
-    this.providerQueries = query
+    this.providerQueries = query;
 
+    this.fetch(query);
 
-    this.fetch(query)
-
-    setView(this)
-
+    setView(this);
   }
 
   /**
- * Checks if the scroll is at the bottom of the list container.
- * @returns {boolean} True if the scroll is at the bottom, false otherwise.
- */
-isScrollAtBottom = throttle(() => {
-  const elem = this.listContainer.element;
-  return elem.scrollHeight -Math.abs(elem.scrollTop)  === elem.clientHeight;
-},300)
+   * Checks if the scroll is at the bottom of the list container.
+   * @returns {boolean} True if the scroll is at the bottom, false otherwise.
+   */
+  isScrollAtBottom = throttle(() => {
+    const elem = this.listContainer.element;
+    return elem.scrollHeight - Math.abs(elem.scrollTop) === elem.clientHeight;
+  }, 300);
 
   async fetch() {
-
-    const query = this.providerQueries !== "" ? this.providerQueries + `&page=${this.page}` : `page=${this.page}`
+    const query =
+      this.providerQueries !== ""
+        ? this.providerQueries + `&page=${this.page}`
+        : `page=${this.page}`;
     await this.provider(query).then((response) => {
-      response = response || []
+      response = response || [];
 
       // Add the items to the list
       response.forEach((item) => {
         this.addItem(item);
       });
-    })
+    });
   }
 
   /**
@@ -117,22 +123,25 @@ isScrollAtBottom = throttle(() => {
     this.listContainer.removeChild(itemView);
   }
 
-  async refresh(){
-    this.refreshing=true
-    this.listContainer.element.innerHTML = ""
-    this.items = []
-    this.page = 0
-    await this.fetch().then(()=>this.refreshing=false)
+  async refresh() {
+    this.refreshing = true;
+    this.listContainer.element.innerHTML = "";
+    this.items = [];
+    this.page = 0;
+    await this.fetch().then(() => (this.refreshing = false));
   }
 
   fetchMoreItems = debounce(() => {
     this.page++;
-    const query = this.providerQueries !== "" ? this.providerQueries + `&page=${this.page}` : `page=${this.page}`
+    const query =
+      this.providerQueries !== ""
+        ? this.providerQueries + `&page=${this.page}`
+        : `page=${this.page}`;
     this.provider(query).then((response) => {
-      response = response || []
+      response = response || [];
       response.forEach((item) => {
         this.addItem(item);
       });
-    })
-  }, 500)
+    });
+  }, 500);
 }
