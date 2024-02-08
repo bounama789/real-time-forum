@@ -9,6 +9,7 @@ import (
 	"forum/backend/server/service"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -68,7 +69,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			w.WriteHeader(http.StatusCreated)
-			json.NewEncoder(w).Encode(map[string]any{"msg":"success"})
+			json.NewEncoder(w).Encode(map[string]any{"msg": "success"})
 		}
 	}
 }
@@ -146,7 +147,7 @@ func DeleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			postId := r.URL.Query().Get("postid")
 			tokenData, _ := authService.VerifyToken(r)
-			comments, _ := service.ComSrvice.GetCommentsByPostId(postId, tokenData)
+			comments, _ := service.ComSrvice.GetCommentsByPostId(postId, tokenData,0)
 			data := Data{
 				Username: tokenData.Username,
 				Comments: comments,
@@ -173,8 +174,9 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		postId := r.URL.Query().Get("postid")
 		tokenData, _ := authService.VerifyToken(r)
-		comments, _ := service.ComSrvice.GetCommentsByPostId(postId, tokenData)
-		
+		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		comments, _ := service.ComSrvice.GetCommentsByPostId(postId, tokenData, page)
+
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(comments)
 	}

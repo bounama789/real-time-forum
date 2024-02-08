@@ -23,7 +23,7 @@ export class PostCard {
         postid: postObject.post_id,
       },
       style: {
-        height: "auto",
+        height: "300px",
         overflowY: "scroll",
       },
     });
@@ -356,6 +356,7 @@ export class PostCard {
                         {body:text}
                       ).then(async(response)=>{
                         if(response){
+                          commentList.page = 0
                           await commentList.fetch()
                         }
                       })

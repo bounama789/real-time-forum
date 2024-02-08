@@ -90,8 +90,8 @@ func (commentService *CommentService) GetCommentVotes(commentId string) (int,err
 	return c,nil
 }
 
-func (commentService *CommentService) GetCommentsByPostId(postId string,t models.TokenData) (comments []dto.CommentDTO,err error){
-	comms,err := commentService.CommentRepo.GetPostComments(postId)
+func (commentService *CommentService) GetCommentsByPostId(postId string,t models.TokenData,page int) (comments []dto.CommentDTO,err error){
+	comms,err := commentService.CommentRepo.GetPostComments(postId,page)
 	if err != nil {
 		return []dto.CommentDTO{}, err
 	}

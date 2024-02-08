@@ -22,11 +22,16 @@
           valid = true
           path = /\/auth\/\w+/.test(location.pathname) ? "/" : location.pathname
         } else {
-          path = "/auth/signin"
+          path = /\/auth\/\w+/.test(location.pathname) ? location.pathname : "/auth/signin"
         }
 
-        const app = new App({ container, currentPath: path, user: response && response.user })
+        const app = new App({
+          container,
+          currentPath: path,
+          user: response && response.user
+        })
         window.app = app
+        
         app.run()
 
         if (valid) {

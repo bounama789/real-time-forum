@@ -16,14 +16,10 @@ export class AuthPage {
         if (/\/auth\/\w+/.test(location.pathname)) {
             this.currentPanel.element.style.display = "flex"
         }
-        addEventListener("load", () => {
-            this.setDefaultPanel()
-        })
 
         setPage(this)
     }
     get element() {
-
         return new AuthLayout({
             style: {
                 width: '100M',
@@ -67,9 +63,9 @@ export class AuthPage {
                                     children: [
                                         new Div({
                                             id: "login-label",
-                                            className: `auth-label ${this.currentPanel=== this.loginPanel && "active"}`,
+                                            className: `auth-label ${this.currentPanel.id === "loginPanel" && "active"}`,
                                             style: {
-                                                backgroundColor:this.currentPanel === this.loginPanel && "var(--bs-blue)",
+                                                backgroundColor: this.currentPanel.id === "loginPanel" && "var(--bs-blue)",
                                                 flex: 2,
                                                 textAlign: "center",
                                                 padding: "1rem"
@@ -88,11 +84,12 @@ export class AuthPage {
                                         }),
                                         new Div({
                                             id: "register-label",
-                                            className: `auth-label ${this.currentPanel=== this.signupPanel && "active"}`,
+                                            className: `auth-label ${this.currentPanel.id === "signupPanel" && "active"}`,
                                             style: {
                                                 flex: 2,
                                                 textAlign: "center",
-                                                padding: "1rem"
+                                                padding: "1rem",
+                                                backgroundColor: this.currentPanel.id === "signupPanel" && "var(--bs-blue)"
                                             }, children: [new Text({ text: "Register" })],
                                             listeners: {
                                                 onclick: () => {

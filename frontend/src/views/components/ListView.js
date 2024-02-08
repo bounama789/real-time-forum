@@ -50,7 +50,7 @@ export class ListView {
 
     this.listContainer.element.addEventListener("scrollend", (event) => {
       if (this.isScrollAtBottom()) {
-        this.fetchMoreItems();
+        this.fetchMoreItems()
       }
     });
 
@@ -74,13 +74,13 @@ export class ListView {
   }
 
   /**
-   * Checks if the scroll is at the bottom of the list container.
-   * @returns {boolean} True if the scroll is at the bottom, false otherwise.
-   */
+ * Checks if the scroll is at the bottom of the list container.
+ * @returns {boolean} True if the scroll is at the bottom, false otherwise.
+ */
   isScrollAtBottom = throttle(() => {
     const elem = this.listContainer.element;
     return elem.scrollHeight - Math.abs(elem.scrollTop) === elem.clientHeight;
-  }, 300);
+  }, 300)
 
   async fetch() {
     const query =
@@ -88,7 +88,10 @@ export class ListView {
         ? this.providerQueries + `&page=${this.page}`
         : `page=${this.page}`;
     await this.provider(query).then((response) => {
-      response = response || [];
+      this.listContainer.element.innerHTML = ""
+      this.items = []
+      this.page = 0
+      response = response || []
 
       // Add the items to the list
       response.forEach((item) => {
@@ -124,11 +127,11 @@ export class ListView {
   }
 
   async refresh() {
-    this.refreshing = true;
-    this.listContainer.element.innerHTML = "";
-    this.items = [];
-    this.page = 0;
-    await this.fetch().then(() => (this.refreshing = false));
+    this.refreshing = true
+    this.listContainer.element.innerHTML = ""
+    this.items = []
+    this.page = 0
+    await this.fetch().then(() => this.refreshing = false)
   }
 
   fetchMoreItems = debounce(() => {

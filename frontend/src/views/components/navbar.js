@@ -87,9 +87,6 @@ export class Navbar {
                   ]
                 }),
                 new MaterialIcon({
-                  style:{
-                    fontSize:"16px"
-                  },
                   className:"logout",
                   iconName:"logout",
                   listeners:{

@@ -260,6 +260,9 @@ export class ChatView {
             content: text,
             time: new Date(Date.now()).toString(),
             chatId: this.chat.chat_id,
+          }
+          app.wsConnection.send(JSON.stringify(wsEvent))
+          this.resetInput()
           };
           app.wsConnection.send(JSON.stringify(wsEvent));
           this.resetInput();

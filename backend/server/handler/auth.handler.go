@@ -213,6 +213,7 @@ func SignOutHandler(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		RenderErrorPage(http.StatusMethodNotAllowed, w)
+		return
 	}
 }
 

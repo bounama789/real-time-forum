@@ -64,8 +64,10 @@ func (r *CommentRepository) UpdateComment(comment models.Comment) error {
 	return nil
 }
 
-func (r *CommentRepository) GetPostComments(postId string) (comments []models.Comment, err error) {
-	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"pst_id": opt.Equals(postId)}, "created_at DESC",nil)
+func (r *CommentRepository) GetPostComments(postId string,page int) (comments []models.Comment, err error) {
+	limit := 10
+	offset := page*limit
+	rows, err := r.DB.GetAllFrom(r.TableName, q.WhereOption{"pst_id": opt.Equals(postId)}, "created_at DESC",[]int{offset,limit})
 	if err != nil {
 		return comments, err
 	}
