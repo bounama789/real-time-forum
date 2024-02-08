@@ -14,6 +14,7 @@ export class ChatView {
   constructor(prop) {
     this.chat = prop.chat;
     this.recipient = prop.user;
+    this.recipient = prop.user;
 
     this.messageList = new ListView({
       id: `messageList${this.chat.chat_id}`,
@@ -21,47 +22,41 @@ export class ChatView {
       provider: getMessages,
       providerParams: {
         chatId: this.chat.chat_id,
+        chatId: this.chat.chat_id,
       },
       style: {
         flexDirection: "column-reverse",
         overflowY: "scroll",
-        height: "100%",
-        width: "100%",
+        style: {
+          flexDirection: "column-reverse",
+          overflowY: "scroll",
+          height: "100%",
+          width: "100%",
+          overflowX: "hidden",
+        },
         overflowX: "hidden",
       },
     });
 
     addEventListener("newMessage", (event) => {
       const message = event.detail.Data;
-      if (message.cht_id === this.chat.chat_id) {
-        this.messageList.prependItem(message);
-      }
-    });
-    addEventListener("typing", (event) => {
-      const data = event.detail;
-      console.log(data);
-      if (data.chat_id == this.chat.chat_id) {
-        const typingstatus = getView(
-          `chat-${this.recipient.username}-status-dot`
-        );
-        typingstatus.style.display = "flex";
-        setTimeout(() => {
-          typingstatus.style.display = "none";
-        }, 1500);
-      }
+      this.messageList.prependItem(message);
     });
   }
 
   get element() {
     return new Div({
       id: "chat" + this.recipient.username,
+      id: "chat" + this.recipient.username,
       className: "chat-container",
       style: {
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        position: "relative",
         width: "360px",
         boxShadow: "20px 0px 15px -23px rgba(0,0,0,0.1)",
+        maxHeight: "55vh",
         maxHeight: "55vh",
         backgroundColor: "aliceblue",
       },
@@ -69,7 +64,9 @@ export class ChatView {
         new Div({
           id: `chatHeader${this.recipient.username}`,
           className: "chat-header",
+          className: "chat-header",
           style: {
+            backgroundColor: "rgb(190, 217, 236)",
             backgroundColor: "rgb(190, 217, 236)",
             display: "flex",
             flexDirection: "row",
@@ -80,10 +77,14 @@ export class ChatView {
             borderTopLeftRadius: "10px",
             borderTopRightRadius: "10px",
             transition: "max-height 0.5s ease-out",
+            transition: "max-height 0.5s ease-out",
           },
           children: [
             new Div({
               style: {
+                display: "flex",
+                flexDirection: "row",
+                width: "100%",
                 display: "flex",
                 flexDirection: "row",
                 width: "100%",
@@ -209,13 +210,6 @@ export class ChatView {
                     border: "1px solid var(--bs-blue)",
                     padding: "10px",
                   },
-                  listeners: {
-                    oninput: () => {
-                      throttle(() => {
-                        this.handleInput();
-                      });
-                    },
-                  },
                 }),
                 new MaterialIcon({
                   iconName: "send",
@@ -260,12 +254,12 @@ export class ChatView {
             content: text,
             time: new Date(Date.now()).toString(),
             chatId: this.chat.chat_id,
-          }
-          app.wsConnection.send(JSON.stringify(wsEvent))
-          this.resetInput()
+            authToken: authToken,
           };
+          app.wsConnection.send(JSON.stringify(wsEvent));
+          this.resetInput();
         }
-      );
+      });
     }
   }
 
@@ -286,6 +280,35 @@ export class ChatView {
       div.style.height = "0px";
       div.style.display = "none";
       // div.style.visibility = "hidden"
+    }
+  }
+  handleInput = throttle((e) => {
+    console.log("typing");
+    const wsEvent = this.generateWsEvent();
+    this.sendMessage(wsEvent);
+  }, 1000);
+  generateWsEvent() {
+    return {
+      type: EventType.WS_TYPING_EVENT,
+      to: this.recipient.username,
+      from: app.user.username,
+      content: "",
+      time: new Date(Date.now()).toString(),
+    };
+  }
+  sendMessage(wsEvent) {
+    app.wsConnection.send(JSON.stringify(wsEvent));
+  }
+  showTypingnotification() {
+    const typingNotification = getView(
+      `${this.recipient.username}-typingstatus`
+    );
+    if (typingNotification !== undefined) {
+      const elem = typingNotification.element;
+      console.log(elem);
+      elem.style.display === "none"
+        ? (elem.style.display = "flex")
+        : (elem.style.display = "none");
     }
   }
 }
