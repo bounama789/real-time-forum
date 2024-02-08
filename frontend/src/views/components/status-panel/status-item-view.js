@@ -144,11 +144,4 @@ export class StatusItemView {
       },
     });
   }
-  showTypingnotification() {
-    const text = getView(`${this.user.username}-status-text`).element;
-    text.innerText = "typing...";
-    setTimeout(() => {
-      text.innerText = this.user.status;
-    }, 5000);
-  }
 }

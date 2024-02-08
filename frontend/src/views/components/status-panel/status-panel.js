@@ -31,12 +31,6 @@ export class StatusPanel {
       this.usersStatus.prependItem(user);
     });
 
-    addEventListener("typing", (event) => {
-      const data = event.detail;
-      const statusItmView = getView(`status-item-${data.from}`);
-      statusItmView.showTypingnotification();
-    });
-
     return new Div({
       className: "status-panel",
       style: {

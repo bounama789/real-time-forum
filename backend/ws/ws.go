@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"forum/backend/config"
 	"forum/backend/models"
 	repo "forum/backend/server/repositories"
@@ -197,10 +198,11 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			}
 		}
 	case WS_TYPING_EVENT:
+		//on recupere l'event typing et on le renvoie au chat correspondant
 		data := eventPayload.Data.(map[string]any)
 		to := data["to"].(string)
 		from := eventPayload.From
-
+		fmt.Println(data, to, from)
 		var client *WSClient
 		var event = WSPaylaod{
 			Type: WS_TYPING_EVENT,
@@ -219,7 +221,6 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			senderClient := sender.(*WSClient)
 			senderClient.OutgoingMsg <- event
 		}
-
 	}
 }
 

@@ -130,7 +130,7 @@ export class ChatView {
                         fontSize: "1rem",
                         bottom: "0",
                       },
-                      children: [new Text({ text: "typing..." })],
+                      children: [new Text({ text: "is typing..." })],
                     }),
                   ],
                 }),
@@ -291,6 +291,7 @@ export class ChatView {
     }
   }
   handleInput(e) {
+    console.log("typing");
     const wsEvent = this.generateWsEvent();
     throttle(() => this.sendMessage(wsEvent), 1000);
   }
@@ -298,6 +299,7 @@ export class ChatView {
     return {
       type: EventType.WS_TYPING_EVENT,
       to: this.recipient.username,
+      from: app.user.username,
       content: "",
       time: new Date(Date.now()).toString(),
       chatId: this.chat.chat_id,
@@ -307,7 +309,9 @@ export class ChatView {
     app.wsConnection.send(JSON.stringify(wsEvent));
   }
   showTypingnotification() {
-    const typingNotification = getView(`${data.from}-typingstatus`).element;
+    const typingNotification = getView(
+      `${this.recipient.username}-typingstatus`
+    ).element;
     console.log(typingNotification);
     typingNotification.style.display === "none"
       ? (typingNotification.style.display = "flex")
