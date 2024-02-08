@@ -38,10 +38,11 @@ export class ChatView {
     addEventListener("typing", (event) => {
       const data = event.detail;
       let typingstatus;
-      if (data.to === this.recipient.username) {
+      const valid = data.From === this.recipient.username;
+      if (valid) {
         typingstatus = setTimeout(() => {
-          clearTimeout(typingstatus);
           this.showTypingnotification();
+          clearTimeout(typingstatus);
         }, 1500);
       }
     });
@@ -124,8 +125,7 @@ export class ChatView {
                   children: [
                     new Text({ text: this.recipient.username }),
                     new Div({
-                      className: `${this.recipient.username}-typingstatus`,
-                      id: "typingstatus",
+                      id: `${this.recipient.username}-typingstatus`,
                       style: {
                         display: "none",
                         color: "var(--bs-blue)",
@@ -218,7 +218,7 @@ export class ChatView {
                     padding: "10px",
                   },
                   listeners: {
-                    oninput: (e) => throttle(() => this.handleInput(e), 1000),
+                    oninput: (e) => this.handleInput(e),
                   },
                 }),
                 new MaterialIcon({
@@ -292,11 +292,11 @@ export class ChatView {
       // div.style.visibility = "hidden"
     }
   }
-  handleInput(e) {
+  handleInput = throttle((e) => {
     console.log("typing");
     const wsEvent = this.generateWsEvent();
-    throttle(() => this.sendMessage(wsEvent), 1000);
-  }
+    this.sendMessage(wsEvent);
+  }, 1000);
   generateWsEvent() {
     return {
       type: EventType.WS_TYPING_EVENT,
@@ -312,10 +312,13 @@ export class ChatView {
   showTypingnotification() {
     const typingNotification = getView(
       `${this.recipient.username}-typingstatus`
-    ).element;
-    console.log(typingNotification);
-    typingNotification.style.display === "none"
-      ? (typingNotification.style.display = "flex")
-      : (typingNotification.style.display = "none");
+    );
+    if (typingNotification !== undefined) {
+      const elem = typingNotification.element;
+      console.log(elem);
+      elem.style.display === "none"
+        ? (elem.style.display = "flex")
+        : (elem.style.display = "none");
+    }
   }
 }
