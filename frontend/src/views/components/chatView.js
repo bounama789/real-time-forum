@@ -264,10 +264,8 @@ export class ChatView {
           app.wsConnection.send(JSON.stringify(wsEvent))
           this.resetInput()
           };
-          app.wsConnection.send(JSON.stringify(wsEvent));
-          this.resetInput();
         }
-      });
+      );
     }
   }
 
