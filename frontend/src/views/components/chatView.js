@@ -1,5 +1,5 @@
 import { EventType, checkSession, getMessages } from "../../api/api.js";
-import { getView, remView } from "../../lib/lib.js";
+import { getView, remView, throttle } from "../../lib/lib.js";
 import {
   Div,
   Image,
@@ -37,8 +37,10 @@ export class ChatView {
     });
     addEventListener("typing", (event) => {
       const data = event.detail;
+      let typingstatus;
       if (data.to === this.recipient.username) {
         typingstatus = setTimeout(() => {
+          clearTimeout(typingstatus);
           this.showTypingnotification();
         }, 1500);
       }
@@ -216,7 +218,7 @@ export class ChatView {
                     padding: "10px",
                   },
                   listeners: {
-                    oninput: (e) => this.handleInput(e),
+                    oninput: (e) => throttle(() => this.handleInput(e), 1000),
                   },
                 }),
                 new MaterialIcon({
@@ -302,7 +304,6 @@ export class ChatView {
       from: app.user.username,
       content: "",
       time: new Date(Date.now()).toString(),
-      chatId: this.chat.chat_id,
     };
   }
   sendMessage(wsEvent) {

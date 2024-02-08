@@ -215,12 +215,6 @@ func (wsHub *Hub) HandleEvent(eventPayload WSPaylaod) {
 			client = c.(*WSClient)
 			client.OutgoingMsg <- event
 		}
-
-		sender, ok := wsHub.Clients.Load(eventPayload.From)
-		if ok {
-			senderClient := sender.(*WSClient)
-			senderClient.OutgoingMsg <- event
-		}
 	}
 }
 
