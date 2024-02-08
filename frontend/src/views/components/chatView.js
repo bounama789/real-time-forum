@@ -1,5 +1,5 @@
 import { EventType, checkSession, getMessages } from "../../api/api.js";
-import { getView, remView } from "../../lib/lib.js";
+import { getView, remView, throttle } from "../../lib/lib.js";
 import {
   Div,
   Image,
